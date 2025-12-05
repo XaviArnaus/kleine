@@ -6,10 +6,15 @@ authors = [
     {name = "Xavi"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10,<4.0"
 dependencies = [
-    "pillow (>=12.0.0,<13.0.0)"
+    "pillow (>=12.0.0,<13.0.0)",
+    "pyxavi (>=1.3.0)",
+    "python-dotenv (>=1.1)"
 ]
+
+[tool.poetry.scripts]
+main = "runner:run"
 
 
 [build-system]

@@ -1,0 +1,15 @@
+###########################
+#         Kleine          #
+###########################
+
+# App Info
+app:
+  # Application name
+  name: "Kleine"
+
+
+# Filesystem definition
+storage:
+  # [String] Where, from the root of the project
+  path: "storage/"
+  
