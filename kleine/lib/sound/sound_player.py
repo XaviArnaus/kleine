@@ -133,40 +133,51 @@ class SoundPlayer(PyXavi):
         """
         Play loaded sound by name
         """
-        if name is None:
-            name = "default"
-        self._xlog.debug(f"Playing sound: {name}")
+        try:
+            if name is None:
+                name = "default"
+            self._xlog.debug(f"Playing sound: {name}")
 
-        if name not in self.loaded_sound:
-            self._xlog.error(f"Sound {name} not loaded.")
-            return
-        
-        # Stop if already playing, or ignore depending on the flag.
-        if self.is_playing(name=name):
-            self._xlog.debug(f"Sound {name} is already playing.")
-            if interrupt_if_playing:
-                self._xlog.debug(f"Stopping sound {name}.")
-                self.stop(name=name)
-            else:
+            if name not in self.loaded_sound:
+                self._xlog.error(f"Sound {name} not loaded.")
                 return
+            
+            # Stop if already playing, or ignore depending on the flag.
+            if self.is_playing(name=name):
+                self._xlog.debug(f"Sound {name} is already playing.")
+                if interrupt_if_playing:
+                    self._xlog.debug(f"Stopping sound {name}.")
+                    self.stop(name=name)
+                else:
+                    return
 
-        # Play sound
-        self._is_playing[name] = True
-        self._xlog.debug(f"Playing sound: {name}")
-        self.driver.write(self.loaded_sound[name]["data"])
-        self._xlog.debug(f"Sound {name} playback completed.")
-        self._is_playing[name] = False
+            # Play sound
+            self._is_playing[name] = True
+            self._xlog.debug(f"Playing sound: {name}")
+            self.driver.write(self.loaded_sound[name]["data"])
+            self._xlog.debug(f"Sound {name} playback completed.")
+            self._is_playing[name] = False
+        except Exception as e:
+            self._xlog.error(f"Failed to play sound {name}: {e}")
+            self._is_playing[name] = False
+            raise e
     
     def stop(self, name: str = None):
         """
         Stop playing sound by name
         """
-        if name is None:
-            name = "default"
+        try:
+            if name is None:
+                name = "default"
 
-        self.driver.stop(ignore_errors=False)
-        self._is_playing[name] = False
-    
+                self.driver.stop(ignore_errors=False)
+                self._is_playing[name] = False
+
+        except Exception as e:
+            self._xlog.error(f"Failed to stop sound {name}: {e}")
+            self._is_playing[name] = False
+            raise e
+
     def close(self):
         """
         Close the sound device and empties the loaded data
