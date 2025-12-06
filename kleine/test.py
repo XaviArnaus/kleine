@@ -13,9 +13,11 @@ from kleine.lib.Whisplay.WhisPlay import WhisPlayBoard
 
 class Test(PyXavi):
 
+    CARD_ID = 0
     CARD_NAME = 'wm8960soundcard'
     CONTROL_NAME = 'Speaker'
-    DEVICE_ARG = f'hw:{CARD_NAME}'
+    # DEVICE_ARG = f'hw:{CARD_NAME}'
+    DEVICE_ARG = f'hw:{CARD_ID},0'
 
     VENDOR_PATH =  f"{ROOT_DIR}/vendor/pisugar/example/"
 
@@ -33,7 +35,7 @@ class Test(PyXavi):
         self.board = WhisPlayBoard()
         self.board.set_backlight(50)
         # Initialize pygame mixer
-        pygame.mixer.init(devicename=0, frequency=44100, size=-16, channels=2, buffer=512)
+        pygame.mixer.init(devicename=self.CARD_NAME, frequency=44100, size=-16, channels=2, buffer=512)
         self.sound = None  # Global sound variable
         self.playing = False  # Global variable to track if sound is playing
 
