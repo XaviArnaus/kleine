@@ -23,10 +23,10 @@ class Test(PyXavi):
     CARD_ID = 0
     CARD_NAME = 'wm8960soundcard'
     CONTROL_NAME = 'Speaker'
-    # DEVICE_ARG = f'hw:{CARD_NAME}'
+    DEVICE_ARG = f'hw:{CARD_NAME}'
     # DEVICE_ARG = f'hw:{CARD_ID},0'
     # DEVICE_ARG = f'{CARD_ID}'
-    DEVICE_ARG = f'{CARD_NAME}'    
+    # DEVICE_ARG = f'{CARD_NAME}'    
 
     VENDOR_PATH =  f"{ROOT_DIR}/vendor/pisugar/example/"
 
