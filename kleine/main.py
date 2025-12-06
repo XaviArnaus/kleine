@@ -31,11 +31,12 @@ class Main(PyXavi):
         board = WhisPlayBoard()
         board.set_backlight(50)
 
+        global sound, playing, global_image_data, image_filepath
+
         global_image_data = None
         image_filepath = None
 
         # Initialize pygame mixer
-        global sound
         pygame.mixer.init()
         sound = None  # Global sound variable
         playing = False  # Global variable to track if sound is playing
@@ -149,7 +150,6 @@ class Main(PyXavi):
             sleep(0.5)
 
             # Display the image using the globally stored data
-            global global_image_data, image_filepath
             if global_image_data is not None:
                 board.draw_image(0, 0, board.LCD_WIDTH,
                                 board.LCD_HEIGHT, global_image_data)
