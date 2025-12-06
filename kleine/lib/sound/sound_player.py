@@ -150,6 +150,9 @@ class SoundPlayer(PyXavi):
                     self.stop(name=name)
                 else:
                     return
+            
+            # What do we have in the driver?
+            self._xlog.debug(f"Sound device info > active: {self.driver.active}, stopped: {self.driver.stopped}")
 
             # Play sound
             self._is_playing[name] = True
@@ -160,7 +163,6 @@ class SoundPlayer(PyXavi):
         except Exception as e:
             self._xlog.error(f"Failed to play sound {name}: {e}")
             self._is_playing[name] = False
-            raise e
     
     def stop(self, name: str = None):
         """
