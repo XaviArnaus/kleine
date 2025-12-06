@@ -28,10 +28,12 @@ class SoundPlayer(PyXavi):
 
     _is_playing: dict = {}
 
-    def __init__(self, config: Config, params: Dictionary = Dictionary({})):
+    def __init__(self, config: Config, params: Dictionary = None):
         super(SoundPlayer, self).init_pyxavi(config=config, params=params)
 
-        self.DEVICE.merge(params.get("device", Dictionary({})))
+        if params is not None:
+            self.DEVICE.merge(params.get("device", Dictionary({})))
+
         self.driver = sd.OutputStream(
             device=self.DEVICE.get("id"),
             channels=self.DEVICE.get("channels"),
