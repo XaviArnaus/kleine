@@ -13,6 +13,12 @@ from kleine.lib.Whisplay.WhisPlay import WhisPlayBoard
 
 class Test(PyXavi):
 
+    CARD_NAME = 'wm8960soundcard'
+    CONTROL_NAME = 'Speaker'
+    DEVICE_ARG = f'hw:{CARD_NAME}'
+
+    VENDOR_PATH =  f"{ROOT_DIR}/vendor/pisugar/example/"
+
     board: WhisPlayBoard
 
     global_image_data = None
@@ -21,15 +27,13 @@ class Test(PyXavi):
     sound = None
     playing = False
 
-    VENDOR_PATH =  f"{ROOT_DIR}/vendor/pisugar/example/"
-
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(Test, self).init_pyxavi(config=config, params=params)
 
         self.board = WhisPlayBoard()
         self.board.set_backlight(50)
         # Initialize pygame mixer
-        pygame.mixer.init()
+        pygame.mixer.init(devicename=self.CARD_NAME, frequency=44100, size=-16, channels=2, buffer=512)
         self.sound = None  # Global sound variable
         self.playing = False  # Global variable to track if sound is playing
 
@@ -90,15 +94,11 @@ class Test(PyXavi):
             volume_level (str): The desired volume value, e.g., '90%' or '121'.
         """
 
-        CARD_NAME = 'wm8960soundcard'
-        CONTROL_NAME = 'Speaker'
-        DEVICE_ARG = f'hw:{CARD_NAME}'
-
         command = [
             'amixer',
-            '-D', DEVICE_ARG,
+            '-D', self.DEVICE_ARG,
             'sset',
-            CONTROL_NAME,
+            self.CONTROL_NAME,
             volume_level
         ]
 
@@ -106,7 +106,7 @@ class Test(PyXavi):
             subprocess.run(command, check=True, capture_output=True, text=True)
 
             print(
-                f"INFO: Successfully set '{CONTROL_NAME}' volume to {volume_level} on card '{CARD_NAME}'.")
+                f"INFO: Successfully set '{self.CONTROL_NAME}' volume to {volume_level} on card '{self.CARD_NAME}'.")
 
         except subprocess.CalledProcessError as e:
             print(f"ERROR: Failed to execute amixer.", file=sys.stderr)
@@ -168,9 +168,11 @@ class Test(PyXavi):
             channel = self.sound.play()  # Play the sound from the beginning
             print("Playing sound concurrently with display changes...")
             self.playing = True  # Set the playing flag
+            print("Sound is playing")
             while channel.get_busy():
-                print("Sound is playing...")
+                print(".", end=" ")
                 pygame.time.delay(100)
+            print("\nSound has finished playing.")
         else:
             print("Sound not loaded.")
         # --- MODIFICATION END ---
