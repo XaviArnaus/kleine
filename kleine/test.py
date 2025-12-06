@@ -13,7 +13,7 @@ from kleine.lib.Whisplay.WhisPlay import WhisPlayBoard
 
 class Test(PyXavi):
 
-    CARD_NAME = 'wm8960soundcard'
+    CARD_NAME = 'wm8960-soundcard'
     CONTROL_NAME = 'Speaker'
     DEVICE_ARG = f'hw:{CARD_NAME}'
 
