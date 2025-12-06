@@ -84,15 +84,15 @@ class Test(PyXavi):
             print(f"Failed to load initial image from {self.image_filepath}: {e}")
 
         # Load the sound
-        self.sound_filepath = self.VENDOR_PATH + "test.mp3"
+        sound_filepath = self.VENDOR_PATH + "test.mp3"
         try:
             # self.sound = pygame.mixer.Sound(self.sound_filepath)
-            self.sound.load_mp3(self.sound_filepath)
+            self.sound.load_mp3(sound_filepath)
 
-            print(f"Sound {os.path.basename(self.sound_filepath)} loaded successfully.")
+            print(f"Sound {os.path.basename(sound_filepath)} loaded successfully.")
             self.set_wm8960_volume_stable("121")  # Set volume to 121（74）
         except Exception as e:
-            print(f"Failed to load sound from {self.sound_filepath}: {e}")
+            print(f"Failed to load sound from {sound_filepath}: {e}")
             self.sound = None
 
         try:

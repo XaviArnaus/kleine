@@ -55,22 +55,36 @@ class SoundPlayer(PyXavi):
         if name is None:
             name = "default"
         
-        import numpy as np
-        from pydub import AudioSegment
+        try:
+        
+            import numpy as np
+            from pydub import AudioSegment
 
-        # Load MP3 and convert to PCM (NumPy array)
-        audio_data = AudioSegment.from_mp3(mp3_file)
-        # Get sample rate and data (convert to float32 for sounddevice)
-        frame_rate = audio_data.frame_rate
-        audio_np = np.array(audio_data.get_array_of_samples()).astype(np.float32)
-        # Normalize if needed (good practice for float data)
-        audio_np = audio_np / np.max(np.abs(audio_np))
+            # Load MP3 and convert to PCM (NumPy array)
+            audio_data = AudioSegment.from_mp3(mp3_file)
+            # Get sample rate and data (convert to float32 for sounddevice)
+            frame_rate = audio_data.frame_rate
+            audio_np = np.array(audio_data.get_array_of_samples()).astype(np.float32)
+            # Normalize if needed (good practice for float data)
+            audio_np = audio_np / np.max(np.abs(audio_np))
 
-        self.loaded_sound[name] = {
-            "data": audio_np,
-            "frame_rate": frame_rate
-        }
-    
+            self.loaded_sound[name] = {
+                "data": audio_np,
+                "frame_rate": frame_rate
+            }
+        except Exception as e:
+            self._xlog.error(f"Failed to load MP3 file {mp3_file}: {e}")
+            raise e
+
+    def get_loaded_sound(self, name: str = None) -> list[str]:
+        """
+        Get the names of all loaded sounds
+        """
+        if name is None:
+            name = "default"
+
+        return self.loaded_sound.get(name, None)
+
     def is_playing(self, name: str = None) -> bool:
         """
         Check if a sound is currently playing
