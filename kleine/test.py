@@ -6,8 +6,14 @@ from time import sleep
 from PIL import Image
 import sys
 import os
+
+# To deprecate
 import pygame  # Import pygame
 import pygame._sdl2.audio as sdl2_audio
+
+# The replacement
+from kleine.lib.sound.sound_player import SoundPlayer
+
 import subprocess
 from kleine.lib.Whisplay.WhisPlay import WhisPlayBoard
 
@@ -29,7 +35,7 @@ class Test(PyXavi):
     global_image_data = None
     image_filepath = None
 
-    sound = None
+    sound: SoundPlayer = None
     playing = False
 
     def __init__(self, config: Config = None, params: Dictionary = None):
@@ -38,8 +44,12 @@ class Test(PyXavi):
         self.board = WhisPlayBoard()
         self.board.set_backlight(50)
         # Initialize pygame mixer
-        pygame.mixer.init(devicename=self.CARD_NAME, frequency=44100, size=-16, channels=2, buffer=512)
-        self.sound = None  # Global sound variable
+        # Feels like the HAT soundcard is not detected by "get_audio_device_names()"
+        # If not defining a devicename, it initialises but nothing sounds.
+        # When defining the devicename, it does not find the device (that appears in "cat /proc/asound/cards")
+        # pygame.mixer.init()
+
+        self.sound = SoundPlayer(config=config, params=params)
         self.playing = False  # Global variable to track if sound is playing
 
     @staticmethod
@@ -76,7 +86,9 @@ class Test(PyXavi):
         # Load the sound
         self.sound_filepath = self.VENDOR_PATH + "test.mp3"
         try:
-            self.sound = pygame.mixer.Sound(self.sound_filepath)
+            # self.sound = pygame.mixer.Sound(self.sound_filepath)
+            self.sound.load_mp3(self.sound_filepath)
+
             print(f"Sound {os.path.basename(self.sound_filepath)} loaded successfully.")
             self.set_wm8960_volume_stable("121")  # Set volume to 121（74）
         except Exception as e:
@@ -87,7 +99,7 @@ class Test(PyXavi):
             print("Waiting for button press (Press Ctrl+C to exit)...")
             while True:
                 # Check if the sound has finished playing and update the 'playing' flag
-                if self.playing and not pygame.mixer.get_busy():
+                if self.playing and not self.sound.is_playing():
                     self.playing = False
                     # print("Sound finished playing.") # Optional print
                 sleep(0.1)
@@ -97,7 +109,8 @@ class Test(PyXavi):
 
         finally:
             self.board.cleanup()
-            pygame.mixer.quit()  # Quit the mixer
+            # pygame.mixer.quit()  # Quit the mixer
+            self.sound.close()
 
         # End copy from example
 
@@ -180,13 +193,13 @@ class Test(PyXavi):
             if self.playing:
                 self.sound.stop()  # Stop the current sound if it's playing
                 print("Stopping current sound...")
-            channel = self.sound.play()  # Play the sound from the beginning
+            self.sound.play()  # Play the sound from the beginning
             print("Playing sound concurrently with display changes...")
             self.playing = True  # Set the playing flag
             print("Sound is playing")
-            while channel.get_busy():
+            while self.sound.is_playing():
                 print(".", end=" ")
-                pygame.time.delay(100)
+                sleep(0.1)
             print("\nSound has finished playing.")
         else:
             print("Sound not loaded.")
