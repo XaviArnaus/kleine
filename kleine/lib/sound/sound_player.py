@@ -18,7 +18,7 @@ class SoundPlayer(PyXavi):
         "name": "wm8960soundcard",
         "channels": 1,
         "sample_rate": 44100,
-        "dtype": "int16",
+        "dtype": "float32",
         "blocksize": 0
     })
 
