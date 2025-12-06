@@ -8,6 +8,7 @@ import sounddevice
 from pyxavi import TerminalColor, Config, Logger, Dictionary, full_stack
 
 from kleine.lib.utils.config_loader import ConfigLoader
+from kleine.test import Test
 
 from definitions import ROOT_DIR, CONFIG_DIR
 
@@ -68,6 +69,22 @@ def query_sound_devices():
         print(sounddevice.query_devices())
         logger.info("End of work.")
 
+
+    except RuntimeError as e:
+        print(TerminalColor.RED_BRIGHT + str(e) + TerminalColor.END)
+    except Exception:
+        print(full_stack())
+
+def pygame_devices():
+    try:
+        # Instantiating
+        config, logger, parameters = _initialize()
+
+        # Delegate the run to Main
+        logger.debug("Querying Pygame audio devices")
+
+        print(Test.get_devices())
+        logger.info("End of work.")
 
     except RuntimeError as e:
         print(TerminalColor.RED_BRIGHT + str(e) + TerminalColor.END)

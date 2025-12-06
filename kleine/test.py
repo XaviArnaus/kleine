@@ -7,6 +7,7 @@ from PIL import Image
 import sys
 import os
 import pygame  # Import pygame
+import pygame._sdl2.audio as sdl2_audio
 import subprocess
 from kleine.lib.Whisplay.WhisPlay import WhisPlayBoard
 
@@ -40,6 +41,16 @@ class Test(PyXavi):
         pygame.mixer.init(devicename=self.CARD_NAME, frequency=44100, size=-16, channels=2, buffer=512)
         self.sound = None  # Global sound variable
         self.playing = False  # Global variable to track if sound is playing
+
+    @staticmethod
+    def get_devices(capture_devices: bool = False) -> tuple[str, ...]:
+        init_by_me = not pygame.mixer.get_init()
+        if init_by_me:
+            pygame.mixer.init()
+        devices = tuple(sdl2_audio.get_audio_device_names(capture_devices))
+        if init_by_me:
+            pygame.mixer.quit()
+        return devices
 
     def run(self):
 
