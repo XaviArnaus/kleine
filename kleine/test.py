@@ -192,6 +192,7 @@ class Test(PyXavi):
 
         # --- MODIFICATION START: Play sound BEFORE screen changes ---
         if self.sound.get_loaded_sound():
+            print("Playing ...")
             self.sound.play()  # Play the sound from the beginning
             print("Playing sound concurrently with display changes...")
             self.playing = True  # Set the playing flag

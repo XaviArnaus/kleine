@@ -134,6 +134,7 @@ class SoundPlayer(PyXavi):
         """
         if name is None:
             name = "default"
+        self._xlog.debug(f"Playing sound: {name}")
 
         if name not in self.loaded_sound:
             self._xlog.error(f"Sound {name} not loaded.")
@@ -141,18 +142,23 @@ class SoundPlayer(PyXavi):
         
         # Stop if already playing, or ignore depending on the flag.
         if self.is_playing(name=name):
+            self._xlog.debug(f"Sound {name} is already playing.")
             if interrupt_if_playing:
+                self._xlog.debug(f"Stopping sound {name}.")
                 self.stop(name=name)
             else:
                 return
 
         # Play sound
         self._is_playing[name] = True
+        self._xlog.debug(f"Playing sound: {name}")
         sd.play(
             self.loaded_sound[name]["data"],
             samplerate=self.loaded_sound[name]["frame_rate"],
-            blocking=True)
-        # sd.wait()
+            blocking=False)
+        self._xlog.debug(f"Sound {name} playback started. Waiting for completion...")
+        sd.wait()
+        self._xlog.debug(f"Sound {name} playback completed.")
         self._is_playing[name] = False
     
     def stop(self, name: str = None):
