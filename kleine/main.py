@@ -13,7 +13,7 @@ class Main(PyXavi):
         self._xlog.info("🚀 Starting Kleine main run...")
 
         # Adaptations to the example
-        VENDOR_PATH =  f"{ROOT_DIR}/vendor/"
+        VENDOR_PATH =  f"{ROOT_DIR}/vendor/Whisplay/example/"
 
 
         # Copy from example
