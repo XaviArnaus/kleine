@@ -1,5 +1,6 @@
 from pyxavi import Config, Dictionary
 from kleine.lib.abstract.pyxavi import PyXavi
+from definitions import ROOT_DIR
 
 
 class Main(PyXavi):
@@ -11,8 +12,11 @@ class Main(PyXavi):
 
         self._xlog.info("🚀 Starting Kleine main run...")
 
-        # Copy from example
+        # Adaptations to the example
+        VENDOR_PATH =  f"{ROOT_DIR}/vendor"
 
+
+        # Copy from example
 
         from time import sleep
         from PIL import Image
@@ -160,9 +164,9 @@ class Main(PyXavi):
         # --- Argument Parsing ---
         parser = argparse.ArgumentParser(
             description="Display an image and play sound on button press.")
-        parser.add_argument("--image", default="test.png",
+        parser.add_argument("--image", default=VENDOR_PATH + "test.png",
                             help="Path to the image file (default: test.png)")
-        parser.add_argument("--sound", default="test.mp3",
+        parser.add_argument("--sound", default=VENDOR_PATH + "test.mp3",
                             # Add sound argument
                             help="Path to the sound file (default: test.mp3)")
         args = parser.parse_args()
