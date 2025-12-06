@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import importlib.metadata
 import asyncio
 import logging
+import sounddevice
 
 from pyxavi import TerminalColor, Config, Logger, Dictionary, full_stack
 
@@ -56,6 +57,22 @@ def run():
         print(TerminalColor.RED_BRIGHT + str(e) + TerminalColor.END)
     except Exception:
         print(full_stack()) 
+
+def query_sound_devices():
+    try:
+        # Instantiating
+        config, logger, parameters = _initialize()
+
+        # Delegate the run to Main
+        logger.debug("Querying SoundDevice")
+        print(sounddevice.query_devices())
+        logger.info("End of work.")
+
+
+    except RuntimeError as e:
+        print(TerminalColor.RED_BRIGHT + str(e) + TerminalColor.END)
+    except Exception:
+        print(full_stack())
 
 def _initialize():
     load_environment()

@@ -17,10 +17,11 @@ spidev = [{version="^3.7", markers="sys_platform=='linux'"}]
 "rpi-lgpio" = [{version="^0.6", markers="sys_platform=='linux'"}]
 pygame = "^2.6.1"
 pillow = "^11.2.1"
+sounddevice = "^0.5.2"
 
 [tool.poetry.scripts]
 main = "runner:run"
-
+sounddevices = "runner:query_sound_devices"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
