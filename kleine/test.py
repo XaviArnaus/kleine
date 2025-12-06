@@ -84,10 +84,12 @@ class Test(PyXavi):
             print(f"Failed to load initial image from {self.image_filepath}: {e}")
 
         # Load the sound
-        sound_filepath = self.VENDOR_PATH + "test.mp3"
+        # sound_filepath = self.VENDOR_PATH + "test.mp3"
+        sound_filepath = ROOT_DIR + "/bin/piano2.wav"
         try:
             # self.sound = pygame.mixer.Sound(self.sound_filepath)
-            self.sound.load_mp3(sound_filepath)
+            # self.sound.load_mp3(sound_filepath)
+            self.sound.load_wav(sound_filepath)
 
             print(f"Sound {os.path.basename(sound_filepath)} loaded successfully.")
             self.set_wm8960_volume_stable("121")  # Set volume to 121（74）
@@ -190,9 +192,6 @@ class Test(PyXavi):
 
         # --- MODIFICATION START: Play sound BEFORE screen changes ---
         if self.sound.get_loaded_sound():
-            if self.playing:
-                self.sound.stop()  # Stop the current sound if it's playing
-                print("Stopping current sound...")
             self.sound.play()  # Play the sound from the beginning
             print("Playing sound concurrently with display changes...")
             self.playing = True  # Set the playing flag

@@ -76,6 +76,40 @@ class SoundPlayer(PyXavi):
             self._xlog.error(f"Failed to load MP3 file {mp3_file}: {e}")
             raise e
 
+    def load_wav(self, wav_file: str, name: str = None):
+        """
+        Load and prepare WAV file for playback
+
+        wav_file: Path to the WAV file
+        name: Optional name to reference the loaded sound
+
+        if name is None, it will be stored as "default",
+        so, all further loads without a name overwrite the default sound.
+        """
+        if name is None:
+            name = "default"
+        
+        try:
+        
+            import numpy as np
+            from pydub import AudioSegment
+
+            # Load WAV and convert to PCM (NumPy array)
+            audio_data = AudioSegment.from_wav(wav_file)
+            # Get sample rate and data (convert to float32 for sounddevice)
+            frame_rate = audio_data.frame_rate
+            audio_np = np.array(audio_data.get_array_of_samples()).astype(np.float32)
+            # Normalize if needed (good practice for float data)
+            audio_np = audio_np / np.max(np.abs(audio_np))
+
+            self.loaded_sound[name] = {
+                "data": audio_np,
+                "frame_rate": frame_rate
+            }
+        except Exception as e:
+            self._xlog.error(f"Failed to load WAV file {wav_file}: {e}")
+            raise e
+
     def get_loaded_sound(self, name: str = None) -> list[str]:
         """
         Get the names of all loaded sounds
