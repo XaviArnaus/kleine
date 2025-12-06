@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# Main pitxu executable
+
+# Get the directory of the current script
+# Allows to reference other files relative to this script's location
+DIR="$( cd "$( dirname "$0" )" && pwd )"
+
+# Main purpose: To be called from the serviced, from the service file
+# Additional purpose: To be called directly to start pitxu in foreground for debugging
+# Sould control the exit codes, as we may restart from pitxu itself
+start_foreground() {
+    cd "$DIR/.." && poetry run main
+    EXIT_CODE=$?
+    return $EXIT_CODE
+}
+
+# Commandline to start the service
+start_background() {
+	sudo systemctl start kleine
+}
+
+# Commandline to stop the service
+stop_background() {
+	sudo systemctl stop kleine
+}
+
+# Commandline to restart the service
+restart_background() {
+    sudo systemctl restart kleine
+}
+
+status_background() {
+    sudo systemctl status kleine
+}
+
+logs_journalctl_background() {
+    sudo journalctl -u kleine -f
+}
+
+clear_kleine_screen() {
+     cd "$DIR/.." && poetry run clear
+}
+
+sounddevices() {
+     cd "$DIR/.." && poetry run sounddevices
+}
+
+
+if [[ $# -eq 0 ]] ; then
+    # No arguments provided, we start in foreground
+    start_foreground
+    KLEINE_EXIT_CODE=$?
+    exit $KLEINE_EXIT_CODE
+fi
+
+case "$1" in
+    "start") start_background ;;
+    "stop") stop_background ;;
+    "restart") restart_background ;;
+    "status") status_background ;;
+    "logs") logs_journalctl_background ;;
+    "sounddevices") sounddevices ;;
+    "help") echo "Usage: kleine [start|stop|restart|status|help|sounddevices]" ;;
+    *) echo "Command unknown" ;;
+esac
+
+FINAL_EXIT_CODE=$?
+exit $FINAL_EXIT_CODE
