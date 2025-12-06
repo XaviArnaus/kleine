@@ -21,7 +21,7 @@ class Test(PyXavi):
     sound = None
     playing = False
 
-    VENDOR_PATH =  f"{ROOT_DIR}/vendor/Whisplay/example/"
+    VENDOR_PATH =  f"{ROOT_DIR}/vendor/pisugar/example/"
 
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(Test, self).init_pyxavi(config=config, params=params)
@@ -165,9 +165,12 @@ class Test(PyXavi):
             if self.playing:
                 self.sound.stop()  # Stop the current sound if it's playing
                 print("Stopping current sound...")
-            self.sound.play()  # Play the sound from the beginning
+            channel = self.sound.play()  # Play the sound from the beginning
             print("Playing sound concurrently with display changes...")
             self.playing = True  # Set the playing flag
+            while channel.get_busy():
+                print("Sound is playing...")
+                pygame.time.delay(100)
         else:
             print("Sound not loaded.")
         # --- MODIFICATION END ---
