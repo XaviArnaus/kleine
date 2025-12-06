@@ -17,7 +17,7 @@ spidev = [{version="^3.7", markers="sys_platform=='linux'"}]
 "rpi-lgpio" = [{version="^0.6", markers="sys_platform=='linux'"}]
 pygame = "^2.6.1"
 pillow = "^11.2.1"
-sounddevice = "^0.5.2"
+sounddevice = "^0.5.3"
 numpy = "^2.3.4"
 pozalabs-pydub = "^0.37.0"
 zstandard = "^0.25.0"

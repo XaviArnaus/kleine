@@ -191,18 +191,21 @@ class Test(PyXavi):
         print("Button pressed!")
 
         # --- MODIFICATION START: Play sound BEFORE screen changes ---
-        if self.sound.get_loaded_sound():
-            print("Playing ...")
-            self.sound.play()  # Play the sound from the beginning
-            print("Playing sound concurrently with display changes...")
-            self.playing = True  # Set the playing flag
-            print("Sound is playing")
-            while self.sound.is_playing():
-                print(".", end=" ")
-                sleep(0.1)
-            print("\nSound has finished playing.")
-        else:
-            print("Sound not loaded.")
+        try:
+            if self.sound.get_loaded_sound():
+                print("Playing ...")
+                self.sound.play()  # Play the sound from the beginning
+                print("Playing sound concurrently with display changes...")
+                self.playing = True  # Set the playing flag
+                print("Sound is playing")
+                while self.sound.is_playing():
+                    print(".", end=" ")
+                    sleep(0.1)
+                print("\nSound has finished playing.")
+            else:
+                print("Sound not loaded.")
+        except Exception as e:
+            print(f"Error playing sound: {e}")
         # --- MODIFICATION END ---
 
         # Display red filled screen

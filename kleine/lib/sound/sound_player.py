@@ -163,6 +163,7 @@ class SoundPlayer(PyXavi):
         except Exception as e:
             self._xlog.error(f"Failed to play sound {name}: {e}")
             self._is_playing[name] = False
+            raise e
     
     def stop(self, name: str = None):
         """
