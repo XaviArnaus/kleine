@@ -21,7 +21,8 @@ sounddevice = "^0.5.2"
 
 [tool.poetry.scripts]
 main = "runner:run"
-sounddevices = "runner:query_sound_devices"
+sound_devices = "runner:query_sound_devices"
+pygame_devices = "runner:pygame_devices"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
