@@ -16,10 +16,10 @@ class SoundPlayer(PyXavi):
     DEVICE = Dictionary({
         "id": 0,
         "name": "wm8960soundcard",
-        "channels": 2,
+        "channels": 1,
         "sample_rate": 44100,
         "dtype": "int16",
-        "blocksize": 1024
+        "blocksize": 0
     })
 
     driver: sd.OutputStream = None
@@ -96,6 +96,7 @@ class SoundPlayer(PyXavi):
 
             # Load WAV and convert to PCM (NumPy array)
             audio_data = AudioSegment.from_wav(wav_file)
+            audio_data
             # Get sample rate and data (convert to float32 for sounddevice)
             frame_rate = audio_data.frame_rate
             audio_np = np.array(audio_data.get_array_of_samples()).astype(np.float32)
