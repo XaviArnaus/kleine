@@ -20,6 +20,7 @@ pillow = "^11.2.1"
 sounddevice = "^0.5.2"
 numpy = "^2.3.4"
 pozalabs-pydub = "^0.37.0"
+zstandard = "^0.25.0"
 
 [tool.poetry.scripts]
 main = "runner:run"

@@ -27,6 +27,8 @@ install_system:
 	$(APT) install -y swig liblgpio-dev
 # Dependencies for sounddevice and PyAudio
 	$(APT) install -y portaudio19-dev python3-pyaudio
+# Dependencies for pypub
+	$(APT) install -y ffmpeg
 # This is not a dependency but brings tools for i2c
 	$(APT) install -y i2c-tools
 # Now make sure that the .bashrc has the export PATH updated for the bin folder.

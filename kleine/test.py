@@ -189,7 +189,7 @@ class Test(PyXavi):
         print("Button pressed!")
 
         # --- MODIFICATION START: Play sound BEFORE screen changes ---
-        if self.sound:
+        if self.sound.get_loaded_sound():
             if self.playing:
                 self.sound.stop()  # Stop the current sound if it's playing
                 print("Stopping current sound...")
