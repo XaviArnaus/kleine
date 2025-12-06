@@ -35,6 +35,7 @@ class Main(PyXavi):
         image_filepath = None
 
         # Initialize pygame mixer
+        global sound
         pygame.mixer.init()
         sound = None  # Global sound variable
         playing = False  # Global variable to track if sound is playing
@@ -161,32 +162,22 @@ class Main(PyXavi):
         # Register button event
         board.on_button_press(on_button_pressed)
 
-        # --- Argument Parsing ---
-        parser = argparse.ArgumentParser(
-            description="Display an image and play sound on button press.")
-        parser.add_argument("--image", default=VENDOR_PATH + "test.png",
-                            help="Path to the image file (default: test.png)")
-        parser.add_argument("--sound", default=VENDOR_PATH + "test.mp3",
-                            # Add sound argument
-                            help="Path to the sound file (default: test.mp3)")
-        args = parser.parse_args()
-
-        image_filepath = args.image
-        sound_filepath = args.sound  # Get sound filepath
-
         # --- Initial Image Loading ---
         # Load the image once at the beginning of the script
+        image_filepath = VENDOR_PATH + "test.png"
         try:
             global_image_data = load_jpg_as_rgb565(
-                image_filepath, board.LCD_WIDTH, board.LCD_HEIGHT)
-            board.draw_image(0, 0, board.LCD_WIDTH,
-                            board.LCD_HEIGHT, global_image_data)
+                image_filepath,
+                board.LCD_WIDTH,
+                board.LCD_HEIGHT)
+            board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, global_image_data)
             print(
                 f"Image {os.path.basename(image_filepath)} loaded and displayed initially.")
         except Exception as e:
             print(f"Failed to load initial image from {image_filepath}: {e}")
 
         # Load the sound
+        sound_filepath = VENDOR_PATH + "test.mp3"
         try:
             sound = pygame.mixer.Sound(sound_filepath)
             print(f"Sound {os.path.basename(sound_filepath)} loaded successfully.")
