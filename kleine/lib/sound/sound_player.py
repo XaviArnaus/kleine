@@ -152,12 +152,7 @@ class SoundPlayer(PyXavi):
         # Play sound
         self._is_playing[name] = True
         self._xlog.debug(f"Playing sound: {name}")
-        sd.play(
-            self.loaded_sound[name]["data"],
-            samplerate=self.loaded_sound[name]["frame_rate"],
-            blocking=False)
-        self._xlog.debug(f"Sound {name} playback started. Waiting for completion...")
-        sd.wait()
+        self.driver.write(self.loaded_sound[name]["data"])
         self._xlog.debug(f"Sound {name} playback completed.")
         self._is_playing[name] = False
     
@@ -168,7 +163,7 @@ class SoundPlayer(PyXavi):
         if name is None:
             name = "default"
 
-        sd.stop()
+        self.driver.stop(ignore_errors=False)
         self._is_playing[name] = False
     
     def close(self):
