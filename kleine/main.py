@@ -18,7 +18,7 @@ class Main(PyXavi):
 
         import time
 
-        imu = ICM20948(i2c_addr=0x6b, i2c_bus=1)
+        imu = ICM20948(i2c_addr=0x6b)
 
         try:
 
