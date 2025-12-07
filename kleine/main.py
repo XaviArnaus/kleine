@@ -10,7 +10,7 @@ class Main(PyXavi):
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(Main, self).init_pyxavi(config=config, params=params)
 
-    async def run(self):
+    def run(self):
 
         self._xlog.info("🚀 Starting Kleine main run...")
 
