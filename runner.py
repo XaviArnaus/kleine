@@ -1,9 +1,8 @@
-import os, time
+import os
 from dotenv import load_dotenv
 import importlib.metadata
 import asyncio
 import logging
-import sounddevice
 
 from pyxavi import TerminalColor, Config, Logger, Dictionary, full_stack
 

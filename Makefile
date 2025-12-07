@@ -16,28 +16,6 @@ else
 	OPEN := xdg-open
 endif
 
-.PHONY: install_system
-install_system:
-	$(APT) update
-# Dependencies for packages to be able to build properly
-	$(APT) install -y python3-dev
-# Dependencies for Pillow
-	$(APT) install -y libjpeg-dev zlib1g-dev libfreetype6-dev
-# Dependencies for rpi.lgpio
-	$(APT) install -y swig liblgpio-dev
-# Dependencies for sounddevice and PyAudio
-	$(APT) install -y portaudio19-dev python3-pyaudio
-# Dependencies for pypub
-	$(APT) install -y ffmpeg
-# Dependencies for sounddevice
-	$(APT) install -y portaudio19-dev
-# This is not a dependency but brings tools for i2c
-	$(APT) install -y i2c-tools
-# Now make sure that the .bashrc has the export PATH updated for the bin folder.
-	if [ -f ~/.bashrc ]; then
-		echo 'export PATH="$$HOME/.local/bin:$$PATH"' >> ~/.bashrc
-	fi
-
 .PHONY: init
 init:
 	$(POETRY) install
@@ -49,7 +27,7 @@ update:
 
 .PHONY: kleine
 kleine:
-# Use this for a run inside Poetry. Not recommended for Raspberry Pi as uses virtual environment.
+# Use this for a run inside Poetry.
 	@begin=$$(date +%s); \
 	echo "Starting Kleine... \n"; \
 	make run; \
