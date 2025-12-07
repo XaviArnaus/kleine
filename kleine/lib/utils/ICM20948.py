@@ -302,15 +302,19 @@ class ICM20948(object):
     q2q3 = self.q2 * self.q3
     q3q3 = self.q3 * self.q3
 
-    norm = float(1/math.sqrt(ax * ax + ay * ay + az * az))     
-    ax = ax * norm
-    ay = ay * norm
-    az = az * norm
+    base=math.sqrt(ax * ax + ay * ay + az * az)
+    if base>0:
+      norm = float(1/base)     
+      ax = ax * norm
+      ay = ay * norm
+      az = az * norm
 
-    norm = float(1/math.sqrt(mx * mx + my * my + mz * mz))      
-    mx = mx * norm
-    my = my * norm
-    mz = mz * norm
+    base=math.sqrt(mx * mx + my * my + mz * mz)
+    if base>0:
+      norm = float(1/base)      
+      mx = mx * norm
+      my = my * norm
+      mz = mz * norm
 
     # compute reference direction of flux
     hx = 2 * mx * (0.5 - q2q2 - q3q3) + 2 * my * (q1q2 - q0q3) + 2 * mz * (q1q3 + q0q2)
