@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
 import time
-import smbus
+import smbus2 as smbus
 import math
 
 true                                 =0x01
