@@ -114,6 +114,12 @@ File "/home/xavier/kleine/kleine/lib/utils/ICM20948.py", line 328, in imuAHRSupd
 ```
 https://forums.raspberrypi.com/viewtopic.php?t=346521
 
+## I have SENSOR(C)!!!
+```
+wget https://files.waveshare.com/upload/0/04/Sense_HAT_C_Pi.zip
+unzip Sense_HAT_C_Pi.zip -d Sense_HAT_C_Pi
+```
+
 
 # Resources
 
