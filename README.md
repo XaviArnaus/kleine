@@ -104,7 +104,15 @@ So seems like I have all at the bus 1. The `ICM20948` class defines bus 1
 self._bus = smbus.SMBus(1)
 ```
 
-Then I don't know what's next.
+### Answer
+The official Waveshare docs say that the ICM20948 shows up at 0x68, but the reading above suggests 0x6b. Changed and works!
+
+## ZeroDivisionError: float division by zero
+```
+File "/home/xavier/kleine/kleine/lib/utils/ICM20948.py", line 328, in imuAHRSupdate
+    norm = float(1/math.sqrt(mx * mx + my * my + mz * mz))
+```
+https://forums.raspberrypi.com/viewtopic.php?t=346521
 
 
 # Resources

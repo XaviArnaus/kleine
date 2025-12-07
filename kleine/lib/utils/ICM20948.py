@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding:utf-8 -*-
 import time
 import smbus2 as smbus
 import math
@@ -128,7 +126,6 @@ class ICM20948(object):
     bRet=self.icm20948Check()             #Initialization of the device multiple times after power on will result in a return error
     # while True != bRet:
     #   print("ICM-20948 Error\n" )
-    #   # time.sleep(0.5)
     #   time.sleep(1)
     # print("ICM-20948 OK\n" )
     time.sleep(0.5)                       #We can skip this detection by delaying it by 500 milliseconds
@@ -276,13 +273,7 @@ class ICM20948(object):
     self.GyroOffset[1] = s32TempGy >> 5
     self.GyroOffset[2] = s32TempGz >> 5
   def _read_byte(self,cmd):
-    for attempt in range(10):
-      try:
-        return self._bus.read_byte_data(self._address,cmd)
-      except IOError:
-        pass
-    return None
-    
+    return self._bus.read_byte_data(self._address,cmd)
   def _read_block(self, reg, length=1):
     return self._bus.read_i2c_block_data(self._address, reg, length)
   def _read_u16(self,cmd):
@@ -290,14 +281,7 @@ class ICM20948(object):
     MSB = self._bus.read_byte_data(self._address,cmd+1)
     return (MSB	<< 8) + LSB
   def _write_byte(self,cmd,val):
-    for attempt in range(10):
-      try:
-        self._bus.write_byte_data(self._address,cmd,val)
-        time.sleep(0.0001)
-        return True
-      except IOError:
-        pass
-    return None
+    self._bus.write_byte_data(self._address,cmd,val)
   def imuAHRSupdate(self,gx, gy,gz,ax,ay,az,mx,my,mz):    
     norm=0.0
     hx = hy = hz = bx = bz = 0.0
@@ -390,16 +374,3 @@ class ICM20948(object):
     MotionVal[7]=self.Mag[1]
     MotionVal[8]=self.Mag[2]
     return MotionVal
-
-
-
-       
-      
-         
-      
-
-
-
-
-
-      
