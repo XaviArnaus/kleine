@@ -1,5 +1,5 @@
-import time
 import smbus2 as smbus
+import time
 import math
 
 true                                 =0x01
@@ -124,9 +124,9 @@ class ICM20948(object):
     self._address = address
     self._bus = smbus.SMBus(1)
     bRet=self.icm20948Check()             #Initialization of the device multiple times after power on will result in a return error
-    # while True != bRet:
+    # while true != bRet:
     #   print("ICM-20948 Error\n" )
-    #   time.sleep(1)
+    #   time.sleep(0.5)
     # print("ICM-20948 OK\n" )
     time.sleep(0.5)                       #We can skip this detection by delaying it by 500 milliseconds
     # user bank 0 register 
@@ -273,15 +273,17 @@ class ICM20948(object):
     self.GyroOffset[1] = s32TempGy >> 5
     self.GyroOffset[2] = s32TempGz >> 5
   def _read_byte(self,cmd):
-    return self._bus.read_byte_data(self._address,cmd)
+    return self._bus.read_byte_data(int(self._address),int(cmd))
   def _read_block(self, reg, length=1):
-    return self._bus.read_i2c_block_data(self._address, reg, length)
+    return self._bus.read_i2c_block_data(int(self._address),int(reg),length)
   def _read_u16(self,cmd):
-    LSB = self._bus.read_byte_data(self._address,cmd)
-    MSB = self._bus.read_byte_data(self._address,cmd+1)
-    return (MSB	<< 8) + LSB
+    LSB = self._bus.read_byte_data(int(self._address),int(cmd))
+    MSB = self._bus.read_byte_data(int(self._address),int(cmd)+1)
+    return (MSB << 8) + LSB
+
   def _write_byte(self,cmd,val):
-    self._bus.write_byte_data(self._address,cmd,val)
+    self._bus.write_byte_data(int(self._address),int(cmd),int(val))
+    time.sleep(0.0001)
   def imuAHRSupdate(self,gx, gy,gz,ax,ay,az,mx,my,mz):    
     norm=0.0
     hx = hy = hz = bx = bz = 0.0
@@ -289,20 +291,16 @@ class ICM20948(object):
     exInt = eyInt = ezInt = 0.0
     ex=ey=ez=0.0 
     halfT = 0.024
-    q0 = self.q0
-    q1 = self.q1
-    q2 = self.q2
-    q3 = self.q3
-    q0q0 = q0 * q0
-    q0q1 = q0 * q1
-    q0q2 = q0 * q2
-    q0q3 = q0 * q3
-    q1q1 = q1 * q1
-    q1q2 = q1 * q2
-    q1q3 = q1 * q3
-    q2q2 = q2 * q2   
-    q2q3 = q2 * q3
-    q3q3 = q3 * q3          
+    q0q0 = self.q0 * self.q0
+    q0q1 = self.q0 * self.q1
+    q0q2 = self.q0 * self.q2
+    q0q3 = self.q0 * self.q3
+    q1q1 = self.q1 * self.q1
+    q1q2 = self.q1 * self.q2
+    q1q3 = self.q1 * self.q3
+    q2q2 = self.q2 * self.q2
+    q2q3 = self.q2 * self.q3
+    q3q3 = self.q3 * self.q3
 
     norm = float(1/math.sqrt(ax * ax + ay * ay + az * az))     
     ax = ax * norm
@@ -343,16 +341,16 @@ class ICM20948(object):
       gy = gy + self.Kp * ey + eyInt
       gz = gz + self.Kp * ez + ezInt
 
-    q0 = q0 + (-q1 * gx - q2 * gy - q3 * gz) * halfT
-    q1 = q1 + (q0 * gx + q2 * gz - q3 * gy) * halfT
-    q2 = q2 + (q0 * gy - q1 * gz + q3 * gx) * halfT
-    q3 = q3 + (q0 * gz + q1 * gy - q2 * gx) * halfT  
+    self.q0 = self.q0 + (-self.q1 * gx - self.q2 * gy - self.q3 * gz) * halfT
+    self.q1 = self.q1 + (self.q0 * gx + self.q2 * gz - self.q3 * gy) * halfT
+    self.q2 = self.q2 + (self.q0 * gy - self.q1 * gz + self.q3 * gx) * halfT
+    self.q3 = self.q3 + (self.q0 * gz + self.q1 * gy - self.q2 * gx) * halfT
 
-    norm = float(1/math.sqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3))
-    q0 = q0 * norm
-    q1 = q1 * norm
-    q2 = q2 * norm
-    q3 = q3 * norm
+    norm = float(1/math.sqrt(self.q0 * self.q0 + self.q1 * self.q1 + self.q2 * self.q2 + self.q3 * self.q3))
+    self.q0 = self.q0 * norm
+    self.q1 = self.q1 * norm
+    self.q2 = self.q2 * norm
+    self.q3 = self.q3 * norm
   def icm20948Check(self):
     bRet=false
     if REG_VAL_WIA == self._read_byte(REG_ADD_WIA):
@@ -360,7 +358,7 @@ class ICM20948(object):
     return bRet
   def icm20948MagCheck(self):
     self.icm20948ReadSecondary( I2C_ADD_ICM20948_AK09916|I2C_ADD_ICM20948_AK09916_READ,REG_ADD_MAG_WIA1, 2)
-    if (self.pu8data[0] == REG_VAL_MAG_WIA1) and (self.pu8data[1] == REG_VAL_MAG_WIA2) :
+    if (self.pu8data[0] == REG_VAL_MAG_WIA1) and ( self.pu8data[1] == REG_VAL_MAG_WIA2) :
         bRet = true
         return bRet
   def icm20948CalAvgValue(self, MotionVal):
@@ -373,4 +371,3 @@ class ICM20948(object):
     MotionVal[6]=self.Mag[0]
     MotionVal[7]=self.Mag[1]
     MotionVal[8]=self.Mag[2]
-    return MotionVal
