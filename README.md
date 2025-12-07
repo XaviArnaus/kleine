@@ -69,6 +69,44 @@ sudo make install
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
+# Issues
+
+## I2C device detected but smbus2 error
+Post with similar issue, but seems I can solve it the same way:
+https://forums.raspberrypi.com/viewtopic.php?t=329882
+Keeping the link to know how to define extra buses, for too many devices connected.
+
+
+```
+xavier@kleine:~ $ i2cdetect -y 0
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:                         -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
+xavier@kleine:~ $ i2cdetect -y 1
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:                         -- -- -- -- 0c -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- 29 -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- 48 -- -- -- -- -- -- --
+50: -- -- -- -- -- -- -- -- -- -- -- -- 5c -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- 6b -- -- -- --
+```
+
+So seems like I have all at the bus 1. The `ICM20948` class defines bus 1
+```
+self._bus = smbus.SMBus(1)
+```
+
+Then I don't know what's next.
+
+
 # Resources
 
 ## Sense HAT
