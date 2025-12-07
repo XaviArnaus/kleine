@@ -303,16 +303,16 @@ class IMU(object):
       gy = gy + self.Kp * ey + eyInt
       gz = gz + self.Kp * ez + ezInt
 
-    q0 = q0 + (-q1 * gx - q2 * gy - q3 * gz) * halfT
-    q1 = q1 + (q0 * gx + q2 * gz - q3 * gy) * halfT
-    q2 = q2 + (q0 * gy - q1 * gz + q3 * gx) * halfT
-    q3 = q3 + (q0 * gz + q1 * gy - q2 * gx) * halfT  
+    self.q0 = self.q0 + (-self.q1 * gx - self.q2 * gy - self.q3 * gz) * halfT
+    self.q1 = self.q1 + (self.q0 * gx + self.q2 * gz - self.q3 * gy) * halfT
+    self.q2 = self.q2 + (self.q0 * gy - self.q1 * gz + self.q3 * gx) * halfT
+    self.q3 = self.q3 + (self.q0 * gz + self.q1 * gy - self.q2 * gx) * halfT
 
-    norm = float(1/math.sqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3))
-    q0 = q0 * norm
-    q1 = q1 * norm
-    q2 = q2 * norm
-    q3 = q3 * norm
+    norm = float(1/math.sqrt(self.q0 * self.q0 + self.q1 * self.q1 + self.q2 * self.q2 + self.q3 * self.q3))
+    self.q0 = self.q0 * norm
+    self.q1 = self.q1 * norm
+    self.q2 = self.q2 * norm
+    self.q3 = self.q3 * norm
 
   def icm20948CalAvgValue(self, MotionVal):
     MotionVal[0]=self.Gyro[0]/32.8
