@@ -1,7 +1,6 @@
 from pyxavi import Config, Dictionary
 from kleine.lib.abstract.pyxavi import PyXavi
 from definitions import ROOT_DIR
-from .test import Test
 
 
 class Main(PyXavi):
@@ -15,7 +14,7 @@ class Main(PyXavi):
 
         # --- Your main application logic goes here ---
 
-        Test().run()
+        #Test().run()
 
         # However it happened, just close nicely.
         self.close_nicely()

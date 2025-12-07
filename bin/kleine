@@ -59,8 +59,7 @@ case "$1" in
     "restart") restart_background ;;
     "status") status_background ;;
     "logs") logs_journalctl_background ;;
-    "sounddevices") sounddevices ;;
-    "help") echo "Usage: kleine [start|stop|restart|status|help|sounddevices]" ;;
+    "help") echo "Usage: kleine [start|stop|restart|status|help]" ;;
     *) echo "Command unknown" ;;
 esac
 

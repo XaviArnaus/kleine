@@ -61,14 +61,6 @@ kleine:
 run:
 	@$(POETRY) run main
 
-.PHONY: sound_devices
-sound_devices:
-	@$(POETRY) run sound_devices
-
-.PHONY: pygame_devices
-pygame_devices:
-	@$(POETRY) run pygame_devices
-
 .PHONY: where-is-python
 where-is-python:
 	$(POETRY) run whereis $(PYTHON)
