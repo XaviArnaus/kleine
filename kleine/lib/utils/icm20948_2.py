@@ -254,6 +254,7 @@ class ICM20948:
             self._bus = i2c_bus
 
         self.bank(0)
+        print(self.read(ICM20948_WHO_AM_I))
         if not self.read(ICM20948_WHO_AM_I) == CHIP_ID:
             raise RuntimeError("Unable to find ICM20948")
 
