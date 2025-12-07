@@ -1,373 +1,303 @@
-import smbus2 as smbus
+import struct
 import time
-import math
 
-true                                 =0x01
-false                                =0x00
-# define ICM-20948 Device I2C address
-I2C_ADD_ICM20948                     = 0x6b
-I2C_ADD_ICM20948_AK09916             = 0x0C
-I2C_ADD_ICM20948_AK09916_READ        = 0x80
-I2C_ADD_ICM20948_AK09916_WRITE       = 0x00
-# define ICM-20948 Register
-# user bank 0 register
-REG_ADD_WIA                          = 0x00
-REG_VAL_WIA                          = 0xEA
-REG_ADD_USER_CTRL                    = 0x03
-REG_VAL_BIT_DMP_EN                   = 0x80
-REG_VAL_BIT_FIFO_EN                  = 0x40
-REG_VAL_BIT_I2C_MST_EN               = 0x20
-REG_VAL_BIT_I2C_IF_DIS               = 0x10
-REG_VAL_BIT_DMP_RST                  = 0x08
-REG_VAL_BIT_DIAMOND_DMP_RST          = 0x04
-REG_ADD_PWR_MIGMT_1                  = 0x06
-REG_VAL_ALL_RGE_RESET                = 0x80
-REG_VAL_RUN_MODE                     = 0x01 # Non low-power mode
-REG_ADD_LP_CONFIG                    = 0x05
-REG_ADD_PWR_MGMT_1                   = 0x06
-REG_ADD_PWR_MGMT_2                   = 0x07
-REG_ADD_ACCEL_XOUT_H                 = 0x2D
-REG_ADD_ACCEL_XOUT_L                 = 0x2E
-REG_ADD_ACCEL_YOUT_H                 = 0x2F
-REG_ADD_ACCEL_YOUT_L                 = 0x30
-REG_ADD_ACCEL_ZOUT_H                 = 0x31
-REG_ADD_ACCEL_ZOUT_L                 = 0x32
-REG_ADD_GYRO_XOUT_H                  = 0x33
-REG_ADD_GYRO_XOUT_L                  = 0x34
-REG_ADD_GYRO_YOUT_H                  = 0x35
-REG_ADD_GYRO_YOUT_L                  = 0x36
-REG_ADD_GYRO_ZOUT_H                  = 0x37
-REG_ADD_GYRO_ZOUT_L                  = 0x38
-REG_ADD_EXT_SENS_DATA_00             = 0x3B
-REG_ADD_REG_BANK_SEL                 = 0x7F
-REG_VAL_REG_BANK_0                   = 0x00
-REG_VAL_REG_BANK_1                   = 0x10
-REG_VAL_REG_BANK_2                   = 0x20
-REG_VAL_REG_BANK_3                   = 0x30
+__version__ = '1.0.0'
 
-# user bank 1 register
-# user bank 2 register
-REG_ADD_GYRO_SMPLRT_DIV              = 0x00
-REG_ADD_GYRO_CONFIG_1                = 0x01
-REG_VAL_BIT_GYRO_DLPCFG_2            = 0x10  # bit[5:3]
-REG_VAL_BIT_GYRO_DLPCFG_4            = 0x20  # bit[5:3]
-REG_VAL_BIT_GYRO_DLPCFG_6            = 0x30  # bit[5:3]
-REG_VAL_BIT_GYRO_FS_250DPS           = 0x00  # bit[2:1]
-REG_VAL_BIT_GYRO_FS_500DPS           = 0x02  # bit[2:1]
-REG_VAL_BIT_GYRO_FS_1000DPS          = 0x04  # bit[2:1]
-REG_VAL_BIT_GYRO_FS_2000DPS          = 0x06  # bit[2:1]
-REG_VAL_BIT_GYRO_DLPF                = 0x01  # bit[0]
-REG_ADD_ACCEL_SMPLRT_DIV_2           = 0x11
-REG_ADD_ACCEL_CONFIG                 = 0x14
-REG_VAL_BIT_ACCEL_DLPCFG_2           = 0x10  # bit[5:3]
-REG_VAL_BIT_ACCEL_DLPCFG_4           = 0x20  # bit[5:3]
-REG_VAL_BIT_ACCEL_DLPCFG_6           = 0x30  # bit[5:3]
-REG_VAL_BIT_ACCEL_FS_2g              = 0x00  # bit[2:1]
-REG_VAL_BIT_ACCEL_FS_4g              = 0x02  # bit[2:1]
-REG_VAL_BIT_ACCEL_FS_8g              = 0x04  # bit[2:1]
-REG_VAL_BIT_ACCEL_FS_16g             = 0x06  # bit[2:1]
-REG_VAL_BIT_ACCEL_DLPF               = 0x01  # bit[0]
+CHIP_ID = 0xEA
+I2C_ADDR = 0x68
+I2C_ADDR_ALT = 0x69
+ICM20948_BANK_SEL = 0x7f
 
-# user bank 3 register
-REG_ADD_I2C_SLV0_ADDR                = 0x03
-REG_ADD_I2C_SLV0_REG                 = 0x04
-REG_ADD_I2C_SLV0_CTRL                = 0x05
-REG_VAL_BIT_SLV0_EN                  = 0x80
-REG_VAL_BIT_MASK_LEN                 = 0x07
-REG_ADD_I2C_SLV0_DO                  = 0x06
-REG_ADD_I2C_SLV1_ADDR                = 0x07
-REG_ADD_I2C_SLV1_REG                 = 0x08
-REG_ADD_I2C_SLV1_CTRL                = 0x09
-REG_ADD_I2C_SLV1_DO                  = 0x0A
+ICM20948_I2C_MST_ODR_CONFIG = 0x00
+ICM20948_I2C_MST_CTRL = 0x01
+ICM20948_I2C_MST_DELAY_CTRL = 0x02
+ICM20948_I2C_SLV0_ADDR = 0x03
+ICM20948_I2C_SLV0_REG = 0x04
+ICM20948_I2C_SLV0_CTRL = 0x05
+ICM20948_I2C_SLV0_DO = 0x06
+ICM20948_EXT_SLV_SENS_DATA_00 = 0x3B
 
-# define ICM-20948 Register  end
+ICM20948_GYRO_SMPLRT_DIV = 0x00
+ICM20948_GYRO_CONFIG_1 = 0x01
+ICM20948_GYRO_CONFIG_2 = 0x02
 
-# define ICM-20948 MAG Register
-REG_ADD_MAG_WIA1                     = 0x00
-REG_VAL_MAG_WIA1                     = 0x48
-REG_ADD_MAG_WIA2                     = 0x01
-REG_VAL_MAG_WIA2                     = 0x09
-REG_ADD_MAG_ST2                      = 0x10
-REG_ADD_MAG_DATA                     = 0x11
-REG_ADD_MAG_CNTL2                    = 0x31
-REG_VAL_MAG_MODE_PD                  = 0x00
-REG_VAL_MAG_MODE_SM                  = 0x01
-REG_VAL_MAG_MODE_10HZ                = 0x02
-REG_VAL_MAG_MODE_20HZ                = 0x04
-REG_VAL_MAG_MODE_50HZ                = 0x05
-REG_VAL_MAG_MODE_100HZ               = 0x08
-REG_VAL_MAG_MODE_ST                  = 0x10
-# define ICM-20948 MAG Register  end
+# Bank 0
+ICM20948_WHO_AM_I = 0x00
+ICM20948_USER_CTRL = 0x03
+ICM20948_PWR_MGMT_1 = 0x06
+ICM20948_PWR_MGMT_2 = 0x07
+ICM20948_INT_PIN_CFG = 0x0F
 
-MAG_DATA_LEN                         =6
+ICM20948_ACCEL_SMPLRT_DIV_1 = 0x10
+ICM20948_ACCEL_SMPLRT_DIV_2 = 0x11
+ICM20948_ACCEL_INTEL_CTRL = 0x12
+ICM20948_ACCEL_WOM_THR = 0x13
+ICM20948_ACCEL_CONFIG = 0x14
+ICM20948_ACCEL_XOUT_H = 0x2D
+ICM20948_GRYO_XOUT_H = 0x33
 
-class ICM20948(object):
+ICM20948_TEMP_OUT_H = 0x39
+ICM20948_TEMP_OUT_L = 0x3A
 
-  Gyro  = [0,0,0]
-  Accel = [0,0,0]
-  Mag   = [0,0,0]
-  pitch = 0.0
-  roll  = 0.0
-  yaw   = 0.0
-  pu8data=[0,0,0,0,0,0,0,0]
-  U8tempX=[0,0,0,0,0,0,0,0,0]
-  U8tempY=[0,0,0,0,0,0,0,0,0]
-  U8tempZ=[0,0,0,0,0,0,0,0,0]
-  GyroOffset=[0,0,0]
-  Ki = 1.0
-  Kp = 4.50
-  q0 = 1.0
-  q1=q2=q3=0.0
-  angles=[0.0,0.0,0.0]
+# Offset and sensitivity - defined in electrical characteristics, and TEMP_OUT_H/L of datasheet
+ICM20948_TEMPERATURE_DEGREES_OFFSET = 21
+ICM20948_TEMPERATURE_SENSITIVITY = 333.87
+ICM20948_ROOM_TEMP_OFFSET = 21
 
-  def __init__(self,address=I2C_ADD_ICM20948):
-    self._address = address
-    self._bus = smbus.SMBus(1)
-    bRet=self.icm20948Check()             #Initialization of the device multiple times after power on will result in a return error
-    # while true != bRet:
-    #   print("ICM-20948 Error\n" )
-    #   time.sleep(0.5)
-    # print("ICM-20948 OK\n" )
-    time.sleep(0.5)                       #We can skip this detection by delaying it by 500 milliseconds
-    # user bank 0 register 
-    self._write_byte( REG_ADD_REG_BANK_SEL , REG_VAL_REG_BANK_0)
-    self._write_byte( REG_ADD_PWR_MIGMT_1 , REG_VAL_ALL_RGE_RESET)
-    time.sleep(0.1)
-    self._write_byte( REG_ADD_PWR_MIGMT_1 , REG_VAL_RUN_MODE)  
-    #user bank 2 register
-    self._write_byte( REG_ADD_REG_BANK_SEL , REG_VAL_REG_BANK_2)
-    self._write_byte( REG_ADD_GYRO_SMPLRT_DIV , 0x07)
-    self._write_byte( REG_ADD_GYRO_CONFIG_1 , REG_VAL_BIT_GYRO_DLPCFG_6 | REG_VAL_BIT_GYRO_FS_1000DPS | REG_VAL_BIT_GYRO_DLPF)
-    self._write_byte( REG_ADD_ACCEL_SMPLRT_DIV_2 ,  0x07)
-    self._write_byte( REG_ADD_ACCEL_CONFIG , REG_VAL_BIT_ACCEL_DLPCFG_6 | REG_VAL_BIT_ACCEL_FS_2g | REG_VAL_BIT_ACCEL_DLPF)
-    #user bank 0 register
-    self._write_byte( REG_ADD_REG_BANK_SEL , REG_VAL_REG_BANK_0) 
-    time.sleep(0.1)
-    self.icm20948GyroOffset()
-    self.icm20948MagCheck()
-    self.icm20948WriteSecondary( I2C_ADD_ICM20948_AK09916|I2C_ADD_ICM20948_AK09916_WRITE,REG_ADD_MAG_CNTL2, REG_VAL_MAG_MODE_20HZ)
-  def icm20948_Gyro_Accel_Read(self):
-    self._write_byte( REG_ADD_REG_BANK_SEL , REG_VAL_REG_BANK_0)
-    data =self._read_block(REG_ADD_ACCEL_XOUT_H, 12)
-    self._write_byte( REG_ADD_REG_BANK_SEL , REG_VAL_REG_BANK_2)
-    self.Accel[0] = (data[0]<<8)|data[1]
-    self.Accel[1] = (data[2]<<8)|data[3]
-    self.Accel[2] = (data[4]<<8)|data[5]
-    self.Gyro[0]  = ((data[6]<<8)|data[7]) - self.GyroOffset[0]
-    self.Gyro[1]  = ((data[8]<<8)|data[9]) - self.GyroOffset[1]
-    self.Gyro[2]  = ((data[10]<<8)|data[11]) - self.GyroOffset[2]
-    if self.Accel[0]>=32767:             #Solve the problem that Python shift will not overflow
-      self.Accel[0]=self.Accel[0]-65535
-    elif self.Accel[0]<=-32767:
-      self.Accel[0]=self.Accel[0]+65535
-    if self.Accel[1]>=32767:
-      self.Accel[1]=self.Accel[1]-65535
-    elif self.Accel[1]<=-32767:
-      self.Accel[1]=self.Accel[1]+65535
-    if self.Accel[2]>=32767:
-      self.Accel[2]=self.Accel[2]-65535
-    elif self.Accel[2]<=-32767:
-      self.Accel[2]=self.Accel[2]+65535
-    if self.Gyro[0]>=32767:
-      self.Gyro[0]=self.Gyro[0]-65535
-    elif self.Gyro[0]<=-32767:
-      self.Gyro[0]=self.Gyro[0]+65535
-    if self.Gyro[1]>=32767:
-      self.Gyro[1]=self.Gyro[1]-65535
-    elif self.Gyro[1]<=-32767:
-      self.Gyro[1]=self.Gyro[1]+65535
-    if self.Gyro[2]>=32767:
-      self.Gyro[2]=self.Gyro[2]-65535
-    elif self.Gyro[2]<=-32767:
-      self.Gyro[2]=self.Gyro[2]+65535
-  def icm20948MagRead(self):
-    counter=20
-    while(counter>0):
-      time.sleep(0.01)
-      self.icm20948ReadSecondary( I2C_ADD_ICM20948_AK09916|I2C_ADD_ICM20948_AK09916_READ , REG_ADD_MAG_ST2, 1)
-      if ((self.pu8data[0] & 0x01)!= 0):
-        break
-      counter-=1
-    if counter!=0:
-      for i in range(0,8):
-        self.icm20948ReadSecondary( I2C_ADD_ICM20948_AK09916|I2C_ADD_ICM20948_AK09916_READ , REG_ADD_MAG_DATA , MAG_DATA_LEN)
-        self.U8tempX[i] = (self.pu8data[1]<<8)|self.pu8data[0]
-        self.U8tempY[i] = (self.pu8data[3]<<8)|self.pu8data[2]
-        self.U8tempZ[i] = (self.pu8data[5]<<8)|self.pu8data[4]
-      self.Mag[0]=(self.U8tempX[0]+self.U8tempX[1]+self.U8tempX[2]+self.U8tempX[3]+self.U8tempX[4]+self.U8tempX[5]+self.U8tempX[6]+self.U8tempX[7])/8
-      self.Mag[1]=-(self.U8tempY[0]+self.U8tempY[1]+self.U8tempY[2]+self.U8tempY[3]+self.U8tempY[4]+self.U8tempY[5]+self.U8tempY[6]+self.U8tempY[7])/8
-      self.Mag[2]=-(self.U8tempZ[0]+self.U8tempZ[1]+self.U8tempZ[2]+self.U8tempZ[3]+self.U8tempZ[4]+self.U8tempZ[5]+self.U8tempZ[6]+self.U8tempZ[7])/8
-    if self.Mag[0]>=32767:            #Solve the problem that Python shift will not overflow
-      self.Mag[0]=self.Mag[0]-65535
-    elif self.Mag[0]<=-32767:
-      self.Mag[0]=self.Mag[0]+65535
-    if self.Mag[1]>=32767:
-      self.Mag[1]=self.Mag[1]-65535
-    elif self.Mag[1]<=-32767:
-      self.Mag[1]=self.Mag[1]+65535
-    if self.Mag[2]>=32767:
-      self.Mag[2]=self.Mag[2]-65535
-    elif self.Mag[2]<=-32767:
-      self.Mag[2]=self.Mag[2]+65535
-  def icm20948ReadSecondary(self,u8I2CAddr,u8RegAddr,u8Len):
-    u8Temp=0
-    self._write_byte( REG_ADD_REG_BANK_SEL,  REG_VAL_REG_BANK_3) #swtich bank3
-    self._write_byte( REG_ADD_I2C_SLV0_ADDR, u8I2CAddr)
-    self._write_byte( REG_ADD_I2C_SLV0_REG,  u8RegAddr)
-    self._write_byte( REG_ADD_I2C_SLV0_CTRL, REG_VAL_BIT_SLV0_EN|u8Len)
+AK09916_I2C_ADDR = 0x0c
+AK09916_CHIP_ID = 0x09
+AK09916_WIA = 0x01
+AK09916_ST1 = 0x10
+AK09916_ST1_DOR = 0b00000010   # Data overflow bit
+AK09916_ST1_DRDY = 0b00000001  # Data self.ready bit
+AK09916_HXL = 0x11
+AK09916_ST2 = 0x18
+AK09916_ST2_HOFL = 0b00001000  # Magnetic sensor overflow bit
+AK09916_CNTL2 = 0x31
+AK09916_CNTL2_MODE = 0b00001111
+AK09916_CNTL2_MODE_OFF = 0
+AK09916_CNTL2_MODE_SINGLE = 1
+AK09916_CNTL2_MODE_CONT1 = 2
+AK09916_CNTL2_MODE_CONT2 = 4
+AK09916_CNTL2_MODE_CONT3 = 6
+AK09916_CNTL2_MODE_CONT4 = 8
+AK09916_CNTL2_MODE_TEST = 16
+AK09916_CNTL3 = 0x32
 
-    self._write_byte( REG_ADD_REG_BANK_SEL, REG_VAL_REG_BANK_0) #swtich bank0
-    
-    u8Temp = self._read_byte(REG_ADD_USER_CTRL)
-    u8Temp |= REG_VAL_BIT_I2C_MST_EN
-    self._write_byte( REG_ADD_USER_CTRL, u8Temp)
-    time.sleep(0.01)
-    u8Temp &= ~REG_VAL_BIT_I2C_MST_EN
-    self._write_byte( REG_ADD_USER_CTRL, u8Temp)
-    
-    for i in range(0,u8Len):
-      self.pu8data[i]= self._read_byte( REG_ADD_EXT_SENS_DATA_00+i)
 
-    self._write_byte( REG_ADD_REG_BANK_SEL, REG_VAL_REG_BANK_3) #swtich bank3
-    
-    u8Temp = self._read_byte(REG_ADD_I2C_SLV0_CTRL)
-    u8Temp &= ~((REG_VAL_BIT_I2C_MST_EN)&(REG_VAL_BIT_MASK_LEN))
-    self._write_byte( REG_ADD_I2C_SLV0_CTRL,  u8Temp)
-    
-    self._write_byte( REG_ADD_REG_BANK_SEL, REG_VAL_REG_BANK_0) #swtich bank0
-  def icm20948WriteSecondary(self,u8I2CAddr,u8RegAddr,u8data):
-    u8Temp=0
-    self._write_byte( REG_ADD_REG_BANK_SEL,  REG_VAL_REG_BANK_3) #swtich bank3
-    self._write_byte( REG_ADD_I2C_SLV1_ADDR, u8I2CAddr)
-    self._write_byte( REG_ADD_I2C_SLV1_REG,  u8RegAddr)
-    self._write_byte( REG_ADD_I2C_SLV1_DO,   u8data)
-    self._write_byte( REG_ADD_I2C_SLV1_CTRL, REG_VAL_BIT_SLV0_EN|1)
+class ICM20948:
+    def write(self, reg, value):
+        """Write byte to the sensor."""
+        self._bus.write_byte_data(self._addr, reg, value)
+        time.sleep(0.0001)
 
-    self._write_byte( REG_ADD_REG_BANK_SEL, REG_VAL_REG_BANK_0) #swtich bank0
+    def read(self, reg):
+        """Read byte from the sensor."""
+        return self._bus.read_byte_data(self._addr, reg)
 
-    u8Temp = self._read_byte(REG_ADD_USER_CTRL)
-    u8Temp |= REG_VAL_BIT_I2C_MST_EN
-    self._write_byte( REG_ADD_USER_CTRL, u8Temp)
-    time.sleep(0.01)
-    u8Temp &= ~REG_VAL_BIT_I2C_MST_EN
-    self._write_byte( REG_ADD_USER_CTRL, u8Temp)
+    def trigger_mag_io(self):
+        user = self.read(ICM20948_USER_CTRL)
+        self.write(ICM20948_USER_CTRL, user | 0x20)
+        time.sleep(0.005)
+        self.write(ICM20948_USER_CTRL, user)
 
-    self._write_byte( REG_ADD_REG_BANK_SEL, REG_VAL_REG_BANK_3) #swtich bank3
+    def read_bytes(self, reg, length=1):
+        """Read byte(s) from the sensor."""
+        return self._bus.read_i2c_block_data(self._addr, reg, length)
 
-    u8Temp = self._read_byte(REG_ADD_I2C_SLV0_CTRL)
-    u8Temp &= ~((REG_VAL_BIT_I2C_MST_EN)&(REG_VAL_BIT_MASK_LEN))
-    self._write_byte( REG_ADD_I2C_SLV0_CTRL,  u8Temp)
+    def bank(self, value):
+        """Switch register self.bank."""
+        if not self._bank == value:
+            self.write(ICM20948_BANK_SEL, value << 4)
+            self._bank = value
 
-    self._write_byte( REG_ADD_REG_BANK_SEL, REG_VAL_REG_BANK_0) #swtich bank0
-  def icm20948GyroOffset(self):
-    s32TempGx = 0
-    s32TempGy = 0
-    s32TempGz = 0
-    for i in range(0,32):
-      self.icm20948_Gyro_Accel_Read()
-      s32TempGx += self.Gyro[0]
-      s32TempGy += self.Gyro[1]
-      s32TempGz += self.Gyro[2]
-      time.sleep(0.01)
-    self.GyroOffset[0] = s32TempGx >> 5
-    self.GyroOffset[1] = s32TempGy >> 5
-    self.GyroOffset[2] = s32TempGz >> 5
-  def _read_byte(self,cmd):
-    return self._bus.read_byte_data(int(self._address),int(cmd))
-  def _read_block(self, reg, length=1):
-    return self._bus.read_i2c_block_data(int(self._address),int(reg),length)
-  def _read_u16(self,cmd):
-    LSB = self._bus.read_byte_data(int(self._address),int(cmd))
-    MSB = self._bus.read_byte_data(int(self._address),int(cmd)+1)
-    return (MSB << 8) + LSB
+    def mag_write(self, reg, value):
+        """Write a byte to the slave magnetometer."""
+        self.bank(3)
+        self.write(ICM20948_I2C_SLV0_ADDR, AK09916_I2C_ADDR)  # Write one byte
+        self.write(ICM20948_I2C_SLV0_REG, reg)
+        self.write(ICM20948_I2C_SLV0_DO, value)
+        self.bank(0)
+        self.trigger_mag_io()
 
-  def _write_byte(self,cmd,val):
-    self._bus.write_byte_data(int(self._address),int(cmd),int(val))
-    time.sleep(0.0001)
-  def imuAHRSupdate(self,gx, gy,gz,ax,ay,az,mx,my,mz):    
-    norm=0.0
-    hx = hy = hz = bx = bz = 0.0
-    vx = vy = vz = wx = wy = wz = 0.0
-    exInt = eyInt = ezInt = 0.0
-    ex=ey=ez=0.0 
-    halfT = 0.024
-    q0q0 = self.q0 * self.q0
-    q0q1 = self.q0 * self.q1
-    q0q2 = self.q0 * self.q2
-    q0q3 = self.q0 * self.q3
-    q1q1 = self.q1 * self.q1
-    q1q2 = self.q1 * self.q2
-    q1q3 = self.q1 * self.q3
-    q2q2 = self.q2 * self.q2
-    q2q3 = self.q2 * self.q3
-    q3q3 = self.q3 * self.q3
+    def mag_read(self, reg):
+        """Read a byte from the slave magnetometer."""
+        self.bank(3)
+        self.write(ICM20948_I2C_SLV0_ADDR, AK09916_I2C_ADDR | 0x80)
+        self.write(ICM20948_I2C_SLV0_REG, reg)
+        self.write(ICM20948_I2C_SLV0_DO, 0xff)
+        self.write(ICM20948_I2C_SLV0_CTRL, 0x80 | 1)  # Read 1 byte
 
-    norm = float(1/math.sqrt(ax * ax + ay * ay + az * az))     
-    ax = ax * norm
-    ay = ay * norm
-    az = az * norm
+        self.bank(0)
+        self.trigger_mag_io()
 
-    norm = float(1/math.sqrt(mx * mx + my * my + mz * mz))      
-    mx = mx * norm
-    my = my * norm
-    mz = mz * norm
+        return self.read(ICM20948_EXT_SLV_SENS_DATA_00)
 
-    # compute reference direction of flux
-    hx = 2 * mx * (0.5 - q2q2 - q3q3) + 2 * my * (q1q2 - q0q3) + 2 * mz * (q1q3 + q0q2)
-    hy = 2 * mx * (q1q2 + q0q3) + 2 * my * (0.5 - q1q1 - q3q3) + 2 * mz * (q2q3 - q0q1)
-    hz = 2 * mx * (q1q3 - q0q2) + 2 * my * (q2q3 + q0q1) + 2 * mz * (0.5 - q1q1 - q2q2)         
-    bx = math.sqrt((hx * hx) + (hy * hy))
-    bz = hz     
+    def mag_read_bytes(self, reg, length=1):
+        """Read up to 24 bytes from the slave magnetometer."""
+        self.bank(3)
+        self.write(ICM20948_I2C_SLV0_CTRL, 0x80 | 0x08 | length)
+        self.write(ICM20948_I2C_SLV0_ADDR, AK09916_I2C_ADDR | 0x80)
+        self.write(ICM20948_I2C_SLV0_REG, reg)
+        self.write(ICM20948_I2C_SLV0_DO, 0xff)
+        self.bank(0)
+        self.trigger_mag_io()
 
-    # estimated direction of gravity and flux (v and w)
-    vx = 2 * (q1q3 - q0q2)
-    vy = 2 * (q0q1 + q2q3)
-    vz = q0q0 - q1q1 - q2q2 + q3q3
-    wx = 2 * bx * (0.5 - q2q2 - q3q3) + 2 * bz * (q1q3 - q0q2)
-    wy = 2 * bx * (q1q2 - q0q3) + 2 * bz * (q0q1 + q2q3)
-    wz = 2 * bx * (q0q2 + q1q3) + 2 * bz * (0.5 - q1q1 - q2q2)  
+        return self.read_bytes(ICM20948_EXT_SLV_SENS_DATA_00, length)
 
-    # error is sum of cross product between reference direction of fields and direction measured by sensors
-    ex = (ay * vz - az * vy) + (my * wz - mz * wy)
-    ey = (az * vx - ax * vz) + (mz * wx - mx * wz)
-    ez = (ax * vy - ay * vx) + (mx * wy - my * wx)
+    def magnetometer_ready(self):
+        """Check the magnetometer status self.ready bit."""
+        return self.mag_read(AK09916_ST1) & 0x01 > 0
 
-    if (ex != 0.0 and ey != 0.0 and ez != 0.0):
-      exInt = exInt + ex * self.Ki * halfT
-      eyInt = eyInt + ey * self.Ki * halfT
-      ezInt = ezInt + ez * self.Ki * halfT
+    def read_magnetometer_data(self, timeout=1.0):
+        self.mag_write(AK09916_CNTL2, 0x01)  # Trigger single measurement
+        t_start = time.time()
+        while not self.magnetometer_ready():
+            if time.time() - t_start > timeout:
+                raise RuntimeError("Timeout waiting for Magnetometer Ready")
+            time.sleep(0.00001)
 
-      gx = gx + self.Kp * ex + exInt
-      gy = gy + self.Kp * ey + eyInt
-      gz = gz + self.Kp * ez + ezInt
+        data = self.mag_read_bytes(AK09916_HXL, 6)
 
-    self.q0 = self.q0 + (-self.q1 * gx - self.q2 * gy - self.q3 * gz) * halfT
-    self.q1 = self.q1 + (self.q0 * gx + self.q2 * gz - self.q3 * gy) * halfT
-    self.q2 = self.q2 + (self.q0 * gy - self.q1 * gz + self.q3 * gx) * halfT
-    self.q3 = self.q3 + (self.q0 * gz + self.q1 * gy - self.q2 * gx) * halfT
+        # Read ST2 to confirm self.read finished,
+        # needed for continuous modes
+        # self.mag_read(AK09916_ST2)
 
-    norm = float(1/math.sqrt(self.q0 * self.q0 + self.q1 * self.q1 + self.q2 * self.q2 + self.q3 * self.q3))
-    self.q0 = self.q0 * norm
-    self.q1 = self.q1 * norm
-    self.q2 = self.q2 * norm
-    self.q3 = self.q3 * norm
-  def icm20948Check(self):
-    bRet=false
-    if REG_VAL_WIA == self._read_byte(REG_ADD_WIA):
-      bRet = true
-    return bRet
-  def icm20948MagCheck(self):
-    self.icm20948ReadSecondary( I2C_ADD_ICM20948_AK09916|I2C_ADD_ICM20948_AK09916_READ,REG_ADD_MAG_WIA1, 2)
-    if (self.pu8data[0] == REG_VAL_MAG_WIA1) and ( self.pu8data[1] == REG_VAL_MAG_WIA2) :
-        bRet = true
-        return bRet
-  def icm20948CalAvgValue(self, MotionVal):
-    MotionVal[0]=self.Gyro[0]/32.8
-    MotionVal[1]=self.Gyro[1]/32.8
-    MotionVal[2]=self.Gyro[2]/32.8
-    MotionVal[3]=self.Accel[0]
-    MotionVal[4]=self.Accel[1]
-    MotionVal[5]=self.Accel[2]
-    MotionVal[6]=self.Mag[0]
-    MotionVal[7]=self.Mag[1]
-    MotionVal[8]=self.Mag[2]
+        x, y, z = struct.unpack("<hhh", bytearray(data))
+
+        # Scale for magnetic flux density "uT"
+        # from section 3.3 of the datasheet
+        # This value is constant
+        x *= 0.15
+        y *= 0.15
+        z *= 0.15
+
+        return x, y, z
+
+    def read_accelerometer_gyro_data(self):
+        self.bank(0)
+        data = self.read_bytes(ICM20948_ACCEL_XOUT_H, 12)
+
+        ax, ay, az, gx, gy, gz = struct.unpack(">hhhhhh", bytearray(data))
+
+        self.bank(2)
+
+        # Read accelerometer full scale range and
+        # use it to compensate the self.reading to gs
+        scale = (self.read(ICM20948_ACCEL_CONFIG) & 0x06) >> 1
+
+        # scale ranges from section 3.2 of the datasheet
+        gs = [16384.0, 8192.0, 4096.0, 2048.0][scale]
+
+        ax /= gs
+        ay /= gs
+        az /= gs
+
+        # Read back the degrees per second rate and
+        # use it to compensate the self.reading to dps
+        scale = (self.read(ICM20948_GYRO_CONFIG_1) & 0x06) >> 1
+
+        # scale ranges from section 3.1 of the datasheet
+        dps = [131, 65.5, 32.8, 16.4][scale]
+
+        gx /= dps
+        gy /= dps
+        gz /= dps
+
+        return ax, ay, az, gx, gy, gz
+
+    def set_accelerometer_sample_rate(self, rate=125):
+        """Set the accelerometer sample rate in Hz."""
+        self.bank(2)
+        # 125Hz - 1.125 kHz / (1 + rate)
+        rate = int((1125.0 / rate) - 1)
+        # TODO maybe use struct to pack and then write_bytes
+        self.write(ICM20948_ACCEL_SMPLRT_DIV_1, (rate >> 8) & 0xff)
+        self.write(ICM20948_ACCEL_SMPLRT_DIV_2, rate & 0xff)
+
+    def set_accelerometer_full_scale(self, scale=16):
+        """Set the accelerometer fulls cale range to +- the supplied value."""
+        self.bank(2)
+        value = self.read(ICM20948_ACCEL_CONFIG) & 0b11111001
+        value |= {2: 0b00, 4: 0b01, 8: 0b10, 16: 0b11}[scale] << 1
+        self.write(ICM20948_ACCEL_CONFIG, value)
+
+    def set_accelerometer_low_pass(self, enabled=True, mode=5):
+        """Configure the accelerometer low pass filter."""
+        self.bank(2)
+        value = self.read(ICM20948_ACCEL_CONFIG) & 0b10001110
+        if enabled:
+            value |= 0b1
+        value |= (mode & 0x07) << 4
+        self.write(ICM20948_ACCEL_CONFIG, value)
+
+    def set_gyro_sample_rate(self, rate=125):
+        """Set the gyro sample rate in Hz."""
+        self.bank(2)
+        # 125Hz sample rate - 1.125 kHz / (1 + rate)
+        rate = int((1125.0 / rate) - 1)
+        self.write(ICM20948_GYRO_SMPLRT_DIV, rate)
+
+    def set_gyro_full_scale(self, scale=250):
+        """Set the gyro full scale range to +- supplied value."""
+        self.bank(2)
+        value = self.read(ICM20948_GYRO_CONFIG_1) & 0b11111001
+        value |= {250: 0b00, 500: 0b01, 1000: 0b10, 2000: 0b11}[scale] << 1
+        self.write(ICM20948_GYRO_CONFIG_1, value)
+
+    def set_gyro_low_pass(self, enabled=True, mode=5):
+        """Configure the gyro low pass filter."""
+        self.bank(2)
+        value = self.read(ICM20948_GYRO_CONFIG_1) & 0b10001110
+        if enabled:
+            value |= 0b1
+        value |= (mode & 0x07) << 4
+        self.write(ICM20948_GYRO_CONFIG_1, value)
+
+    def read_temperature(self):
+        """Property to read the current IMU temperature"""
+        # PWR_MGMT_1 defaults to leave temperature enabled
+        self.bank(0)
+        temp_raw_bytes = self.read_bytes(ICM20948_TEMP_OUT_H, 2)
+        temp_raw = struct.unpack('>h', bytearray(temp_raw_bytes))[0]
+        temperature_deg_c = ((temp_raw - ICM20948_ROOM_TEMP_OFFSET) / ICM20948_TEMPERATURE_SENSITIVITY) + ICM20948_TEMPERATURE_DEGREES_OFFSET
+        return temperature_deg_c
+
+    def __init__(self, i2c_addr=I2C_ADDR, i2c_bus=None):
+        self._bank = -1
+        self._addr = i2c_addr
+
+        if i2c_bus is None:
+            from smbus2 import SMBus
+            self._bus = SMBus(1)
+        else:
+            self._bus = i2c_bus
+
+        self.bank(0)
+        if not self.read(ICM20948_WHO_AM_I) == CHIP_ID:
+            raise RuntimeError("Unable to find ICM20948")
+
+        self.write(ICM20948_PWR_MGMT_1, 0x80)
+        time.sleep(0.01)
+        self.write(ICM20948_PWR_MGMT_1, 0x01)
+        self.write(ICM20948_PWR_MGMT_2, 0x00)
+
+        self.bank(2)
+
+        self.set_gyro_sample_rate(100)
+        self.set_gyro_low_pass(enabled=True, mode=5)
+        self.set_gyro_full_scale(250)
+
+        self.set_accelerometer_sample_rate(125)
+        self.set_accelerometer_low_pass(enabled=True, mode=5)
+        self.set_accelerometer_full_scale(16)
+
+        self.bank(0)
+        self.write(ICM20948_INT_PIN_CFG, 0x30)
+
+        self.bank(3)
+        self.write(ICM20948_I2C_MST_CTRL, 0x4D)
+        self.write(ICM20948_I2C_MST_DELAY_CTRL, 0x01)
+
+        if not self.mag_read(AK09916_WIA) == AK09916_CHIP_ID:
+            raise RuntimeError("Unable to find AK09916")
+
+        # Reset the magnetometer
+        self.mag_write(AK09916_CNTL3, 0x01)
+        while self.mag_read(AK09916_CNTL3) == 0x01:
+            time.sleep(0.0001)
+
+
+if __name__ == "__main__":
+    imu = ICM20948(i2c_addr=0x6b, i2c_bus=1)
+
+    while True:
+        x, y, z = imu.read_magnetometer_data()
+        ax, ay, az, gx, gy, gz = imu.read_accelerometer_gyro_data()
+
+        print(f"""
+Accel: {ax:05.2f} {ay:05.2f} {az:05.2f}
+Gyro:  {gx:05.2f} {gy:05.2f} {gz:05.2f}
+Mag:   {x:05.2f} {y:05.2f} {z:05.2f}""")
+
+        time.sleep(0.25)
