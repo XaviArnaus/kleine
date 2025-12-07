@@ -305,10 +305,10 @@ class ICM20948(object):
     exInt = eyInt = ezInt = 0.0
     ex=ey=ez=0.0 
     halfT = 0.024
-    global q0
-    global q1
-    global q2
-    global q3
+    q0 = self.q0
+    q1 = self.q1
+    q2 = self.q2
+    q3 = self.q3
     q0q0 = q0 * q0
     q0q1 = q0 * q1
     q0q2 = q0 * q2
