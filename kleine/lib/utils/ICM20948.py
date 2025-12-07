@@ -371,3 +371,4 @@ class ICM20948(object):
     MotionVal[6]=self.Mag[0]
     MotionVal[7]=self.Mag[1]
     MotionVal[8]=self.Mag[2]
+    return MotionVal
