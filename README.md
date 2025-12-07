@@ -120,6 +120,8 @@ wget https://files.waveshare.com/upload/0/04/Sense_HAT_C_Pi.zip
 unzip Sense_HAT_C_Pi.zip -d Sense_HAT_C_Pi
 ```
 
+It was it, the chip changed from ICM20948 to QMI8658
+
 
 # Resources
 
