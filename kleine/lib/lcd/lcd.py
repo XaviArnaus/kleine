@@ -39,7 +39,7 @@ class Lcd(PyXavi):
             # display with hardware SPI:
             ''' Warning!!!Don't  creation of multiple displayer objects!!! '''
             #disp = LCD_2inch.LCD_2inch(spi=SPI.SpiDev(bus, device),spi_freq=10000000,rst=RST,dc=DC,bl=BL)
-            self.lcd = LCD_2inch()
+            # self.lcd = LCD_2inch()
             # Initialize library.
             self.lcd.Init()
             # Clear display.
