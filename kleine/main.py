@@ -60,6 +60,7 @@ class Main(PyXavi):
         self._xlog.debug("Closing nicely...")
 
         # Clear the Display
+        self.macros.soft_clear(display=self.eink)
         self.eink.clear()
 
         # Sleep the eInk
