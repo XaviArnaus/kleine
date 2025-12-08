@@ -4,7 +4,8 @@ from pyxavi import Config, Dictionary
 
 from kleine.lib.abstract.pyxavi import PyXavi
 from .eink import Eink
-from ..objects import Rectangle, Line, Point
+from kleine.lib.objects.point import Point
+from kleine.lib.objects.rectangle import Rectangle
 
 class Macros(PyXavi):
 
