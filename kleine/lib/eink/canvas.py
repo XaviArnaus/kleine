@@ -13,8 +13,8 @@ class EinkCanvas(PyXavi):
     _working_image: Image.Image = None
     _screen_size: Point = None
 
-    # FONT_FILE: str = "pitxu/pic/Font.ttc"
-    FONT_FILE: str = ROOT_DIR + "/lib/fonts/Font_with_emojis.ttc"
+    # FONT_FILE: str = "kleine/pic/Font.ttc"
+    FONT_FILE: str = "kleine/lib/fonts/Font_with_emojis.ttc"
 
     FONT_SMALL: ImageFont = None
     FONT_MEDIUM: ImageFont = None
@@ -35,6 +35,8 @@ class EinkCanvas(PyXavi):
 
     def __init__(self, config: Config = None, params: Dictionary = None, screen_size: Point = None):
         super(EinkCanvas, self).init_pyxavi(config=config, params=params)
+
+        self._xlog.debug("Initialising TTF font: " + self.FONT_FILE)
 
         # Set the screen size given.
         if screen_size is not None:
