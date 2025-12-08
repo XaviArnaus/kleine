@@ -42,12 +42,9 @@ class RaspberryPi:
     # Pin definition
     # It's BCM pin number, not phisical pin number
     RST_PIN  = 17
-    # DC_PIN   = 25
-    DC_PIN   = 6
-    # CS_PIN   = 8
-    CS_PIN   = 7
-    # BUSY_PIN = 24
-    BUSY_PIN = 22
+    DC_PIN   = 25
+    CS_PIN   = 8
+    BUSY_PIN = 24
     PWR_PIN  = 18
     MOSI_PIN = 10
     SCLK_PIN = 11
