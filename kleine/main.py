@@ -44,14 +44,14 @@ class Main(PyXavi):
         self.macros.startup_splash(display=self.eink)
         time.sleep(2)
 
-        # self._xlog.debug("Test accelerometer...")
-        # self.accelerometer.test()
+        self._xlog.debug("Test accelerometer...")
+        self.accelerometer.test()
 
-        # self._xlog.debug("Test air pressure...")
-        # self.air_pressure.test()
+        self._xlog.debug("Test air pressure...")
+        self.air_pressure.test()
 
-        # self._xlog.debug("Test temperature...")
-        # self.temperature.test()
+        self._xlog.debug("Test temperature...")
+        self.temperature.test()
 
         # However it happened, just close nicely.
         self.close_nicely()
