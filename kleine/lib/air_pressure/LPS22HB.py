@@ -1,4 +1,3 @@
-import time
 import smbus2 as smbus
 
 

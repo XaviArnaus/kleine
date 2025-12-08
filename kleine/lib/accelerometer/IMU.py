@@ -1,6 +1,5 @@
-import time
+import time, math
 import smbus2 as smbus
-import math
 
 true                                 =0x01
 false                                =0x00

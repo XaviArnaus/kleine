@@ -809,4 +809,4 @@ tooling-extras = ["pyaml (>=23.7.0)", "pypandoc-binary (>=1.11)", "pytest (>=7.4
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "2a2411b82bc35f9755869228de6f6bec88c46d7514f065b9e359404593251045"
+content-hash = "488637f89618dd79eedf5b628c74516ce99f4d66d81fca6ab1bda0f774a78f32"
