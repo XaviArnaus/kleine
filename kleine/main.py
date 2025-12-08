@@ -61,3 +61,6 @@ class Main(PyXavi):
 
         # Clear the Display
         self.eink.clear()
+
+        # Sleep the eInk
+        self.eink.close()
