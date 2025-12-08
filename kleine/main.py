@@ -6,6 +6,7 @@ from kleine.lib.eink.macros import Macros
 from kleine.lib.accelerometer.accelerometer import Accelerometer
 from kleine.lib.air_pressure.air_pressure import AirPressure
 from kleine.lib.temperature.temperature import Temperature
+from kleine.lib.lcd.lcd import Lcd
 
 import time
 
@@ -16,14 +17,19 @@ class Main(PyXavi):
     accelerometer: Accelerometer = None
     air_pressure: AirPressure = None
     temperature: Temperature = None
+    lcd: Lcd = None
 
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(Main, self).init_pyxavi(config=config, params=params)
 
-        # Initialise the eInk display
-        self._xlog.info("Initialising eInk display...")
-        self.eink = Eink(config=self._xconfig, params=self._xparams)
-        self.macros = Macros(config=self._xconfig, params=self._xparams)
+        # Initialise the LCD display
+        self._xlog.info("Initialising LCD display...")
+        self.lcd = Lcd(config=self._xconfig, params=self._xparams)
+
+        # # Initialise the eInk display
+        # self._xlog.info("Initialising eInk display...")
+        # self.eink = Eink(config=self._xconfig, params=self._xparams)
+        # self.macros = Macros(config=self._xconfig, params=self._xparams)
 
         # # Initialise the accelerometer
         # self._xlog.info("Initialising accelerometer...")
@@ -41,7 +47,8 @@ class Main(PyXavi):
 
         self._xlog.info("🚀 Starting Kleine main run...")
 
-        self.macros.startup_splash(display=self.eink)
+        # self.macros.startup_splash(display=self.eink)
+        self.lcd.test()
         time.sleep(2)
 
         # self._xlog.debug("Test accelerometer...")
