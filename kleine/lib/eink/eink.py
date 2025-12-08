@@ -7,7 +7,7 @@ from PIL import Image,ImageFont
 from pyxavi import Config, Dictionary
 from kleine.lib.abstract.pyxavi import PyXavi
 from kleine.lib.eink.canvas import EinkCanvas
-from kleine.lib.objects import Point
+from kleine.lib.objects.point import Point
 
 class Eink(PyXavi):
 

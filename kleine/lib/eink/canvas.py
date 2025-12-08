@@ -2,7 +2,7 @@ from pyxavi import Config, Dictionary
 from PIL import Image,ImageDraw,ImageFont
 
 from kleine.lib.abstract.pyxavi import PyXavi
-from kleine.lib.objects import Point
+from kleine.lib.objects.point import Point
 
 from definitions import ROOT_DIR
 
