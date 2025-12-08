@@ -133,8 +133,8 @@ class Eink(PyXavi):
         """
 
         # Initialise the paths
-        self._pic_dir = os.path.join(self._xparams.get("base_path", ""), 'pitxu', 'pic')
-        libdir = os.path.join(self._xparams.get("base_path", ""), 'pitxu', 'lib')
+        self._pic_dir = os.path.join(self._xparams.get("base_path", ""), 'kleine', 'pic')
+        libdir = os.path.join(self._xparams.get("base_path", ""), 'kleine', 'lib')
 
         # Don't initialise if not allowed
         if (not self._is_gpio_allowed()):
