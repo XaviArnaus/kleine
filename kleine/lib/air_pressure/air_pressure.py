@@ -11,6 +11,8 @@ class AirPressure(PyXavi):
     def test(self):
 
         self._xlog.info("🚀 Starting Air Pressure test run...")
+
+        temp_correction_factor = -5.0  # Adjust this value based on calibration
         
         PRESS_DATA = 0.0
         TEMP_DATA = 0.0
@@ -29,7 +31,7 @@ class AirPressure(PyXavi):
                 if (lps22hb._read_byte(LPS_STATUS)&0x02)==0x02:   # a new pressure data is generated
                     u8Buf[0]=lps22hb._read_byte(LPS_TEMP_OUT_L)
                     u8Buf[1]=lps22hb._read_byte(LPS_TEMP_OUT_H)
-                    TEMP_DATA=((u8Buf[1]<<8)+u8Buf[0])/100.0
+                    TEMP_DATA=((u8Buf[1]<<8)+u8Buf[0])/100.0 + temp_correction_factor
                 print('Pressure = %6.2f hPa , Temperature = %6.2f °C\r\n'%(PRESS_DATA,TEMP_DATA))
             except(KeyboardInterrupt):
                 print("\n") 
