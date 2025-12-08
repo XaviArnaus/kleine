@@ -58,3 +58,6 @@ class Main(PyXavi):
     
     def close_nicely(self):
         self._xlog.debug("Closing nicely...")
+
+        # Clear the Display
+        self.eink.clear()
