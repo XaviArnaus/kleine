@@ -14,9 +14,13 @@ class Temperature(PyXavi):
 
         try:
             shtc3 = SHTC3(1, SHTC3_I2C_ADDRESS)
+
+            temp_correction_factor = -5.0  # Adjust this value based on calibration
             
             while True:
-                print("Temperature = %6.2f°C , Humidity = %6.2f%%" % (shtc3.SHTC3_Read_TH(),shtc3.SHTC3_Read_RH()))
+                temperature = shtc3.SHTC3_Read_TH() + temp_correction_factor
+                humidity = shtc3.SHTC3_Read_RH()
+                print("Temperature = %6.2f°C , Humidity = %6.2f%%" % (temperature, humidity))
 
         except(KeyboardInterrupt):
                 print("\n")

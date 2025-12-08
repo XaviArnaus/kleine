@@ -3,6 +3,7 @@ from kleine.lib.abstract.pyxavi import PyXavi
 
 from kleine.lib.accelerometer.accelerometer import Accelerometer
 from kleine.lib.air_pressure.air_pressure import AirPressure
+from kleine.lib.temperature.temperature import Temperature
 
 class Main(PyXavi):
 
@@ -20,6 +21,10 @@ class Main(PyXavi):
         self._xlog.debug("Test air pressure...")
         air_pressure = AirPressure()
         air_pressure.test()
+
+        self._xlog.debug("Test temperature...")
+        temperature = Temperature()
+        temperature.test()
 
         # However it happened, just close nicely.
         self.close_nicely()
