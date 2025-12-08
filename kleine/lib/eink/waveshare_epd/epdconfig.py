@@ -40,6 +40,7 @@ logger = logging.getLogger(__name__)
 
 class RaspberryPi:
     # Pin definition
+    # It's BCM pin number, not phisical pin number
     RST_PIN  = 17
     DC_PIN   = 25
     CS_PIN   = 8
@@ -55,7 +56,7 @@ class RaspberryPi:
         self.SPI = spidev.SpiDev()
         self.GPIO_RST_PIN    = gpiozero.LED(self.RST_PIN)
         self.GPIO_DC_PIN     = gpiozero.LED(self.DC_PIN)
-        # self.GPIO_CS_PIN     = gpiozero.LED(self.CS_PIN)
+        self.GPIO_CS_PIN     = gpiozero.LED(self.CS_PIN)
         self.GPIO_PWR_PIN    = gpiozero.LED(self.PWR_PIN)
         self.GPIO_BUSY_PIN   = gpiozero.Button(self.BUSY_PIN, pull_up = False)
 

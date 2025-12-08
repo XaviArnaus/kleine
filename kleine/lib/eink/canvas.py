@@ -13,8 +13,8 @@ class EinkCanvas(PyXavi):
     _working_image: Image.Image = None
     _screen_size: Point = None
 
-    # FONT_FILE: str = "kleine/pic/Font.ttc"
-    FONT_FILE: str = "kleine/lib/fonts/Font_with_emojis.ttc"
+    # FONT_FILE: str = "kleine/lib/eink/fonts/Font.ttc"
+    FONT_FILE: str = "kleine/lib/eink/fonts/Font_with_emojis.ttc"
 
     FONT_SMALL: ImageFont = None
     FONT_MEDIUM: ImageFont = None
