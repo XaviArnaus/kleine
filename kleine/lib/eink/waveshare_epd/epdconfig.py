@@ -46,7 +46,8 @@ class RaspberryPi:
     DC_PIN   = 6
     # CS_PIN   = 8
     CS_PIN   = 7
-    BUSY_PIN = 24
+    # BUSY_PIN = 24
+    BUSY_PIN = 22
     PWR_PIN  = 18
     MOSI_PIN = 10
     SCLK_PIN = 11
