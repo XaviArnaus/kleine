@@ -25,17 +25,17 @@ class Main(PyXavi):
         self.eink = Eink(config=self._xconfig, params=self._xparams)
         self.macros = Macros(config=self._xconfig, params=self._xparams)
 
-        # Initialise the accelerometer
-        self._xlog.info("Initialising accelerometer...")
-        self.accelerometer = Accelerometer(config=self._xconfig, params=self._xparams)
+        # # Initialise the accelerometer
+        # self._xlog.info("Initialising accelerometer...")
+        # self.accelerometer = Accelerometer(config=self._xconfig, params=self._xparams)
 
-        # Initialise the air pressure sensor
-        self._xlog.info("Initialising air pressure sensor...")
-        self.air_pressure = AirPressure(config=self._xconfig, params=self._xparams)
+        # # Initialise the air pressure sensor
+        # self._xlog.info("Initialising air pressure sensor...")
+        # self.air_pressure = AirPressure(config=self._xconfig, params=self._xparams)
 
-        # Initialise the temperature sensor
-        self._xlog.info("Initialising temperature sensor...")
-        self.temperature = Temperature(config=self._xconfig, params=self._xparams)
+        # # Initialise the temperature sensor
+        # self._xlog.info("Initialising temperature sensor...")
+        # self.temperature = Temperature(config=self._xconfig, params=self._xparams)
 
     def run(self):
 
@@ -44,14 +44,14 @@ class Main(PyXavi):
         self.macros.startup_splash(display=self.eink)
         time.sleep(2)
 
-        self._xlog.debug("Test accelerometer...")
-        self.accelerometer.test()
+        # self._xlog.debug("Test accelerometer...")
+        # self.accelerometer.test()
 
-        self._xlog.debug("Test air pressure...")
-        self.air_pressure.test()
+        # self._xlog.debug("Test air pressure...")
+        # self.air_pressure.test()
 
-        self._xlog.debug("Test temperature...")
-        self.temperature.test()
+        # self._xlog.debug("Test temperature...")
+        # self.temperature.test()
 
         # However it happened, just close nicely.
         self.close_nicely()
