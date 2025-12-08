@@ -1,7 +1,7 @@
 from pyxavi import Config, Dictionary
 from kleine.lib.abstract.pyxavi import PyXavi
 
-from LPS22HB import LPS22HB, LPS_PRESS_OUT_XL, LPS_PRESS_OUT_L, LPS_PRESS_OUT_H, LPS_TEMP_OUT_L, LPS_TEMP_OUT_H, LPS_STATUS
+from .LPS22HB import LPS22HB, LPS_PRESS_OUT_XL, LPS_PRESS_OUT_L, LPS_PRESS_OUT_H, LPS_TEMP_OUT_L, LPS_TEMP_OUT_H, LPS_STATUS
 import time
 
 class AirPressure(PyXavi):

@@ -1,7 +1,7 @@
 from pyxavi import Config, Dictionary
 from kleine.lib.abstract.pyxavi import PyXavi
 
-from IMU import IMU
+from .IMU import IMU
 import math, time
 
 
