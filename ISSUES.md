@@ -52,3 +52,44 @@ unzip Sense_HAT_C_Pi.zip -d Sense_HAT_C_Pi
 ```
 
 It was it, the chip changed from ICM20948 to QMI8658
+
+## Can't connect the LCD together with the Sense
+
+- Normal Pinout for the LCD, alone works
+- Sense Hat (C) alone works.
+- Together, the screen shows garbage.
+
+### LCD into SPI(0,1)
+This is changing CE0 -> CE1 over SPI0
+Does not work
+
+### The DC 25 (physical 22) seem to collide between both
+Feels like the Sense and the LEC use the same DC to communicate.
+
+### LCD into SPI(1,0)
+Tried as is, fails with
+```
+FileNotFoundError: [Errno 2] No such file or directory
+```
+
+Checked SPI:
+```
+$ ll /dev/spidev*
+crw-rw---- 1 root spi 153, 0 Dec 11 04:49 /dev/spidev0.0
+crw-rw---- 1 root spi 153, 1 Dec 11 04:49 /dev/spidev0.1
+```
+
+Then followed:
+https://tutorials.technology/tutorials/69-Enable-additonal-spi-ports-on-the-raspberrypi.html
+
+- Add a new line into /boot/firmware/config.txt
+- reboot
+
+$ ll /dev/spidev*
+crw-rw---- 1 root spi 153, 0 Dec 11 05:41 /dev/spidev0.0
+crw-rw---- 1 root spi 153, 1 Dec 11 05:41 /dev/spidev0.1
+crw-rw---- 1 root spi 153, 4 Dec 11 05:41 /dev/spidev1.0
+crw-rw---- 1 root spi 153, 3 Dec 11 05:41 /dev/spidev1.1
+crw-rw---- 1 root spi 153, 2 Dec 11 05:41 /dev/spidev1.2
+
+Now complains about BL being busy. Most likely taken by Sense, but I think that BL on 18 is SPI1CE0 on some Pinouts I've seen.

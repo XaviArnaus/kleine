@@ -19,7 +19,7 @@ class Lcd(PyXavi):
         "SPI_DEVICE": 0,
         "RST_PIN": 27,
         "DC_PIN": 25,
-        "BL_PIN": 18
+        "BL_PIN": 12
     }
 
     FONT_PATH = os.path.join(ROOT_DIR, "kleine", "lib", "lcd", "Font")

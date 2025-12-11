@@ -74,3 +74,6 @@ curl -sSL https://install.python-poetry.org | python3 -
 
 ## Sense HAT
 https://www.waveshare.com/wiki/Sense_HAT_(C)
+
+## Overlays for Waveshare stuff
+https://github.com/swkim01/waveshare-dtoverlays
