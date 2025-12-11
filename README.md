@@ -75,5 +75,9 @@ curl -sSL https://install.python-poetry.org | python3 -
 ## Sense HAT
 https://www.waveshare.com/wiki/Sense_HAT_(C)
 
+## SPI Linux support
+Very interesting for the SPIn pinouts
+https://elinux.org/RPi_SPI#Hardware
+
 ## Overlays for Waveshare stuff
 https://github.com/swkim01/waveshare-dtoverlays
