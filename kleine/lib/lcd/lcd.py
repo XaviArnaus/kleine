@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
-#import chardet
 import os
 import sys 
 import time
@@ -17,6 +14,15 @@ from definitions import ROOT_DIR
 
 class Lcd(PyXavi):
 
+    DEVICE = {
+        "SPI_BUS": 0,
+        "SPI_DEVICE": 0,
+        "RST_PIN": 27,
+        # "DC_PIN": 25,
+        "DC_PIN": 23,
+        "BL_PIN": 18
+    }
+
     FONT_PATH = os.path.join(ROOT_DIR, "kleine", "lib", "lcd", "Font")
     PIC_PATH = os.path.join(ROOT_DIR, "kleine", "lib", "lcd", "pic")
 
@@ -25,7 +31,15 @@ class Lcd(PyXavi):
 
         # Initialise the LCD display
         self._xlog.info("Initialising LCD display...")
-        self.lcd = LCD_2inch()
+        self.lcd = LCD_2inch(
+            spi=SPI.SpiDev(
+                self.DEVICE["SPI_BUS"],
+                self.DEVICE["SPI_DEVICE"]
+            ),
+            rst=self.DEVICE["RST_PIN"],
+            dc=self.DEVICE["DC_PIN"],
+            bl=self.DEVICE["BL_PIN"]
+        )
 
     def get_lcd(self) -> LCD_2inch:
         return self.lcd

@@ -44,6 +44,9 @@ class RaspberryPi:
         self.SPEED  =spi_freq
         self.BL_freq=bl_freq
 
+        logging.debug("LCD GPIO init")
+        logging.debug(f"RST={rst}, DC={dc}, BL={bl}")
+
         self.RST_PIN= self.gpio_mode(rst,self.OUTPUT)
         self.DC_PIN = self.gpio_mode(dc,self.OUTPUT)
         self.BL_PIN = self.gpio_pwm(bl)
