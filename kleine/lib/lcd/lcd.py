@@ -97,7 +97,7 @@ class Lcd(PyXavi):
             self.lcd.ShowImage(image1)
             time.sleep(3)
             logging.info("show image")
-            image = Image.open(os.path.join(self.PIC_PATH, "LCD_2inch4_1.jpg"))
+            image = Image.open(os.path.join(self.PIC_PATH, "LCD_2inch.jpg"))
             image = image.rotate(180)
             self.lcd.ShowImage(image)
             time.sleep(3)
