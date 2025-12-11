@@ -15,11 +15,10 @@ from definitions import ROOT_DIR
 class Lcd(PyXavi):
 
     DEVICE = {
-        "SPI_BUS": 0,
+        "SPI_BUS": 1,
         "SPI_DEVICE": 0,
         "RST_PIN": 27,
-        # "DC_PIN": 25,
-        "DC_PIN": 23,
+        "DC_PIN": 25,
         "BL_PIN": 18
     }
 
@@ -31,6 +30,8 @@ class Lcd(PyXavi):
 
         # Initialise the LCD display
         self._xlog.info("Initialising LCD display...")
+        self._xlog.debug(f"SPI Bus={self.DEVICE['SPI_BUS']}, Device={self.DEVICE['SPI_DEVICE']}")
+        self._xlog.debug(f"GPIO RST={self.DEVICE['RST_PIN']}, DC={self.DEVICE['DC_PIN']}, BL={self.DEVICE['BL_PIN']}")
         self.lcd = LCD_2inch(
             spi=SPI.SpiDev(
                 self.DEVICE["SPI_BUS"],

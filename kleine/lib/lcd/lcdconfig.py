@@ -36,16 +36,13 @@ import numpy as np
 from gpiozero import *
 
 class RaspberryPi:
-    def __init__(self,spi=spidev.SpiDev(0,1),spi_freq=40000000,rst = 27,dc = 25,bl = 18,bl_freq=1000,i2c=None,i2c_freq=100000):
+    def __init__(self,spi=spidev.SpiDev(0,0),spi_freq=40000000,rst = 27,dc = 25,bl = 18,bl_freq=1000,i2c=None,i2c_freq=100000):
         self.np=np
         self.INPUT = False
         self.OUTPUT = True
 
         self.SPEED  =spi_freq
         self.BL_freq=bl_freq
-
-        logging.debug("LCD GPIO init")
-        logging.debug(f"RST={rst}, DC={dc}, BL={bl}")
 
         self.RST_PIN= self.gpio_mode(rst,self.OUTPUT)
         self.DC_PIN = self.gpio_mode(dc,self.OUTPUT)
