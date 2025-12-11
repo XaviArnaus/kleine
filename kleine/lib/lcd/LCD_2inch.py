@@ -146,10 +146,15 @@ class LCD_2inch(lcdconfig.RaspberryPi):
             pix[...,[1]] = self.np.add(self.np.bitwise_and(self.np.left_shift(img[...,[1]],3),0xE0), self.np.right_shift(img[...,[2]],3))
             pix = pix.flatten().tolist()
             
+            print("Setting Command 1")
             self.command(0x36)
+            print("Setting Data 1")
             self.data(0x70) 
+            print("Setting Windows 1")
             self.SetWindows ( 0, 0, self.height,self.width)
+            print("Writting Data 1")
             self.digital_write(self.DC_PIN,True)
+            print("SPI Write 1")
             for i in range(0,len(pix),4096):
                 self.spi_writebyte(pix[i:i+4096])
             
@@ -161,11 +166,16 @@ class LCD_2inch(lcdconfig.RaspberryPi):
             pix[...,[1]] = self.np.add(self.np.bitwise_and(self.np.left_shift(img[...,[1]],3),0xE0), self.np.right_shift(img[...,[2]],3))
 
             pix = pix.flatten().tolist()
-            
+
+            print("Setting Command 2")
             self.command(0x36)
+            print("Setting Data 2")
             self.data(0x00) 
+            print("Setting Windows 2")
             self.SetWindows ( 0, 0, self.width, self.height)
+            print("Writting Data 2")
             self.digital_write(self.DC_PIN,True)
+            print("SPI Write 2")
             for i in range(0,len(pix),4096):
                 self.spi_writebyte(pix[i:i+4096])		
                 

@@ -84,7 +84,10 @@ class Lcd(PyXavi):
             draw.text((5, 160), '1234567890', fill = "GREEN",font=Font3)
             text= u"微雪电子"
             draw.text((5, 200),text, fill = "BLUE",font=Font3)
+
+            logging.info("Rotate image")
             image1=image1.rotate(180)
+            logging.info("Show image")
             self.lcd.ShowImage(image1)
             time.sleep(3)
             logging.info("show image")
