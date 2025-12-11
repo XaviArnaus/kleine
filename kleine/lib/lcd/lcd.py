@@ -72,11 +72,12 @@ class Lcd(PyXavi):
             draw.arc((150,15,190,55),0, 360, fill =(0,255,0))
             draw.ellipse((150,65,190,105), fill = (0,255,0))
 
-            logging.info("draw text")
+            logging.info("set font")
             Font1 = ImageFont.truetype("Font/Font01.ttf",25)
             Font2 = ImageFont.truetype("Font/Font01.ttf",35)
             Font3 = ImageFont.truetype("Font/Font02.ttf",32)
 
+            logging.info("draw text")
             draw.rectangle([(0,65),(140,100)],fill = "WHITE")
             draw.text((5, 68), 'Hello world', fill = "BLACK",font=Font1)
             draw.rectangle([(0,115),(190,160)],fill = "RED")
