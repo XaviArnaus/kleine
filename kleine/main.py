@@ -1,22 +1,22 @@
 from pyxavi import Config, Dictionary
 from kleine.lib.abstract.pyxavi import PyXavi
 
-from kleine.lib.eink.eink import Eink
-from kleine.lib.eink.macros import Macros
-from kleine.lib.accelerometer.accelerometer import Accelerometer
-from kleine.lib.air_pressure.air_pressure import AirPressure
-from kleine.lib.temperature.temperature import Temperature
+# from kleine.lib.eink.eink import Eink
+# from kleine.lib.eink.macros import Macros
+# from kleine.lib.accelerometer.accelerometer import Accelerometer
+# from kleine.lib.air_pressure.air_pressure import AirPressure
+# from kleine.lib.temperature.temperature import Temperature
 from kleine.lib.lcd.lcd import Lcd
 
 import time
 
 class Main(PyXavi):
 
-    eink: Eink = None
-    macros: Macros = None
-    accelerometer: Accelerometer = None
-    air_pressure: AirPressure = None
-    temperature: Temperature = None
+    # eink: Eink = None
+    # macros: Macros = None
+    # accelerometer: Accelerometer = None
+    # air_pressure: AirPressure = None
+    # temperature: Temperature = None
     lcd: Lcd = None
 
     def __init__(self, config: Config = None, params: Dictionary = None):
