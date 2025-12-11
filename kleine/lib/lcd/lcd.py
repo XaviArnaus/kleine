@@ -13,7 +13,12 @@ from PIL import Image,ImageDraw,ImageFont
 from pyxavi import Config, Dictionary
 from kleine.lib.abstract.pyxavi import PyXavi
 
+from definitions import ROOT_DIR
+
 class Lcd(PyXavi):
+
+    FONT_PATH = os.path.join(ROOT_DIR, "kleine", "lib", "lcd", "Font")
+    PIC_PATH = os.path.join(ROOT_DIR, "kleine", "lib", "lcd", "pic")
 
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(Lcd, self).init_pyxavi(config=config, params=params)
@@ -72,10 +77,10 @@ class Lcd(PyXavi):
             draw.arc((150,15,190,55),0, 360, fill =(0,255,0))
             draw.ellipse((150,65,190,105), fill = (0,255,0))
 
-            logging.info("set font")
-            Font1 = ImageFont.truetype("Font/Font01.ttf",25)
-            Font2 = ImageFont.truetype("Font/Font01.ttf",35)
-            Font3 = ImageFont.truetype("Font/Font02.ttf",32)
+            logging.info(f"set font in {self.FONT_PATH}")
+            Font1 = ImageFont.truetype(os.path.join(self.FONT_PATH, "Font01.ttf"),25)
+            Font2 = ImageFont.truetype(os.path.join(self.FONT_PATH, "Font01.ttf"),35)
+            Font3 = ImageFont.truetype(os.path.join(self.FONT_PATH, "Font02.ttf"),32)
 
             logging.info("draw text")
             draw.rectangle([(0,65),(140,100)],fill = "WHITE")
@@ -92,7 +97,7 @@ class Lcd(PyXavi):
             self.lcd.ShowImage(image1)
             time.sleep(3)
             logging.info("show image")
-            image = Image.open('pic/LCD_2inch4_1.jpg')	
+            image = Image.open(os.path.join(self.PIC_PATH, "LCD_2inch4_1.jpg"))
             image = image.rotate(180)
             self.lcd.ShowImage(image)
             time.sleep(3)
