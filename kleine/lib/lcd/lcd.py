@@ -124,5 +124,4 @@ class Lcd(PyXavi):
             logging.info(e)    
         except KeyboardInterrupt:
             self.lcd.module_exit()
-            logging.info("quit:")
-            exit()
+            return
