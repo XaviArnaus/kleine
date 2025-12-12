@@ -16,7 +16,7 @@ class Lcd(PyXavi):
 
     DEVICE = {
         "SPI_BUS": 0,
-        "SPI_DEVICE": 1,
+        "SPI_DEVICE": 0,
         "RST_PIN": 27,
         "DC_PIN": 25,
         # "DC_PIN": 26,
