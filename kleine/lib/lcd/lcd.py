@@ -15,8 +15,8 @@ from definitions import ROOT_DIR
 class Lcd(PyXavi):
 
     DEVICE = {
-        "SPI_BUS": 1,
-        "SPI_DEVICE": 2,
+        "SPI_BUS": 0,
+        "SPI_DEVICE": 1,
         "RST_PIN": 27,
         "DC_PIN": 25,
         # "DC_PIN": 26,
