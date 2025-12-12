@@ -7,6 +7,7 @@ from kleine.lib.accelerometer.accelerometer import Accelerometer
 from kleine.lib.air_pressure.air_pressure import AirPressure
 from kleine.lib.temperature.temperature import Temperature
 from kleine.lib.lcd.lcd import Lcd
+from kleine.lib.ups.ups import Ups
 
 import time
 
@@ -17,6 +18,7 @@ class Main(PyXavi):
     accelerometer: Accelerometer = None
     air_pressure: AirPressure = None
     temperature: Temperature = None
+    ups: Ups = None
     lcd: Lcd = None
 
     def __init__(self, config: Config = None, params: Dictionary = None):
@@ -43,6 +45,10 @@ class Main(PyXavi):
         self._xlog.info("Initialising temperature sensor...")
         self.temperature = Temperature(config=self._xconfig, params=self._xparams)
 
+        # Initialise the UPS
+        self._xlog.info("Initialising UPS...")
+        self.ups = Ups(config=self._xconfig, params=self._xparams)
+
     def run(self):
 
         self._xlog.info("🚀 Starting Kleine main run...")
@@ -59,6 +65,9 @@ class Main(PyXavi):
 
         self._xlog.debug("Test temperature...")
         self.temperature.test()
+
+        self._xlog.debug("Test UPS...")
+        self.ups.test()
 
         # However it happened, just close nicely.
         self.close_nicely()
