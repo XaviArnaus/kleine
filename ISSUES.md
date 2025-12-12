@@ -53,7 +53,7 @@ unzip Sense_HAT_C_Pi.zip -d Sense_HAT_C_Pi
 
 It was it, the chip changed from ICM20948 to QMI8658
 
-## Can't connect the LCD together with the Sense
+## ✅ Can't connect the LCD together with the Sense
 
 - Normal Pinout for the LCD, alone works
 - Sense Hat (C) alone works.
@@ -85,11 +85,23 @@ https://tutorials.technology/tutorials/69-Enable-additonal-spi-ports-on-the-rasp
 - Add a new line into /boot/firmware/config.txt
 - reboot
 
+```
 $ ll /dev/spidev*
 crw-rw---- 1 root spi 153, 0 Dec 11 05:41 /dev/spidev0.0
 crw-rw---- 1 root spi 153, 1 Dec 11 05:41 /dev/spidev0.1
 crw-rw---- 1 root spi 153, 4 Dec 11 05:41 /dev/spidev1.0
 crw-rw---- 1 root spi 153, 3 Dec 11 05:41 /dev/spidev1.1
 crw-rw---- 1 root spi 153, 2 Dec 11 05:41 /dev/spidev1.2
+```
 
 Now complains about BL being busy. Most likely taken by Sense, but I think that BL on 18 is SPI1CE0 on some Pinouts I've seen.
+
+### Tried to connect the Waveshare Sense HAT (C) through wires
+
+The final fix has been NOT TO CONNECT VIA HAT. Take 4 wires and connect between the HAT holes and the RPi only the I2C pins and power:
+- 5v
+- GND
+- SDA
+- SCL
+
+Feels like the Waveshare Sense HAT makes use of all the possible GND to feed the jumpers that it provides to connect extra sensors, but as long as we actually only want the sensors bundled in, and they all work via I2C, we use then what it's only needed.
