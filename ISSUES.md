@@ -107,3 +107,25 @@ The final fix has been NOT TO CONNECT VIA HAT. Take 4 wires and connect between 
 Feels like the Waveshare Sense HAT makes use of all the possible GND to feed the jumpers that it provides to connect extra sensors, but as long as we actually only want the sensors bundled in, and they all work via I2C, we use then what it's only needed.
 
 ## RPi does not shutdown as it continues receiving power from UPS. 
+
+WiP
+
+## ✅ Mocking `gpiozero` library with `keyboard` in Mac OS
+
+As I am using the `keyboard` library to mock the button press (alternatives welcome, thanx), on Mac OS M2 halts with 
+```
+Bus error: 10
+```
+
+According to this reported issue:
+https://github.com/boppreh/keyboard/issues/619
+
+1. Let it crash,
+2. then use `python -X faulthandler` (will open a Python interpreter), appears like the last full stack trace
+3. then search for a reference to the file ending with `/keyboard/_darwinkeyboard.py`. Line 134:
+```
+Carbon.CFDataGetBytes(k_layout, CFRange(0, k_layout_size), ctypes.byref(k_layout_buffer))
+```
+
+4. Comment that line
+5. Execute the _kleine_ as 'sudo`

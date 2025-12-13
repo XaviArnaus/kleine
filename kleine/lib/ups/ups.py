@@ -1,21 +1,29 @@
 from pyxavi import Config, Dictionary
 from kleine.lib.abstract.pyxavi import PyXavi
 
-from kleine.lib.ups.INA219 import INA219
+from kleine.lib.ups.mocked_INA219 import MockedINA219
 
 import time
 
 class Ups(PyXavi):
 
-    driver: INA219 = None
+    driver: MockedINA219 = None
 
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(Ups, self).init_pyxavi(config=config, params=params)
 
         # Initialise the INA219 UPS HAT
-        self._xlog.info("Initialising INA219 UPS HAT...")
-        self.driver = INA219(addr=0x43)
-    
+        self._xlog.info("Initialising INA219 UPS HAT.")
+        if self._xconfig.get("ups.mock", False):
+            self._xlog.warning("Using mocked INA219 driver")
+            self.driver = MockedINA219(config=self._xconfig, params=self._xparams)
+        else:
+            self._xlog.info("Using real INA219 driver")
+            from kleine.lib.ups.INA219 import INA219
+            self.driver = INA219(
+                i2c_bus=self._xconfig.get("ups.hardware.bus", 1), 
+                addr=self._xconfig.get("ups.hardware.address", 0x43))
+
     def get_battery_percentage(self) -> float:
         bus_voltage = self.driver.getBusVoltage_V()
         p = (bus_voltage - 3)/1.2*100
@@ -26,6 +34,9 @@ class Ups(PyXavi):
     def is_charging(self) -> bool:
         current = self.driver.getCurrent_mA()
         return current > 0
+    
+    def close(self):
+        self.driver.close()
 
     def test(self):
         self._xlog.info("INA219 UPS HAT test")

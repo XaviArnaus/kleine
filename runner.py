@@ -63,7 +63,6 @@ def _initialize():
     logger = load_logger(config=config)
     parameters = Dictionary({
         "base_path": ROOT_DIR,
-        "api_key": os.getenv("API_KEY", None),
         "app_version": importlib.metadata.version('kleine')
     })
 

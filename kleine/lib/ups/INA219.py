@@ -66,6 +66,9 @@ class INA219:
         self._current_lsb = 0
         self._power_lsb = 0
         self.set_calibration_16V_5A()
+    
+    def close(self):
+        self.bus.close()
 
     def read(self,address):
         data = self.bus.read_i2c_block_data(self.addr, address, 2)

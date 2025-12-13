@@ -80,4 +80,4 @@ class Display(PyXavi):
         """
         self._xlog.debug("Flushing canvas to display device...")
         image = self.canvas.get_image()
-        self.device.display_image(image)
+        self.device.flush_to_device(image)

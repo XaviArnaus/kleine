@@ -39,7 +39,7 @@ logger:
             DEBUG: WHITE
             INFO: BLUE
             WARNING: ORANGE
-            ERROR: RED
+            ERROR: RED_BRIGHT
             CRITICAL: RED_BRIGHT
         by_process:
             MainProcess: GREEN_BRIGHT

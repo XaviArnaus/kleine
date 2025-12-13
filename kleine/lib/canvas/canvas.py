@@ -14,7 +14,7 @@ class Canvas(PyXavi):
     _screen_size: Point = None
 
     DEFAULT_FONT_PATH = os.path.join(ROOT_DIR, "kleine", "lib", "canvas", "fonts")
-    FONT_FILE: str = DEFAULT_FONT_PATH + "Font_with_emojis.ttc"
+    FONT_FILE: str = os.path.join(DEFAULT_FONT_PATH, "Font_with_emojis.ttc")
     COLOR_MODE = "RGB"  # '1' for 1-bit images, 'L' for greyscale, 'RGB' for true color, 'RGBA' for true color with transparency
 
     FONT_SMALL: ImageFont = None
@@ -45,13 +45,13 @@ class Canvas(PyXavi):
 
         # Getting the screen size from params or config
         if params.key_exists("screen_size"):
-            self._xlog.debug(f"Screen size provided in params: {params.get('screen_size.x')}\
-                             x{params.get('screen_size.y')}")
+            self._xlog.debug(f"Screen size provided in params: {params.get('screen_size').x}" +
+                             f"x{params.get('screen_size').y}")
             self._screen_size = params.get("screen_size")
         else:
             self._xlog.debug(f"Screen size provided in config: \
-                             {self._xconfig.get(self.DEVICE_CONFIG_PREFIX + '.size.x')}\
-                                x{self._xconfig.get(self.DEVICE_CONFIG_PREFIX + '.size.y')}")
+                             {self._xconfig.get(self.DEVICE_CONFIG_PREFIX + '.size.x')}" +
+                             f"x{self._xconfig.get(self.DEVICE_CONFIG_PREFIX + '.size.y')}")
             # if self._is_gpio_allowed():
             #     self._screen_size = Point(self._xconfig.get("lcd.size.y"), self._xconfig.get("lcd.size.x"))
             # else:
@@ -113,10 +113,10 @@ class Canvas(PyXavi):
 
         os = platform.system()        
         if (os.lower() != "linux"):
-            self._xlog.warning("OS is not Linux, auto mocking eInk")
+            self._xlog.warning("OS is not Linux, auto mocking Canvas")
             return False
         if (self._xconfig.get(self.DEVICE_CONFIG_PREFIX + ".mock", True)):
-            self._xlog.warning("Mocking eInk by Config")
+            self._xlog.warning(f"Mocking Canvas by [{self.DEVICE_CONFIG_PREFIX}] prefix in Config")
             return False
         return True
     
@@ -132,6 +132,8 @@ class Canvas(PyXavi):
         big_size = self.FONT_SIZE_BIG
         medium_size = self.FONT_SIZE_MEDIUM
         small_size = self.FONT_SIZE_SMALL
+
+        self._xlog.debug(f"Initialising fonts from file: {self.FONT_FILE}")
 
         # Huge size
         if (self._xparams.key_exists(self.DEVICE_CONFIG_PREFIX + ".fonts.huge")):

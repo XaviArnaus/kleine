@@ -3,27 +3,29 @@ from kleine.lib.abstract.pyxavi import PyXavi
 
 from kleine.lib.objects.module_definitions import ModuleDefinitions
 
-from kleine.lib.accelerometer.accelerometer import Accelerometer
-from kleine.lib.air_pressure.air_pressure import AirPressure
-from kleine.lib.temperature.temperature import Temperature
+# from kleine.lib.accelerometer.accelerometer import Accelerometer
+# from kleine.lib.air_pressure.air_pressure import AirPressure
+# from kleine.lib.temperature.temperature import Temperature
+from kleine.lib.ups.ups import Ups
+from kleine.lib.gpio.gpio import Gpio
 from kleine.lib.lcd.lcd import Lcd
 from kleine.lib.canvas.canvas import Canvas
 from kleine.lib.modules.display import Display
-from kleine.lib.ups.ups import Ups
-from kleine.lib.gpio.gpio import Gpio
+from kleine.lib.utils.maintenance import Maintenance
 
 import time
 
 class Main(PyXavi):
 
-    accelerometer: Accelerometer = None
-    air_pressure: AirPressure = None
-    temperature: Temperature = None
+    # accelerometer: Accelerometer = None
+    # air_pressure: AirPressure = None
+    # temperature: Temperature = None
     ups: Ups = None
+    gpio: Gpio = None
     lcd: Lcd = None
     canvas: Canvas = None
     display: Display = None
-    gpio: Gpio = None
+    maintenance: Maintenance = None
 
     # The index of the application modules is the order to cycle through them
     application_modules = [
@@ -44,11 +46,11 @@ class Main(PyXavi):
         # Display: is the module that uses the Canvas to draw things like text, shapes, images, etc.
 
         # Initialise the LCD display
-        self._xlog.info("Initialising LCD device...")
+        self._xlog.info("Initialising LCD device")
         self.lcd = Lcd(config=self._xconfig, params=self._xparams)
 
         # Initialise the Canvas
-        self._xlog.info("Initialising Canvas...")
+        self._xlog.info("Initialising Canvas")
         self.canvas = Canvas(config=self._xconfig, params=Dictionary({
             "screen_size": self.lcd.get_screen_size(),
             "device_config_prefix": "lcd",
@@ -56,36 +58,48 @@ class Main(PyXavi):
         }))
 
         # Initialise the Display module
-        self._xlog.info("Initialising Display module...")
+        self._xlog.info("Initialising Display module")
         self.display = Display(config=self._xconfig, params=Dictionary({
             "canvas": self.canvas,
-            "device": self.lcd
+            "device": self.lcd,
+            "app_version": self._xparams.get("app_version")
         }))
 
         # Initialise the GPIO
-        self._xlog.info("Initialising GPIO...")
+        self._xlog.info("Initialising GPIO")
         self.gpio = Gpio(config=self._xconfig, params=self._xparams)
 
-        # Initialise the accelerometer
-        self._xlog.info("Initialising accelerometer...")
-        self.accelerometer = Accelerometer(config=self._xconfig, params=self._xparams)
+        # # Initialise the accelerometer
+        # self._xlog.info("Initialising accelerometer.")
+        # self.accelerometer = Accelerometer(config=self._xconfig, params=self._xparams)
 
-        # Initialise the air pressure sensor
-        self._xlog.info("Initialising air pressure sensor...")
-        self.air_pressure = AirPressure(config=self._xconfig, params=self._xparams)
+        # # Initialise the air pressure sensor
+        # self._xlog.info("Initialising air pressure sensor.")
+        # self.air_pressure = AirPressure(config=self._xconfig, params=self._xparams)
 
-        # Initialise the temperature sensor
-        self._xlog.info("Initialising temperature sensor...")
-        self.temperature = Temperature(config=self._xconfig, params=self._xparams)
+        # # Initialise the temperature sensor
+        # self._xlog.info("Initialising temperature sensor.")
+        # self.temperature = Temperature(config=self._xconfig, params=self._xparams)
 
         # Initialise the UPS
-        self._xlog.info("Initialising UPS...")
+        self._xlog.info("Initialising UPS")
         self.ups = Ups(config=self._xconfig, params=self._xparams)
+
+        # Initialise the Maintenance utility
+        self._xlog.info("Initialising Maintenance utility")
+        self.maintenance = Maintenance(config=self._xconfig, params=Dictionary({
+            "storage_path": self._xparams.get("storage_path", "storage/"),
+            "mocked_paths": [self._xconfig.get("storage.mocked_files.lcd")]
+        }))
 
     def run(self):
 
-        self._xlog.info("🚀 Starting Kleine main run...")
+        self._xlog.info("🚀 Starting Kleine main run")
 
+        # Clean previous mocked images
+        self.maintenance.clean_previous_mocked_images()
+
+        # Show startup splash screen
         self.display.startup_splash()
         time.sleep(2)
 
@@ -140,11 +154,14 @@ class Main(PyXavi):
         pass
     
     def close_nicely(self):
-        self._xlog.debug("Closing nicely...")
+        self._xlog.debug("Closing nicely")
 
-        # Clear the Display
-        # self.macros.soft_clear(display=self.eink)
-        # self.eink.clear()
-
-        # # Sleep the eInk
-        # self.eink.close()
+        # Close the LCD
+        if self.lcd is not None:
+            self._xlog.debug("Closing LCD")
+            self.lcd.close()
+        
+        # Close the UPS
+        if self.ups is not None:
+            self._xlog.debug("Closing UPS")
+            self.ups.close()

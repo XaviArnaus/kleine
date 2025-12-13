@@ -12,4 +12,10 @@ app:
 storage:
   # [String] Where, from the root of the project
   path: "storage/"
+  # Mock files
+  mocked_files:
+    # [String] Path for mocked LCD output files
+    lcd: "mocked/lcd/"
+    # [list<String>] Exclude the following files from cleaning
+    exclude_from_cleaning: ["_latest.png", ".keep"]
   
