@@ -3,12 +3,14 @@ import sys
 import time
 import logging
 import spidev as SPI
-sys.path.append("..")
-from .LCD_2inch import LCD_2inch
+# sys.path.append("..")
+from .ST7789 import ST7789
 from PIL import Image,ImageDraw,ImageFont
+from datetime import datetime
 
 from pyxavi import Config, Dictionary
 from kleine.lib.abstract.pyxavi import PyXavi
+from kleine.lib.objects.point import Point
 
 from definitions import ROOT_DIR
 
@@ -19,13 +21,17 @@ class Lcd(PyXavi):
         "SPI_DEVICE": 0,
         "RST_PIN": 27,
         "DC_PIN": 25,
-        # "DC_PIN": 26,
-        # "BL_PIN": 18,
-        "BL_PIN": 12
+        "BL_PIN": 12,
+        "BRIGHTNESS": 255
     }
 
-    FONT_PATH = os.path.join(ROOT_DIR, "kleine", "lib", "lcd", "Font")
+    FONT_PATH = os.path.join(ROOT_DIR, "kleine", "lib", "lcd", "fonts")
     PIC_PATH = os.path.join(ROOT_DIR, "kleine", "lib", "lcd", "pic")
+
+    DEFAULT_STORAGE_PATH = "storage/"
+    DEFAULT_MOCKED_IMAGES_PATH = "mocked/lcd/"
+
+    driver: ST7789 = None
 
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(Lcd, self).init_pyxavi(config=config, params=params)
@@ -34,43 +40,92 @@ class Lcd(PyXavi):
         self._xlog.info("Initialising LCD display...")
         self._xlog.debug(f"SPI Bus={self.DEVICE['SPI_BUS']}, Device={self.DEVICE['SPI_DEVICE']}")
         self._xlog.debug(f"GPIO RST={self.DEVICE['RST_PIN']}, DC={self.DEVICE['DC_PIN']}, BL={self.DEVICE['BL_PIN']}")
-        self.lcd = LCD_2inch(
-            spi=SPI.SpiDev(
-                self.DEVICE["SPI_BUS"],
-                self.DEVICE["SPI_DEVICE"]
-            ),
-            rst=self.DEVICE["RST_PIN"],
-            dc=self.DEVICE["DC_PIN"],
-            bl=self.DEVICE["BL_PIN"]
-        )
+        self.driver = self.get_driver()
 
-    def get_lcd(self) -> LCD_2inch:
-        return self.lcd
+    def get_driver(self) -> ST7789:
+        """
+        Get the LCD driver instance as a singleton
+        """
+        if self.driver is None:
+            self.driver = ST7789(
+                spi=SPI.SpiDev(
+                    self._xconfig.get("lcd.hardware.bus", self.DEVICE["SPI_BUS"]),
+                    self._xconfig.get("lcd.hardware.device", self.DEVICE["SPI_DEVICE"])
+                ),
+                rst=self._xconfig.get("lcd.hardware.RST", self.DEVICE["RST_PIN"]),
+                dc=self._xconfig.get("lcd.hardware.DC", self.DEVICE["DC_PIN"]),
+                bl=self._xconfig.get("lcd.hardware.BL", self.DEVICE["BL_PIN"])
+            )
+            # Initialize library.
+            self.driver.Init()
+            # Clear display.
+            self.driver.clear()
+            #Set the backlight to 100
+            self.driver.bl_DutyCycle(self._xconfig.get("lcd.hardware.brightness", self.DEVICE["BRIGHTNESS"]))
+        return self.driver
+
+    def get_screen_size(self) -> Point:
+        """
+        Get the screen size as a tuple (width, height)
+        """
+        return Point(self.driver.width, self.driver.height)
     
+    def display_image(self, image: Image.Image):
+        """
+        Displays an image on the LCD display.
+
+        Args:
+            image: The image to display.
+        """
+        if (not self._is_gpio_allowed()):
+            file_path = self._xconfig.get("storage.path", self.DEFAULT_STORAGE_PATH) + self.DEFAULT_MOCKED_IMAGES_PATH + datetime.now().strftime("%Y%m%d-%H%M%S.%f") + ".png"
+            image.save(file_path)
+            file_path = self._xconfig.get("storage.path", self.DEFAULT_STORAGE_PATH) + self.DEFAULT_MOCKED_IMAGES_PATH + "_latest.png"
+            image.save(file_path)
+        else:
+            self.flush_to_device(image)
+
+    def flush_to_device(self, image: Image.Image):
+        if self._xconfig.get("lcd.rotate", False):
+                image = image.rotate(180)
+        self.driver.ShowImage(image)
+    
+    def _is_gpio_allowed(self):
+        import platform
+
+        os = platform.system()        
+        if (os.lower() != "linux"):
+            self._xlog.warning("OS is not Linux, auto mocking LCD")
+            return False
+        if (self._xconfig.get("lcd.mock", True)):
+            self._xlog.warning("Mocking LCD by Config")
+            return False
+        return True
+    
+    def clear(self):
+        """
+        Clear the LCD display
+        """
+        self.driver.clear()
+
     def test(self):
         logging.info("LCD test")
 
-        # Raspberry Pi pin configuration:
-        RST = 27
-        DC = 25
-        BL = 18
-        bus = 0 
-        device = 0 
         logging.basicConfig(level=logging.DEBUG)
         try:
             # display with hardware SPI:
             ''' Warning!!!Don't  creation of multiple displayer objects!!! '''
             #disp = LCD_2inch.LCD_2inch(spi=SPI.SpiDev(bus, device),spi_freq=10000000,rst=RST,dc=DC,bl=BL)
-            # self.lcd = LCD_2inch()
+            # self.driver = LCD_2inch()
             # Initialize library.
-            self.lcd.Init()
+            self.driver.Init()
             # Clear display.
-            self.lcd.clear()
+            self.driver.clear()
             #Set the backlight to 100
-            self.lcd.bl_DutyCycle(50)
+            self.driver.bl_DutyCycle(50)
 
             # Create blank image for drawing.
-            image1 = Image.new("RGB", (self.lcd.height, self.lcd.width ), "WHITE")
+            image1 = Image.new("RGB", (self.driver.height, self.driver.width ), "WHITE")
             draw = ImageDraw.Draw(image1)
 
             logging.info("draw point")
@@ -111,17 +166,17 @@ class Lcd(PyXavi):
             logging.info("Rotate image")
             image1=image1.rotate(180)
             logging.info("Show image")
-            self.lcd.ShowImage(image1)
+            self.driver.ShowImage(image1)
             time.sleep(3)
             logging.info("show image")
             image = Image.open(os.path.join(self.PIC_PATH, "LCD_2inch.jpg"))
             image = image.rotate(180)
-            self.lcd.ShowImage(image)
+            self.driver.ShowImage(image)
             time.sleep(3)
-            self.lcd.module_exit()
+            self.driver.module_exit()
             logging.info("quit:")
         except IOError as e:
             logging.info(e)    
         except KeyboardInterrupt:
-            self.lcd.module_exit()
+            self.driver.module_exit()
             return

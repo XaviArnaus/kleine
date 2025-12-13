@@ -7,24 +7,35 @@ import time
 
 class Ups(PyXavi):
 
-    ups: INA219 = None
+    driver: INA219 = None
 
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(Ups, self).init_pyxavi(config=config, params=params)
 
         # Initialise the INA219 UPS HAT
         self._xlog.info("Initialising INA219 UPS HAT...")
-        self.ups = INA219(addr=0x43)
+        self.driver = INA219(addr=0x43)
     
+    def get_battery_percentage(self) -> float:
+        bus_voltage = self.driver.getBusVoltage_V()
+        p = (bus_voltage - 3)/1.2*100
+        if(p > 100):p = 100
+        if(p < 0):p = 0
+        return p
+    
+    def is_charging(self) -> bool:
+        current = self.driver.getCurrent_mA()
+        return current > 0
+
     def test(self):
         self._xlog.info("INA219 UPS HAT test")
 
         try:
             while True:
-                bus_voltage = self.ups.getBusVoltage_V()             # voltage on V- (load side)
-                shunt_voltage = self.ups.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
-                current = self.ups.getCurrent_mA()                   # current in mA
-                power = self.ups.getPower_W()                        # power in W
+                bus_voltage = self.driver.getBusVoltage_V()             # voltage on V- (load side)
+                shunt_voltage = self.driver.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
+                current = self.driver.getCurrent_mA()                   # current in mA
+                power = self.driver.getPower_W()                        # power in W
                 p = (bus_voltage - 3)/1.2*100
                 if(p > 100):p = 100
                 if(p < 0):p = 0

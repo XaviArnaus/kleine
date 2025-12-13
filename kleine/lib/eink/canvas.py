@@ -1,5 +1,6 @@
 from pyxavi import Config, Dictionary
 from PIL import Image,ImageDraw,ImageFont
+import os
 
 from kleine.lib.abstract.pyxavi import PyXavi
 from kleine.lib.objects.point import Point
@@ -13,8 +14,9 @@ class EinkCanvas(PyXavi):
     _working_image: Image.Image = None
     _screen_size: Point = None
 
-    # FONT_FILE: str = "kleine/lib/eink/fonts/Font.ttc"
-    FONT_FILE: str = "kleine/lib/eink/fonts/Font_with_emojis.ttc"
+    FONT_PATH = os.path.join(ROOT_DIR, "kleine", "lib", "eink", "fonts")
+    # FONT_FILE: str = FONT_PATH + "Font.ttc"
+    FONT_FILE: str = FONT_PATH + "Font_with_emojis.ttc"
 
     FONT_SMALL: ImageFont = None
     FONT_MEDIUM: ImageFont = None
@@ -43,9 +45,9 @@ class EinkCanvas(PyXavi):
             self._screen_size = screen_size
         else:
             if self._is_gpio_allowed():
-                self._screen_size = Point(self._xconfig.get("display.size.x"), self._xconfig.get("display.size.x"))
+                self._screen_size = Point(self._xconfig.get("eink.size.x"), self._xconfig.get("eink.size.x"))
             else:
-                self._screen_size = Point(self._xconfig.get("display.size.x"), self._xconfig.get("display.size.y"))
+                self._screen_size = Point(self._xconfig.get("eink.size.x"), self._xconfig.get("eink.size.y"))
 
         # Initialise fonts
         self._initialise_fonts()
@@ -91,7 +93,7 @@ class EinkCanvas(PyXavi):
         if (os.lower() != "linux"):
             self._xlog.warning("OS is not Linux, auto mocking eInk")
             return False
-        if (self._xconfig.get("display.mock", True)):
+        if (self._xconfig.get("eink.mock", True)):
             self._xlog.warning("Mocking eInk by Config")
             return False
         return True
@@ -110,29 +112,29 @@ class EinkCanvas(PyXavi):
         huge_size = self.FONT_HUGE_SIZE
 
         # Huge size
-        if (self._xparams.key_exists("display.fonts.huge")):
-            huge_size = self._xparams.get("display.fonts.huge")
-        elif (self._xconfig.key_exists("display.fonts.huge")):
-            huge_size = self._xconfig.get("display.fonts.huge")
+        if (self._xparams.key_exists("eink.fonts.huge")):
+            huge_size = self._xparams.get("eink.fonts.huge")
+        elif (self._xconfig.key_exists("eink.fonts.huge")):
+            huge_size = self._xconfig.get("eink.fonts.huge")
         self.FONT_HUGE = ImageFont.truetype(self.FONT_FILE, huge_size)
 
         # Big size
-        if (self._xparams.key_exists("display.fonts.big")):
-            big_size = self._xparams.get("display.fonts.big")
-        elif (self._xconfig.key_exists("display.fonts.big")):
-            big_size = self._xconfig.get("display.fonts.big")
+        if (self._xparams.key_exists("eink.fonts.big")):
+            big_size = self._xparams.get("eink.fonts.big")
+        elif (self._xconfig.key_exists("eink.fonts.big")):
+            big_size = self._xconfig.get("eink.fonts.big")
         self.FONT_BIG = ImageFont.truetype(self.FONT_FILE, big_size)
 
         # Medium size
-        if (self._xparams.key_exists("display.fonts.medium")):
-            medium_size = self._xparams.get("display.fonts.medium")
-        elif (self._xconfig.key_exists("display.fonts.medium")):
-            medium_size = self._xconfig.get("display.fonts.medium")
+        if (self._xparams.key_exists("eink.fonts.medium")):
+            medium_size = self._xparams.get("eink.fonts.medium")
+        elif (self._xconfig.key_exists("eink.fonts.medium")):
+            medium_size = self._xconfig.get("eink.fonts.medium")
         self.FONT_MEDIUM = ImageFont.truetype(self.FONT_FILE, medium_size)
 
         # Small size
-        if (self._xparams.key_exists("display.fonts.small")):
-            small_size = self._xparams.get("display.fonts.small")
-        elif (self._xconfig.key_exists("display.fonts.small")):
-            small_size = self._xconfig.get("display.fonts.small")
+        if (self._xparams.key_exists("eink.fonts.small")):
+            small_size = self._xparams.get("eink.fonts.small")
+        elif (self._xconfig.key_exists("eink.fonts.small")):
+            small_size = self._xconfig.get("eink.fonts.small")
         self.FONT_SMALL = ImageFont.truetype(self.FONT_FILE, small_size)

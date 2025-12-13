@@ -105,3 +105,5 @@ The final fix has been NOT TO CONNECT VIA HAT. Take 4 wires and connect between 
 - SCL
 
 Feels like the Waveshare Sense HAT makes use of all the possible GND to feed the jumpers that it provides to connect extra sensors, but as long as we actually only want the sensors bundled in, and they all work via I2C, we use then what it's only needed.
+
+## RPi does not shutdown as it continues receiving power from UPS. 

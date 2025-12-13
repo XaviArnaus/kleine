@@ -2,7 +2,7 @@
 import time
 from . import lcdconfig
 
-class LCD_2inch(lcdconfig.RaspberryPi):
+class ST7789(lcdconfig.RaspberryPi):
 
     width = 240
     height = 320 
