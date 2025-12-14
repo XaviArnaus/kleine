@@ -114,9 +114,12 @@ class Canvas(PyXavi):
             if self.COLOR_MODE == "1" and clear_background:
                 background_color = self.COLOR_WHITE
 
-            self._working_image = Image.new(self.COLOR_MODE, (self._screen_size.x, self._screen_size.y), background_color)
             if (self._is_gpio_allowed()):
+                self._working_image = Image.new(self.COLOR_MODE, (self._screen_size.y, self._screen_size.x), background_color)
                 self._working_image = self._working_image.rotate(-90, expand=True)
+            else:
+                self._working_image = Image.new(self.COLOR_MODE, (self._screen_size.x, self._screen_size.y), background_color)
+
         return self._working_image
     
     def _reset_image(self):
