@@ -142,7 +142,8 @@ class Main(PyXavi):
                         self.display.module_temperature(parameters=Dictionary({
                             "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
                             "statusbar_show_temperature": False,
-                            "temperature": self.scheduled_values.get("temperature")
+                            "temperature": self.scheduled_values.get("temperature"),
+                            "humidity": self.scheduled_values.get("humidity")
                         }))
                     else:
                         self._xlog.debug("Selected module " + self.application_modules[selected_module] + " not implemented yet.")
