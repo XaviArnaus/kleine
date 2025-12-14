@@ -19,6 +19,7 @@ class Main(PyXavi):
 
     STATUSBAR_SHOW_TIME: bool = True
     STATUSBAR_SHOW_TEMPERATURE: bool = True # Will be skipped in the temperature module
+    STATUSBAR_SHOW_BATTERY: bool = True
 
     # accelerometer: Accelerometer = None
     # air_pressure: AirPressure = None
@@ -141,6 +142,9 @@ class Main(PyXavi):
                         self.display.module_temperature(parameters=Dictionary({
                             "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
                             "statusbar_show_temperature": False,
+                            "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
+                            "battery_percentage": self.scheduled_values.get("battery_percentage"),
+                            "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
                             "temperature": self.scheduled_values.get("temperature"),
                             "humidity": self.scheduled_values.get("humidity"),
                             "air_pressure": self.scheduled_values.get("air_pressure")
@@ -150,6 +154,9 @@ class Main(PyXavi):
                         self.display.module_accelerometer(parameters=Dictionary({
                             "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
                             "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
+                            "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
+                            "battery_percentage": self.scheduled_values.get("battery_percentage"),
+                            "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
                             "temperature": self.scheduled_values.get("temperature")
                         }))
                     elif self.application_modules[selected_module] == ModuleDefinitions.POWER:
@@ -157,6 +164,9 @@ class Main(PyXavi):
                         self.display.module_power(parameters=Dictionary({
                             "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
                             "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
+                            "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
+                            "battery_percentage": self.scheduled_values.get("battery_percentage"),
+                            "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
                             "temperature": self.scheduled_values.get("temperature")
                         }))
                     elif self.application_modules[selected_module] == ModuleDefinitions.INFO:
@@ -164,6 +174,9 @@ class Main(PyXavi):
                         self.display.module_info(parameters=Dictionary({
                             "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
                             "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
+                            "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
+                            "battery_percentage": self.scheduled_values.get("battery_percentage"),
+                            "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
                             "temperature": self.scheduled_values.get("temperature")
                         }))
                     elif self.application_modules[selected_module] == ModuleDefinitions.SETTINGS:
@@ -171,6 +184,9 @@ class Main(PyXavi):
                         self.display.module_settings(parameters=Dictionary({
                             "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
                             "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
+                            "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
+                            "battery_percentage": self.scheduled_values.get("battery_percentage"),
+                            "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
                             "temperature": self.scheduled_values.get("temperature")
                         }))
                     else:
@@ -178,6 +194,9 @@ class Main(PyXavi):
                         self.display.blank_screen(parameters=Dictionary({
                             "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
                             "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
+                            "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
+                            "battery_percentage": self.scheduled_values.get("battery_percentage"),
+                            "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
                             "temperature": self.scheduled_values.get("temperature")
                         }))
 
@@ -237,6 +256,17 @@ class Main(PyXavi):
             if self.STATUSBAR_SHOW_TIME:
                 self._xlog.debug("Time change requires screen refresh.")
                 return_value = True
+            
+            if self.STATUSBAR_SHOW_BATTERY:
+                current_battery_percentage = self.ups.get_battery_percentage()
+                if current_battery_percentage != self.scheduled_values.get("battery_percentage", 0):
+                    self.scheduled_values.set("battery_percentage", current_battery_percentage)
+                    return_value = True
+
+                current_battery_is_charging = self.ups.is_charging()
+                if current_battery_is_charging != self.scheduled_values.get("battery_is_charging", False):
+                    self.scheduled_values.set("battery_is_charging", current_battery_is_charging)
+                    return_value = True
 
             # We have a status change
             return return_value

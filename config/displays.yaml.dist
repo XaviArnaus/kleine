@@ -17,7 +17,7 @@ eink:
     huge: 45
     big: 22
     medium: 14
-    small: 10
+    small: 15
 
 # Configuration for the LCD Display
 lcd:

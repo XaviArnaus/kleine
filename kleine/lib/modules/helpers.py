@@ -14,6 +14,22 @@ class ScreenSections:
         """
         Draw a shared status header for all modules
         """
+        if parameters.get("statusbar_show_battery", True):
+            battery_icon = "🔋" if int(parameters.get('battery_percentage', 0)) > 30 else "🪫"
+            battery_icon = "⚡" if parameters.get('battery_is_charging', False) else battery_icon
+            draw.text(Point(parameters.get("screen_size").x - 64, 3).to_image_point(),
+                       text=battery_icon,
+                       font=parameters.get("statusbar_font"),
+                       fill=parameters.get("statusbar_font_color"),
+                       anchor="rt",
+                       align="right")
+            draw.text(Point(parameters.get("screen_size").x - 37, 5).to_image_point(),
+                       text=f"{parameters.get('battery_percentage', 0)}%",
+                       font=parameters.get("statusbar_font"),
+                       fill=parameters.get("statusbar_font_color"),
+                       anchor="rt",
+                       align="right")
+
         if parameters.get("statusbar_show_time", True):
             now = datetime.now()
             time_str = now.strftime("%H:%M")
@@ -34,7 +50,7 @@ class ScreenSections:
                        align="left")
         
         # Draw a line between the title and the subtitle
-        draw.line(Rectangle(Point(5, 15), Point(parameters.get("screen_size").x - 5, 15)).to_image_rectangle(),
+        draw.line(Rectangle(Point(5, 20), Point(parameters.get("screen_size").x - 5, 20)).to_image_rectangle(),
                   fill=parameters.get("statusbar_font_color"),
                   width=1)
 
