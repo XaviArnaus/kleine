@@ -126,7 +126,7 @@ class Main(PyXavi):
                 should_refresh = self.do_every_minute_tasks() or selected_module == -1
 
                 # Handle module selection by pressing the Yellow button or at startup
-                if self.gpio.is_yellow_button_pressed() or selected_module == -1:
+                if self.gpio.is_button_pressed("yellow") or selected_module == -1:
                     selected_module += 1
                     if selected_module >= len(self.application_modules):
                         selected_module = 0

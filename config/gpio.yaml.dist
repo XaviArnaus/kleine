@@ -2,3 +2,19 @@
 gpio:
   # [Bool] Simply ignores GPIO hardware and returns mock values
   mock: True
+  # Defined buttons
+  buttons:
+    - name: yellow
+      pin: 16
+      mocked_as: "space"
+    - name: green
+      pin: 26
+      mocked_as: "enter"
+
+temperature:
+  # [Bool] Simply ignores temperature sensor hardware and returns mock values
+  mock: True
+
+humidity:
+  # [Bool] Simply ignores humidity sensor hardware and returns mock values
+  mock: True
