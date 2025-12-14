@@ -28,12 +28,18 @@ class Canvas(PyXavi):
     FONT_SIZE_SMALL = 10
 
     DEFAULT_STROKE: int = 1
-    COLOR_BLACK: int = 0
-    COLOR_WHITE: int = 1
 
     DEFAULT_STORAGE_PATH = "storage/"
     DEFAULT_MOCKED_IMAGES_PATH = "mocked/device/"
     DEVICE_CONFIG_PREFIX = ""   # Example: "lcd" The separator "." will be added automatically
+
+    @property
+    def COLOR_BLACK(self) -> tuple | int:
+        return 0 if self.COLOR_MODE == "1" else (0, 0, 0)
+    
+    @property
+    def COLOR_WHITE(self) -> tuple | int:
+        return 255 if self.COLOR_MODE == "1" else (255, 255, 255)
 
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(Canvas, self).init_pyxavi(config=config, params=params)
@@ -96,7 +102,15 @@ class Canvas(PyXavi):
         If does not exists, creates it.
         """
         if self._working_image is None:
-            self._working_image = Image.new(self.COLOR_MODE, (self._screen_size.x, self._screen_size.y), 255 if clear_background else 0)
+
+            # Default background color in a tuple as the default color mode is RGB
+            background_color = self.COLOR_BLACK
+
+            # In case the color mode is 1 we assume an eInk, and the background is either black or white
+            if self.COLOR_MODE == "1" and clear_background:
+                background_color = self.COLOR_WHITE
+
+            self._working_image = Image.new(self.COLOR_MODE, (self._screen_size.x, self._screen_size.y), background_color)
             if (self._is_gpio_allowed()):
                 self._working_image = self._working_image.rotate(-90, expand=True)
         return self._working_image
