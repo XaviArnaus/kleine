@@ -72,6 +72,28 @@ class Display(PyXavi):
         #            align="center")
 
         self._flush_canvas_to_device()
+    
+    def temperature(self, parameters: Dictionary = None):
+        """
+        Show the current temperature on the display
+        """
+        self._xlog.info("Showing current temperature...")
+        draw = self.canvas.get_canvas()
+        
+        # Print the value
+        draw.text(Point(self.screen_size.x / 2, self.screen_size.y / 4).to_image_point(),
+                   text=f"Temperature: {parameters.get('temperature', 0)}°C",
+                   font=self.canvas.FONT_BIG,
+                   fill=self.canvas.COLOR_WHITE,
+                   anchor="mm",
+                   align="center")
+        
+        # Draw a line between the title and the subtitle
+        # draw.line(Rectangle(Point(5, self.screen_size.y / 2), Point(self.screen_size.x - 5, self.screen_size.y / 2)).to_image_rectangle(),
+        #           fill=self.canvas.COLOR_WHITE,
+        #           width=1)
+
+        self._flush_canvas_to_device()
 
 
     def _flush_canvas_to_device(self):

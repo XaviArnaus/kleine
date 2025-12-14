@@ -1,6 +1,8 @@
 from pyxavi import Config, Dictionary
 from kleine.lib.abstract.pyxavi import PyXavi
 
+from pynput import keyboard
+
 # class MockedGpiozero(PyXavi):
 #     """
 #     Mocked version of gpiozero library for non-Linux systems or testing purposes.
@@ -18,43 +20,43 @@ class MockedButton(PyXavi):
     pin: int = None
     key_to_emulate_pin: str = None
     is_pressed: bool = False
+    _listener = None
 
     def __init__(self, pin: int, keyboard_key_binding_to: str = "space", config: Config = None, params: Dictionary = None):
         super(MockedButton, self).init_pyxavi(config=config, params=params)
 
         self.pin = pin
-        self.key_to_emulate_pin = keyboard_key_binding_to
+        if keyboard_key_binding_to is None:
+            keyboard_key_binding_to = "space"
+        if keyboard_key_binding_to == "space":
+            self.key_to_emulate_pin = keyboard.Key.space
+        elif keyboard_key_binding_to == "enter":
+            self.key_to_emulate_pin = keyboard.Key.enter
+        else:
+            self.key_to_emulate_pin = keyboard_key_binding_to
         self._is_pressed = False
+        self._make_binding()
 
     @property
     def is_pressed(self) -> bool:
-        return self._is_keyboard_key_pressed()
+        value = self._is_pressed
+        if value:
+            self._is_pressed = False  # Reset after reading
+        return value
 
-    # def press(self):
-    #     self._is_pressed = True
+    def _on_press(self, key):
+        if key == self.key_to_emulate_pin:
+            self._xlog.debug(f"Mocking GPIO: {self.key_to_emulate_pin} key (meaning pin {self.pin}) was PRESSED")
+            self._is_pressed = True
 
-    # def release(self):
-    #     self._is_pressed = False
+    def _make_binding(self):
+        '''
+        Internal method to create keyboard binding for mocking the button press.
+        Currently not used as we check the key state directly in is_pressed property.
+        '''
+        self._listener = keyboard.Listener(on_press=self._on_press)
+        self._listener.start()
     
-    def _is_keyboard_key_pressed(self) -> bool:
-        '''
-        Internal method to check if the space key is pressed on the keyboard.
-        Used for mocking the mute switch when GPIO is not available.
-
-        https://github.com/boppreh/keyboard
-        '''
-        import keyboard  # Imported here to avoid issues on systems without keyboard module
-
-        # is_pressed = keyboard.is_pressed('space')
-        try:  # used try so that if user pressed other than the given key error will not be shown
-            if keyboard.is_pressed(self.key_to_emulate_pin):  # if key 'space' is pressed
-                self._xlog.debug(f"Mocking GPIO: {self.key_to_emulate_pin} key (meaning pin {self.pin}) is PRESSED")
-                return True
-            elif keyboard.is_pressed('control+c'):  # to allow exit from program
-                self._xlog.debug("Exiting due to Ctrl+C")
-                raise KeyboardInterrupt()
-        except KeyboardInterrupt as e:
-            raise e
-        except:
-            pass  # if user pressed a key other than the given key the loop will break
-        return False
+    def close(self):
+        if self.listener is not None:
+            self.listener.stop()
