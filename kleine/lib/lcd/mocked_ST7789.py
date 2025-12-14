@@ -10,8 +10,8 @@ class MockedST7789(PyXavi):
     DEFAULT_STORAGE_PATH = "storage/"
     DEFAULT_MOCKED_IMAGES_PATH = "mocked/lcd/"
 
-    width: int = 240
-    height: int = 320
+    width: int = 320
+    height: int = 240
 
     path_for_mocked_images: str = DEFAULT_STORAGE_PATH + DEFAULT_MOCKED_IMAGES_PATH
 
@@ -20,13 +20,17 @@ class MockedST7789(PyXavi):
 
         if params is not None:
             if params.key_exists("width"):
-                self.width = params.get("width")
+                self.width = int(params.get("width"))
             if params.key_exists("height"):
-                self.height = params.get("height")
-        
+                self.height = int(params.get("height"))
+
         self.path_for_mocked_images = self._xconfig.get("storage.path", self.DEFAULT_STORAGE_PATH) + self.DEFAULT_MOCKED_IMAGES_PATH
         if os.path.exists(self.path_for_mocked_images) == False:
             os.makedirs(self.path_for_mocked_images)
+
+    def set_size(self, width, height):
+        self.width = width
+        self.height = height
 
     def Init(self):
         pass

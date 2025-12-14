@@ -19,7 +19,9 @@ class Lcd(PyXavi):
         "RST_PIN": 27,
         "DC_PIN": 25,
         "BL_PIN": 12,
-        "BRIGHTNESS": 255
+        "BRIGHTNESS": 255,
+        "WIDTH": 320,
+        "HEIGHT": 240
     }
 
     FONT_PATH = os.path.join(ROOT_DIR, "kleine", "lib", "lcd", "fonts")
@@ -71,6 +73,9 @@ class Lcd(PyXavi):
                 dc=dc,
                 bl=bl
             )
+            # Define the display size
+            self.driver.set_size(self._xconfig.get("lcd.size.x", self.DEVICE["WIDTH"]),
+                                 self._xconfig.get("lcd.size.y", self.DEVICE["HEIGHT"]))
             # Initialize library.
             self.driver.Init()
             # Clear display.
