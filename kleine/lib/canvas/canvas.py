@@ -26,7 +26,7 @@ class Canvas(PyXavi):
     FONT_SIZE_HUGE = 45
     FONT_SIZE_BIG = 22
     FONT_SIZE_MEDIUM = 14
-    FONT_SIZE_SMALL = 15
+    FONT_SIZE_SMALL = 20
 
     DEFAULT_STROKE: int = 1
 
