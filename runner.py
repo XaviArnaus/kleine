@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 import importlib.metadata
-import asyncio
 import logging
 
 from pyxavi import TerminalColor, Config, Logger, Dictionary, full_stack
@@ -49,7 +48,7 @@ def run():
         # Delegate the run to Main
         logger.debug("Starting Main run")
         main = Main(config=config, params=parameters)
-        asyncio.run(main.run())
+        main.run()
         logger.info("End of the Main run")
 
 
