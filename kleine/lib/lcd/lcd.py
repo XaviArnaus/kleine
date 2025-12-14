@@ -74,8 +74,8 @@ class Lcd(PyXavi):
                 bl=bl
             )
             # Define the display size
-            # self.driver.set_size(width=self._xconfig.get("lcd.size.x", self.DEVICE["WIDTH"]),
-            #                      height=self._xconfig.get("lcd.size.y", self.DEVICE["HEIGHT"]))
+            self.driver.set_size(width=self._xconfig.get("lcd.size.x", self.DEVICE["WIDTH"]),
+                                 height=self._xconfig.get("lcd.size.y", self.DEVICE["HEIGHT"]))
             # Initialize library.
             self.driver.Init()
             # Clear display.
