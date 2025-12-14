@@ -75,8 +75,8 @@ class Lcd(PyXavi):
             )
             # Define the display size
             # TODO: Feels like the device is always portrait, so maybe proportions are wrong
-            self.driver.set_size(width=self._xconfig.get("lcd.size.x", self.DEVICE["WIDTH"]),
-                                 height=self._xconfig.get("lcd.size.y", self.DEVICE["HEIGHT"]))
+            # self.driver.set_size(width=self._xconfig.get("lcd.size.x", self.DEVICE["WIDTH"]),
+            #                      height=self._xconfig.get("lcd.size.y", self.DEVICE["HEIGHT"]))
             # Initialize library.
             self.driver.Init()
             # Clear display.
