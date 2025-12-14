@@ -17,6 +17,9 @@ import time
 
 class Main(PyXavi):
 
+    STATUSBAR_SHOW_TIME: bool = True
+    STATUSBAR_SHOW_TEMPERATURE: bool = True # Will be skipped in the temperature module
+
     # accelerometer: Accelerometer = None
     # air_pressure: AirPressure = None
     # temperature: Temperature = None
@@ -107,7 +110,7 @@ class Main(PyXavi):
 
         # Show startup splash screen
         self.display.startup_splash()
-        time.sleep(2)
+        time.sleep(3)
 
         # We have a pair of physical buttons.
         # The yellow button is for "select" and the green button is for "enter".
@@ -120,7 +123,7 @@ class Main(PyXavi):
             while True:
 
                 # Check the things to do every minute
-                self.do_every_minute_tasks()
+                should_refresh = self.do_every_minute_tasks() or selected_module == -1
 
                 # Handle module selection by pressing the Yellow button or at startup
                 if self.gpio.is_yellow_button_pressed() or selected_module == -1:
@@ -129,21 +132,23 @@ class Main(PyXavi):
                         selected_module = 0
                     self._xlog.info("Yellow button pressed - moving to next module: " + self.application_modules[selected_module])
                     time.sleep(0.5) # Debounce delay
+                    should_refresh = True
                 
-                    # Run the selected module.
-                    # Must happen after the button press handling to avoid skipping modules.
+                # Run the selected module.
+                # Must happen after the button press handling to avoid skipping modules.
+                if should_refresh:
                     if self.application_modules[selected_module] == ModuleDefinitions.TEMPERATURE:
                         self._xlog.debug("Running Temperature module")
                         self.display.module_temperature(parameters=Dictionary({
-                            "statusbar_show_time": True,
+                            "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
                             "statusbar_show_temperature": False,
                             "temperature": self.scheduled_values.get("temperature")
                         }))
                     else:
                         self._xlog.debug("Selected module " + self.application_modules[selected_module] + " not implemented yet.")
                         self.display.blank_screen(parameters=Dictionary({
-                            "statusbar_show_time": True,
-                            "statusbar_show_temperature": True,
+                            "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
+                            "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
                             "temperature": self.scheduled_values.get("temperature")
                         }))
 
@@ -167,16 +172,43 @@ class Main(PyXavi):
         # However it happened, just close nicely.
         self.close_nicely()
 
-    def do_every_minute_tasks(self):
+    def do_every_minute_tasks(self) -> bool:
+        """
+        Tasks that need to be done every minute.
+        Returns True if refreshing the screen is needed, False otherwise.
+        """
         current_minute = time.localtime().tm_min
         if current_minute != self._last_processed_minute:
             self._last_processed_minute = current_minute
             self._xlog.debug("🕐 New minute detected: " + str(current_minute) + ". Running every-minute tasks.")
 
+            # By default we do not need to refresh the screen
+            return_value = False
+
             # Get temperature and humidity from the temperature sensor
-            self.scheduled_values.set("temperature", round(self.temperature.get_temperature(), 1))
-            self.scheduled_values.set("humidity", round(self.temperature.get_humidity(), 1))
-            self._xlog.info(f"Updated scheduled values: Temperature={self.scheduled_values.get('temperature')}°C, Humidity={self.scheduled_values.get('humidity')}%")
+            if self.STATUSBAR_SHOW_TEMPERATURE:
+                current_temperature = round(self.temperature.get_temperature(), 1)
+                if current_temperature != self.scheduled_values.get("temperature", 0):
+                    self.scheduled_values.set("temperature", current_temperature)
+                    return_value = True
+
+                current_humidity = round(self.temperature.get_humidity(), 1)
+                if current_humidity != self.scheduled_values.get("humidity", 0):
+                    self.scheduled_values.set("humidity", current_humidity)
+                    return_value = True
+
+                if return_value:
+                    self._xlog.info(f"Updated scheduled values: Temperature={self.scheduled_values.get('temperature')}°C, Humidity={self.scheduled_values.get('humidity')}%")
+
+            if self.STATUSBAR_SHOW_TIME:
+                self._xlog.debug("Time change requires screen refresh.")
+                return_value = True
+
+            # We have a status change
+            return return_value
+        
+        # No change in minute, no tasks to do
+        return False
 
     def close_nicely(self):
         self._xlog.debug("Closing nicely")

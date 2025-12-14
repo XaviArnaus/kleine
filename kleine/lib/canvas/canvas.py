@@ -22,6 +22,7 @@ class Canvas(PyXavi):
     FONT_BIG: ImageFont = None
     FONT_HUGE: ImageFont = None
 
+    FONT_SIZE_ULTRA = 65
     FONT_SIZE_HUGE = 45
     FONT_SIZE_BIG = 22
     FONT_SIZE_MEDIUM = 14
@@ -138,6 +139,7 @@ class Canvas(PyXavi):
         - Config: to use the overall app setup
         - Class default: Fonts must exist, so this is the last resort
         """
+        ultra_size = self.FONT_SIZE_ULTRA
         huge_size = self.FONT_SIZE_HUGE
         big_size = self.FONT_SIZE_BIG
         medium_size = self.FONT_SIZE_MEDIUM
@@ -145,6 +147,13 @@ class Canvas(PyXavi):
 
         self._xlog.debug(f"Initialising fonts from file: {self.FONT_FILE}")
 
+        # Ultra size
+        if (self._xparams.key_exists(self.DEVICE_CONFIG_PREFIX + ".fonts.ultra")):
+            ultra_size = self._xparams.get(self.DEVICE_CONFIG_PREFIX + ".fonts.ultra")
+        elif (self._xconfig.key_exists(self.DEVICE_CONFIG_PREFIX + ".fonts.ultra")):
+            ultra_size = self._xconfig.get(self.DEVICE_CONFIG_PREFIX + ".fonts.ultra")
+        self.FONT_ULTRA = ImageFont.truetype(self.FONT_FILE, ultra_size)
+        
         # Huge size
         if (self._xparams.key_exists(self.DEVICE_CONFIG_PREFIX + ".fonts.huge")):
             huge_size = self._xparams.get(self.DEVICE_CONFIG_PREFIX + ".fonts.huge")

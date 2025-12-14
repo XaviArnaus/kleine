@@ -5,6 +5,7 @@ from kleine.lib.lcd.lcd import Lcd
 from kleine.lib.objects.errors import LackOfSetupError
 from kleine.lib.objects.point import Point
 from kleine.lib.objects.rectangle import Rectangle
+from kleine.lib.modules.helpers import Helpers
 
 from PIL import ImageDraw
 from datetime import datetime
@@ -68,9 +69,14 @@ class Display(PyXavi):
                     " | Sense: " + ("mocked" if self._xconfig.get("sense.mock", True) else "real") + \
                     " | UPS: " + ("mocked" if self._xconfig.get("ups.mock", True) else "real")
         draw.text(Point(self.screen_size.x / 2, (self.screen_size.y / 4) * 3).to_image_point(),
-                   text=subtitle,
+                   text=Helpers.wrap_text_if_needed(
+                       draw, 
+                       subtitle, 
+                       self.screen_size.x - 10, 
+                       self.canvas.FONT_MEDIUM, 
+                       self._xlog),
                    font=self.canvas.FONT_MEDIUM,
-                   fill=self.canvas.COLOR_BLACK,
+                   fill=self.canvas.COLOR_WHITE,
                    anchor="mm",
                    align="center")
 
@@ -118,7 +124,7 @@ class Display(PyXavi):
         # Print the value
         draw.text(Point(self.screen_size.x / 2, self.screen_size.y / 2).to_image_point(),
                    text=f"{parameters.get('temperature', 0)}°C",
-                   font=self.canvas.FONT_HUGE,
+                   font=self.canvas.FONT_ULTRA,
                    fill=self.canvas.COLOR_WHITE,
                    anchor="mm",
                    align="center")
