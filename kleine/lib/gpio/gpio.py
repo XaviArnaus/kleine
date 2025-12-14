@@ -7,7 +7,7 @@ class Gpio(PyXavi):
 
     # GPIO pin definitions, not physical pin numbers
     YELLOW_BUTTON_PIN = (16, "space")  # GPIO16, emulated with 'space' key
-    GREEN_BUTTON_PIN = (12, "enter")  # GPIO12, emulated with 'enter' key
+    GREEN_BUTTON_PIN = (6, "enter")  # GPIO6, emulated with 'enter' key
 
     yellow_button: MockedButton = None
     green_button: MockedButton = None
