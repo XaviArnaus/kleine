@@ -115,10 +115,11 @@ class Canvas(PyXavi):
                 background_color = self.COLOR_WHITE
 
             if (self._is_gpio_allowed()):
-                self._working_image = Image.new(self.COLOR_MODE, (self._screen_size.y, self._screen_size.x), background_color)
+                self._working_image = Image.new(self.COLOR_MODE, (self._screen_size.x, self._screen_size.y), background_color)
                 # self._working_image = self._working_image.rotate(-90, expand=True)
             else:
                 self._working_image = Image.new(self.COLOR_MODE, (self._screen_size.x, self._screen_size.y), background_color)
+            self._xlog.debug(f"Created new working image of size {self._working_image.size} and mode {self.COLOR_MODE}")
 
         return self._working_image
     

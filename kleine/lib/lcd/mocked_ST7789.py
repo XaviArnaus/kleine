@@ -38,6 +38,7 @@ class MockedST7789(PyXavi):
         pass
 
     def ShowImage(self, image: Image.Image,Xstart=0,Ystart=0):
+        image = image.rotate(180)
         file_path = self.path_for_mocked_images + datetime.now().strftime("%Y%m%d-%H%M%S.%f") + ".png"
         image.save(file_path)
         file_path = self.path_for_mocked_images + "_latest.png"
