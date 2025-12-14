@@ -141,7 +141,7 @@ class ST7789(lcdconfig.RaspberryPi):
         """Write display buffer to physical display"""
 
         # Xavi: We want landscape always
-        Image = Image.rotate(90, expand=True)
+        # Image = Image.rotate(90, expand=True)
         
         imwidth, imheight = Image.size
         if imwidth == self.height and imheight ==  self.width:
