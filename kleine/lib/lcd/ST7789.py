@@ -4,8 +4,8 @@ from . import lcdconfig
 
 class ST7789(lcdconfig.RaspberryPi):
 
-    # width = 320
-    # height = 240
+    # Apparently these should never change.
+    # TODO: If so, remove the ability to change the size from outside: remove set_size().
     width = 240
     height = 320
     def command(self, cmd):

@@ -74,6 +74,7 @@ class Lcd(PyXavi):
                 bl=bl
             )
             # Define the display size
+            # TODO: Feels like the device is always portrait, so maybe proportions are wrong
             self.driver.set_size(width=self._xconfig.get("lcd.size.x", self.DEVICE["WIDTH"]),
                                  height=self._xconfig.get("lcd.size.y", self.DEVICE["HEIGHT"]))
             # Initialize library.
@@ -92,6 +93,7 @@ class Lcd(PyXavi):
 
     def flush_to_device(self, image: Image.Image):
         if self._xconfig.get("lcd.rotate", False):
+                # In the test example it is rotated 180 degrees before ShowImage
                 image = image.rotate(180)
         self.driver.ShowImage(image)
     

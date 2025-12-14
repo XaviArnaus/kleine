@@ -28,9 +28,9 @@ class MockedST7789(PyXavi):
         if os.path.exists(self.path_for_mocked_images) == False:
             os.makedirs(self.path_for_mocked_images)
 
-    # def set_size(self, width, height):
-    #     self.width = width
-    #     self.height = height
+    def set_size(self, width, height):
+        self.width = width
+        self.height = height
 
     def Init(self):
         pass
