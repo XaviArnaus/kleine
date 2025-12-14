@@ -41,9 +41,9 @@ class Main(PyXavi):
     application_modules = [
         ModuleDefinitions.TEMPERATURE,
         ModuleDefinitions.ACCELEROMETER,
-        ModuleDefinitions.POWER,
         ModuleDefinitions.INFO,
-        ModuleDefinitions.SETTINGS
+        ModuleDefinitions.SETTINGS,
+        ModuleDefinitions.POWER,
     ]
 
     def __init__(self, config: Config = None, params: Dictionary = None):
@@ -144,6 +144,34 @@ class Main(PyXavi):
                             "temperature": self.scheduled_values.get("temperature"),
                             "humidity": self.scheduled_values.get("humidity"),
                             "air_pressure": self.scheduled_values.get("air_pressure")
+                        }))
+                    elif self.application_modules[selected_module] == ModuleDefinitions.ACCELEROMETER:
+                        self._xlog.debug("Running Accelerometer module")
+                        self.display.module_accelerometer(parameters=Dictionary({
+                            "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
+                            "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
+                            "temperature": self.scheduled_values.get("temperature")
+                        }))
+                    elif self.application_modules[selected_module] == ModuleDefinitions.POWER:
+                        self._xlog.debug("Running Power module")
+                        self.display.module_power(parameters=Dictionary({
+                            "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
+                            "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
+                            "temperature": self.scheduled_values.get("temperature")
+                        }))
+                    elif self.application_modules[selected_module] == ModuleDefinitions.INFO:
+                        self._xlog.debug("Running Info module")
+                        self.display.module_info(parameters=Dictionary({
+                            "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
+                            "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
+                            "temperature": self.scheduled_values.get("temperature")
+                        }))
+                    elif self.application_modules[selected_module] == ModuleDefinitions.SETTINGS:
+                        self._xlog.debug("Running Settings module")
+                        self.display.module_settings(parameters=Dictionary({
+                            "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
+                            "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
+                            "temperature": self.scheduled_values.get("temperature")
                         }))
                     else:
                         self._xlog.debug("Selected module " + self.application_modules[selected_module] + " not implemented yet.")
