@@ -55,8 +55,8 @@ class Canvas(PyXavi):
                              f"x{params.get('screen_size').y}")
             self._screen_size = params.get("screen_size")
         else:
-            self._xlog.debug(f"Screen size provided in config: \
-                             {self._xconfig.get(self.DEVICE_CONFIG_PREFIX + '.size.x')}" +
+            self._xlog.debug(f"Screen size provided in config: " +
+                             f"{self._xconfig.get(self.DEVICE_CONFIG_PREFIX + '.size.x')}" +
                              f"x{self._xconfig.get(self.DEVICE_CONFIG_PREFIX + '.size.y')}")
             self._screen_size = Point(
                 self._xconfig.get(self.DEVICE_CONFIG_PREFIX + ".size.x"), 
