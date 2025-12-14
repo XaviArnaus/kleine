@@ -13,7 +13,7 @@ from kleine.lib.canvas.canvas import Canvas
 from kleine.lib.modules.display import Display
 from kleine.lib.utils.maintenance import Maintenance
 
-import time
+import time, math
 
 class Main(PyXavi):
 
@@ -258,7 +258,7 @@ class Main(PyXavi):
                 return_value = True
             
             if self.STATUSBAR_SHOW_BATTERY:
-                current_battery_percentage = self.ups.get_battery_percentage()
+                current_battery_percentage = math.ceil(self.ups.get_battery_percentage())
                 if current_battery_percentage != self.scheduled_values.get("battery_percentage", 0):
                     self.scheduled_values.set("battery_percentage", current_battery_percentage)
                     return_value = True
