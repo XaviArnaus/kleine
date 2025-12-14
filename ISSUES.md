@@ -129,3 +129,7 @@ Carbon.CFDataGetBytes(k_layout, CFRange(0, k_layout_size), ctypes.byref(k_layout
 
 4. Comment that line
 5. Execute the _kleine_ as 'sudo`
+
+### Final solution, switch modules from `keyboard` to `pynput`
+
+https://pypi.org/project/pynput/

@@ -28,7 +28,7 @@ class Gpio(PyXavi):
 
     def _new_button(self, pin: tuple) -> MockedButton:
         if self._xconfig.get("gpio.mock", False):
-            self._xlog.debug(f"Creating mocked button for pin {pin[0]} with key binding '{pin[1]}'")
+            self._xlog.warning(f"Creating mocked button for pin {pin[0]} with key binding '{pin[1]}'")
             return MockedButton(pin[0], keyboard_key_binding_to=pin[1], config=self._xconfig, params=self._xparams)
         else:
             self._xlog.debug(f"Creating real button for pin {pin[0]}")

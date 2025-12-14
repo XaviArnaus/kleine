@@ -1,8 +1,6 @@
 from pyxavi import Config, Dictionary
 from kleine.lib.abstract.pyxavi import PyXavi
 
-from pynput import keyboard
-
 # class MockedGpiozero(PyXavi):
 #     """
 #     Mocked version of gpiozero library for non-Linux systems or testing purposes.
@@ -19,7 +17,7 @@ class MockedButton(PyXavi):
 
     pin: int = None
     key_to_emulate_pin: str = None
-    is_pressed: bool = False
+    _is_pressed: bool = False
     _listener = None
 
     def __init__(self, pin: int, keyboard_key_binding_to: str = "space", config: Config = None, params: Dictionary = None):
@@ -28,14 +26,9 @@ class MockedButton(PyXavi):
         self.pin = pin
         if keyboard_key_binding_to is None:
             keyboard_key_binding_to = "space"
-        if keyboard_key_binding_to == "space":
-            self.key_to_emulate_pin = keyboard.Key.space
-        elif keyboard_key_binding_to == "enter":
-            self.key_to_emulate_pin = keyboard.Key.enter
-        else:
-            self.key_to_emulate_pin = keyboard_key_binding_to
         self._is_pressed = False
-        self._make_binding()
+
+        self._make_binding(keyboard_key_binding_to)
 
     @property
     def is_pressed(self) -> bool:
@@ -49,11 +42,20 @@ class MockedButton(PyXavi):
             self._xlog.debug(f"Mocking GPIO: {self.key_to_emulate_pin} key (meaning pin {self.pin}) was PRESSED")
             self._is_pressed = True
 
-    def _make_binding(self):
+    def _make_binding(self, key_binding: str):
         '''
         Internal method to create keyboard binding for mocking the button press.
         Currently not used as we check the key state directly in is_pressed property.
         '''
+        from pynput import keyboard
+
+        if key_binding == "space":
+            self.key_to_emulate_pin = keyboard.Key.space
+        elif key_binding == "enter":
+            self.key_to_emulate_pin = keyboard.Key.enter
+        else:
+            self.key_to_emulate_pin = key_binding
+
         self._listener = keyboard.Listener(on_press=self._on_press)
         self._listener.start()
     
