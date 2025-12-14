@@ -5,7 +5,7 @@ from kleine.lib.objects.module_definitions import ModuleDefinitions
 
 # from kleine.lib.accelerometer.accelerometer import Accelerometer
 # from kleine.lib.air_pressure.air_pressure import AirPressure
-# from kleine.lib.temperature.temperature import Temperature
+from kleine.lib.temperature.temperature import Temperature
 from kleine.lib.ups.ups import Ups
 from kleine.lib.gpio.gpio import Gpio
 from kleine.lib.lcd.lcd import Lcd
@@ -26,6 +26,13 @@ class Main(PyXavi):
     canvas: Canvas = None
     display: Display = None
     maintenance: Maintenance = None
+
+    _last_processed_minute: int = -1
+    scheduled_values: Dictionary = Dictionary({
+        "temperature": 0,
+        "humidity": 0,
+        "air_pressure": 0,
+    })
 
     # The index of the application modules is the order to cycle through them
     application_modules = [
@@ -76,9 +83,9 @@ class Main(PyXavi):
         # self._xlog.info("Initialising air pressure sensor.")
         # self.air_pressure = AirPressure(config=self._xconfig, params=self._xparams)
 
-        # # Initialise the temperature sensor
-        # self._xlog.info("Initialising temperature sensor.")
-        # self.temperature = Temperature(config=self._xconfig, params=self._xparams)
+        # Initialise the temperature sensor
+        self._xlog.info("Initialising temperature sensor.")
+        self.temperature = Temperature(config=self._xconfig, params=self._xparams)
 
         # Initialise the UPS
         self._xlog.info("Initialising UPS")
@@ -107,22 +114,38 @@ class Main(PyXavi):
         # The app rotates through different tests or displays on yellow button press like token ring.
         # The yellow button press moves to the next test/display.
         # The green button press performs an action on the current test/display.
-        selected_module = 0
+        selected_module = -1
 
         try:
             while True:
 
-                # Handle module selection by pressing the Yellow button
-                if self.gpio.is_yellow_button_pressed():
-                    self._xlog.info("Yellow button pressed - moving to next module")
+                # Check the things to do every minute
+                self.do_every_minute_tasks()
+
+                # Handle module selection by pressing the Yellow button or at startup
+                if self.gpio.is_yellow_button_pressed() or selected_module == -1:
                     selected_module += 1
                     if selected_module >= len(self.application_modules):
                         selected_module = 0
+                    self._xlog.info("Yellow button pressed - moving to next module: " + self.application_modules[selected_module])
                     time.sleep(0.5) # Debounce delay
-
-                # # self.macros.startup_splash(display=self.eink)
-                # self.lcd.test()
-                # time.sleep(2)
+                
+                    # Run the selected module.
+                    # Must happen after the button press handling to avoid skipping modules.
+                    if self.application_modules[selected_module] == ModuleDefinitions.TEMPERATURE:
+                        self._xlog.debug("Running Temperature module")
+                        self.display.module_temperature(parameters=Dictionary({
+                            "statusbar_show_time": True,
+                            "statusbar_show_temperature": False,
+                            "temperature": self.scheduled_values.get("temperature")
+                        }))
+                    else:
+                        self._xlog.debug("Selected module " + self.application_modules[selected_module] + " not implemented yet.")
+                        self.display.blank_screen(parameters=Dictionary({
+                            "statusbar_show_time": True,
+                            "statusbar_show_temperature": True,
+                            "temperature": self.scheduled_values.get("temperature")
+                        }))
 
                 # self._xlog.debug("Test accelerometer...")
                 # self.accelerometer.test()
@@ -143,17 +166,26 @@ class Main(PyXavi):
 
         # However it happened, just close nicely.
         self.close_nicely()
-    
-    def run_temperature_module(self):
-        """
-        Run the temperature module.
 
-        It happens inside the main loop, so consider this as a one interation run.
-        """
-        pass
+    def do_every_minute_tasks(self):
+        current_minute = time.localtime().tm_min
+        if current_minute != self._last_processed_minute:
+            self._last_processed_minute = current_minute
+            self._xlog.debug("🕐 New minute detected: " + str(current_minute) + ". Running every-minute tasks.")
+
+            # Get temperature and humidity from the temperature sensor
+            self.scheduled_values.set("temperature", self.temperature.get_temperature())
+            self.scheduled_values.set("humidity", self.temperature.get_humidity())
     
     def close_nicely(self):
         self._xlog.debug("Closing nicely")
+
+        # Clean the canvas
+        if self.display is not None:
+            self._xlog.debug("Cleaning display canvas")
+            self.display.blank_screen(parameters=Dictionary({
+                "statusbar_active": False
+            }))
 
         # Close the LCD
         if self.lcd is not None:
