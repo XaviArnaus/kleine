@@ -58,13 +58,17 @@ class Canvas(PyXavi):
             self._xlog.debug(f"Screen size provided in config: \
                              {self._xconfig.get(self.DEVICE_CONFIG_PREFIX + '.size.x')}" +
                              f"x{self._xconfig.get(self.DEVICE_CONFIG_PREFIX + '.size.y')}")
-            # if self._is_gpio_allowed():
-            #     self._screen_size = Point(self._xconfig.get("lcd.size.y"), self._xconfig.get("lcd.size.x"))
-            # else:
-            #     self._screen_size = Point(self._xconfig.get("lcd.size.x"), self._xconfig.get("lcd.size.y"))
-            self._screen_size = Point(
-                self._xconfig.get(self.DEVICE_CONFIG_PREFIX + ".size.x"), 
-                self._xconfig.get(self.DEVICE_CONFIG_PREFIX + ".size.y"))
+            if self._is_gpio_allowed():
+                self._screen_size = Point(
+                    self._xconfig.get("lcd.size.y"), 
+                    self._xconfig.get("lcd.size.x"))
+            else:
+                self._screen_size = Point(
+                    self._xconfig.get("lcd.size.x"), 
+                    self._xconfig.get("lcd.size.y"))
+            # self._screen_size = Point(
+            #     self._xconfig.get(self.DEVICE_CONFIG_PREFIX + ".size.x"), 
+            #     self._xconfig.get(self.DEVICE_CONFIG_PREFIX + ".size.y"))
         
         # Getting the font file from params or config or default
         if params.key_exists("font_file"):

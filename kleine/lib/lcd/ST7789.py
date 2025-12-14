@@ -6,13 +6,15 @@ class ST7789(lcdconfig.RaspberryPi):
 
     # width = 320
     # height = 240
+    width = 240
+    height = 320
     def command(self, cmd):
         self.digital_write(self.DC_PIN, False)
         self.spi_writebyte([cmd])
     
     # def set_size(self, width, height):
-    #     self.width = width
-    #     self.height = height
+    #     self.width = int(width)
+    #     self.height = int(height)
 
     def data(self, val):
         self.digital_write(self.DC_PIN, True)
