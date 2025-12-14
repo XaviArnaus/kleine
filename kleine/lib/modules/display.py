@@ -68,6 +68,7 @@ class Display(PyXavi):
                     " | LCD: " + ("mocked" if self._xconfig.get("lcd.mock", True) else "real") + \
                     " | Temperature: " + ("mocked" if self._xconfig.get("temperature.mock", True) else "real") + \
                     " | Humidity: " + ("mocked" if self._xconfig.get("humidity.mock", True) else "real") + \
+                    " | Air Pressure: " + ("mocked" if self._xconfig.get("air_pressure.mock", True) else "real") + \
                     " | UPS: " + ("mocked" if self._xconfig.get("ups.mock", True) else "real")
         draw.text(Point(self.screen_size.x / 2, (self.screen_size.y / 4) * 3).to_image_point(),
                    text=Helpers.wrap_text_if_needed(
