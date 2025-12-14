@@ -4,7 +4,7 @@ from kleine.lib.abstract.pyxavi import PyXavi
 from kleine.lib.objects.module_definitions import ModuleDefinitions
 
 # from kleine.lib.accelerometer.accelerometer import Accelerometer
-# from kleine.lib.air_pressure.air_pressure import AirPressure
+from kleine.lib.air_pressure.air_pressure import AirPressure
 from kleine.lib.temperature.temperature import Temperature
 from kleine.lib.ups.ups import Ups
 from kleine.lib.gpio.gpio import Gpio
@@ -40,7 +40,6 @@ class Main(PyXavi):
     # The index of the application modules is the order to cycle through them
     application_modules = [
         ModuleDefinitions.TEMPERATURE,
-        ModuleDefinitions.AIR_PRESSURE,
         ModuleDefinitions.ACCELEROMETER,
         ModuleDefinitions.POWER,
         ModuleDefinitions.INFO,
@@ -82,12 +81,12 @@ class Main(PyXavi):
         # self._xlog.info("Initialising accelerometer.")
         # self.accelerometer = Accelerometer(config=self._xconfig, params=self._xparams)
 
-        # # Initialise the air pressure sensor
-        # self._xlog.info("Initialising air pressure sensor.")
-        # self.air_pressure = AirPressure(config=self._xconfig, params=self._xparams)
+        # Initialise the air pressure sensor
+        self._xlog.info("Initialising air pressure sensor")
+        self.air_pressure = AirPressure(config=self._xconfig, params=self._xparams)
 
         # Initialise the temperature sensor
-        self._xlog.info("Initialising temperature sensor.")
+        self._xlog.info("Initialising temperature sensor")
         self.temperature = Temperature(config=self._xconfig, params=self._xparams)
 
         # Initialise the UPS
@@ -143,7 +142,8 @@ class Main(PyXavi):
                             "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
                             "statusbar_show_temperature": False,
                             "temperature": self.scheduled_values.get("temperature"),
-                            "humidity": self.scheduled_values.get("humidity")
+                            "humidity": self.scheduled_values.get("humidity"),
+                            "air_pressure": self.scheduled_values.get("air_pressure")
                         }))
                     else:
                         self._xlog.debug("Selected module " + self.application_modules[selected_module] + " not implemented yet.")
@@ -198,8 +198,13 @@ class Main(PyXavi):
                     self.scheduled_values.set("humidity", current_humidity)
                     return_value = True
 
+                current_air_pressure = round(self.air_pressure.get_air_pressure(), 1)
+                if current_air_pressure != self.scheduled_values.get("air_pressure", 0):
+                    self.scheduled_values.set("air_pressure", current_air_pressure)
+                    return_value = True
+
                 if return_value:
-                    self._xlog.info(f"Updated scheduled values: Temperature={self.scheduled_values.get('temperature')}°C, Humidity={self.scheduled_values.get('humidity')}%")
+                    self._xlog.info(f"Updated scheduled values: Temperature={self.scheduled_values.get('temperature')}°C, Humidity={self.scheduled_values.get('humidity')}%, Air Pressure={self.scheduled_values.get('air_pressure')} hPa")
 
             if self.STATUSBAR_SHOW_TIME:
                 self._xlog.debug("Time change requires screen refresh.")
