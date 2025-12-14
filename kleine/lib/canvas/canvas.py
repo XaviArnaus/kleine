@@ -22,7 +22,7 @@ class Canvas(PyXavi):
     FONT_BIG: ImageFont = None
     FONT_HUGE: ImageFont = None
 
-    FONT_SIZE_ULTRA = 65
+    FONT_SIZE_ULTRA = 85
     FONT_SIZE_HUGE = 45
     FONT_SIZE_BIG = 22
     FONT_SIZE_MEDIUM = 14

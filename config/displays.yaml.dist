@@ -13,10 +13,11 @@ eink:
   rotate: True
   # Configuration regarding the fonts
   fonts:
+    ultra: 85
+    huge: 45
     big: 22
     medium: 14
     small: 10
-    huge: 40
 
 # Configuration for the LCD Display
 lcd:
