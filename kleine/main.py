@@ -52,7 +52,7 @@ class Main(PyXavi):
         # Initialise the Canvas
         self._xlog.info("Initialising Canvas")
         self.canvas = Canvas(config=self._xconfig, params=Dictionary({
-            "screen_size": self.lcd.get_screen_size(),
+            # "screen_size": self.lcd.get_screen_size(),
             "device_config_prefix": "lcd",
             # "color_mode" and "font_file" could be added here if needed
         }))
