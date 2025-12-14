@@ -58,14 +58,6 @@ class Canvas(PyXavi):
             self._xlog.debug(f"Screen size provided in config: \
                              {self._xconfig.get(self.DEVICE_CONFIG_PREFIX + '.size.x')}" +
                              f"x{self._xconfig.get(self.DEVICE_CONFIG_PREFIX + '.size.y')}")
-            # if self._is_gpio_allowed():
-            #     self._screen_size = Point(
-            #         self._xconfig.get("lcd.size.y"), 
-            #         self._xconfig.get("lcd.size.x"))
-            # else:
-            #     self._screen_size = Point(
-            #         self._xconfig.get("lcd.size.x"), 
-            #         self._xconfig.get("lcd.size.y"))
             self._screen_size = Point(
                 self._xconfig.get(self.DEVICE_CONFIG_PREFIX + ".size.x"), 
                 self._xconfig.get(self.DEVICE_CONFIG_PREFIX + ".size.y"))
@@ -114,11 +106,7 @@ class Canvas(PyXavi):
             if self.COLOR_MODE == "1" and clear_background:
                 background_color = self.COLOR_WHITE
 
-            if (self._is_gpio_allowed()):
-                self._working_image = Image.new(self.COLOR_MODE, (self._screen_size.x, self._screen_size.y), background_color)
-                # self._working_image = self._working_image.rotate(-90, expand=True)
-            else:
-                self._working_image = Image.new(self.COLOR_MODE, (self._screen_size.x, self._screen_size.y), background_color)
+            self._working_image = Image.new(self.COLOR_MODE, (self._screen_size.x, self._screen_size.y), background_color)
             self._xlog.debug(f"Created new working image of size {self._working_image.size} and mode {self.COLOR_MODE}")
 
         return self._working_image
