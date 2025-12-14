@@ -17,7 +17,7 @@ class ScreenSections:
         if parameters.get("statusbar_show_battery", True):
             battery_icon = "🔋" if int(parameters.get('battery_percentage', 0)) > 30 else "🪫"
             battery_icon = "⚡" if parameters.get('battery_is_charging', False) else battery_icon
-            draw.text(Point(parameters.get("screen_size").x - 105, 3).to_image_point(),
+            draw.text(Point(parameters.get("screen_size").x - 100, 3).to_image_point(),
                        text=battery_icon,
                        font=parameters.get("statusbar_font"),
                        fill=parameters.get("statusbar_font_color"),
