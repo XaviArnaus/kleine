@@ -174,9 +174,10 @@ class Main(PyXavi):
             self._xlog.debug("🕐 New minute detected: " + str(current_minute) + ". Running every-minute tasks.")
 
             # Get temperature and humidity from the temperature sensor
-            self.scheduled_values.set("temperature", self.temperature.get_temperature())
-            self.scheduled_values.set("humidity", self.temperature.get_humidity())
-    
+            self.scheduled_values.set("temperature", round(self.temperature.get_temperature(), 1))
+            self.scheduled_values.set("humidity", round(self.temperature.get_humidity(), 1))
+            self._xlog.info(f"Updated scheduled values: Temperature={self.scheduled_values.get('temperature')}°C, Humidity={self.scheduled_values.get('humidity')}%")
+
     def close_nicely(self):
         self._xlog.debug("Closing nicely")
 
