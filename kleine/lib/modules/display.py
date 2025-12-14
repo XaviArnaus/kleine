@@ -5,7 +5,7 @@ from kleine.lib.lcd.lcd import Lcd
 from kleine.lib.objects.errors import LackOfSetupError
 from kleine.lib.objects.point import Point
 from kleine.lib.objects.rectangle import Rectangle
-from kleine.lib.modules.helpers import Helpers
+from kleine.lib.modules.helpers import Helpers, ScreenSections
 
 from PIL import ImageDraw
 from datetime import datetime
@@ -82,35 +82,6 @@ class Display(PyXavi):
                    align="center")
 
         self._flush_canvas_to_device()
-    
-    def _shared_status_header(self, draw: ImageDraw.ImageDraw, parameters: Dictionary):
-        """
-        Draw a shared status header for all modules
-        """
-
-        if parameters.get("statusbar_show_time", True):
-            now = datetime.now()
-            time_str = now.strftime("%H:%M")
-            draw.text(Point(self.screen_size.x - 5, 5).to_image_point(),
-                       text=time_str,
-                       font=self.canvas.FONT_SMALL,
-                       fill=self.canvas.COLOR_WHITE,
-                       anchor="rt",
-                       align="right")
-
-        if parameters.get("statusbar_show_temperature", True):
-            temperature = parameters.get("temperature", 0)
-            draw.text(Point(5, 5).to_image_point(),
-                       text=f"{temperature}°C",
-                       font=self.canvas.FONT_SMALL,
-                       fill=self.canvas.COLOR_WHITE,
-                       anchor="lt",
-                       align="left")
-        
-        # Draw a line between the title and the subtitle
-        draw.line(Rectangle(Point(5, 15), Point(self.screen_size.x - 5, 15)).to_image_rectangle(),
-                  fill=self.canvas.COLOR_WHITE,
-                  width=1)
 
     def module_temperature(self, parameters: Dictionary = None):
         """
@@ -148,6 +119,14 @@ class Display(PyXavi):
             self._shared_status_header(draw, parameters)
 
         self._flush_canvas_to_device()
+    
+    def _shared_status_header(self, draw: ImageDraw.ImageDraw, parameters: Dictionary):
+        ScreenSections.shared_status_header(draw, {
+            **parameters.to_dict(),
+            "statusbar_font": self.canvas.FONT_SMALL,
+            "statusbar_font_color": self.canvas.COLOR_WHITE,
+            "screen_size": self.screen_size
+        })
 
     def _flush_canvas_to_device(self):
         """

@@ -1,16 +1,47 @@
-from pyxavi import Config, Dictionary
-from kleine.lib.abstract.pyxavi import PyXavi
+from pyxavi import Dictionary, dd
+
+from kleine.lib.objects.point import Point
+from kleine.lib.objects.rectangle import Rectangle
 
 from PIL import ImageDraw, ImageFont
+from datetime import datetime
 import logging
 
-class Helpers(PyXavi):
+class ScreenSections:
+
+    @staticmethod
+    def shared_status_header(draw: ImageDraw.ImageDraw, parameters: dict):
+        """
+        Draw a shared status header for all modules
+        """
+        if parameters.get("statusbar_show_time", True):
+            now = datetime.now()
+            time_str = now.strftime("%H:%M")
+            draw.text(Point(parameters.get("screen_size").x - 5, 5).to_image_point(),
+                       text=time_str,
+                       font=parameters.get("statusbar_font"),
+                       fill=parameters.get("statusbar_font_color"),
+                       anchor="rt",
+                       align="right")
+
+        if parameters.get("statusbar_show_temperature", True):
+            temperature = parameters.get("temperature", 0)
+            draw.text(Point(5, 5).to_image_point(),
+                       text=f"{temperature}°C",
+                       font=parameters.get("statusbar_font"),
+                       fill=parameters.get("statusbar_font_color"),
+                       anchor="lt",
+                       align="left")
+        
+        # Draw a line between the title and the subtitle
+        draw.line(Rectangle(Point(5, 15), Point(parameters.get("screen_size").x - 5, 15)).to_image_rectangle(),
+                  fill=parameters.get("statusbar_font_color"),
+                  width=1)
+
+class Helpers:
     """
     Common module to provide shared functionality across different modules.
     """
-
-    def __init__(self, config: Config = None, params: Dictionary = None):
-        super(Helpers, self).init_pyxavi(config=config, params=params)
 
     @staticmethod
     def wrap_text_if_needed(canvas: ImageDraw.ImageDraw, text: str, max_width, font: ImageFont, logger: logging.Logger = None) -> str:
