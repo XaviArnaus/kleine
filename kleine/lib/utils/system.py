@@ -1,7 +1,13 @@
-import platform, ifcfg, subprocess
-from pyxavi import dd
+import platform, ifcfg, subprocess, os, psutil, sys, logging
+from contextlib import contextmanager
 
-class System:
+from pyxavi import Config, Dictionary
+from kleine.lib.abstract.pyxavi import PyXavi
+
+class System(PyXavi):
+
+    def __init__(self, config: Config = None, params: Dictionary = None):
+        super(System, self).init_pyxavi(config=config, params=params)
 
     @staticmethod
     def get_os_info():
@@ -102,3 +108,88 @@ class System:
             # Unsupported OS for WiFi scanning
             pass
         return networks
+
+    @staticmethod
+    def power_off_system():
+        os = platform.system()
+        try:
+            if os.lower() == "linux":
+                subprocess.run(['sudo', 'poweroff'])
+            elif os.lower() == "windows":
+                subprocess.run(['shutdown', '/s', '/t', '0'])
+            elif os.lower() == "darwin":
+                subprocess.run(['sudo', 'shutdown', '-h', 'now'])
+            else:
+                raise NotImplementedError(f"Power off not implemented for OS: {os}")
+        except Exception as e:
+            print(f"Error powering off system: {e}")
+    
+    @staticmethod
+    def reboot_system():
+        os = platform.system()
+        try:
+            if os.lower() == "linux":
+                subprocess.run(['sudo', 'reboot'])
+            elif os.lower() == "windows":
+                subprocess.run(['shutdown', '/r', '/t', '0'])
+            elif os.lower() == "darwin":
+                subprocess.run(['sudo', 'shutdown', '-r', 'now'])
+            else:
+                raise NotImplementedError(f"Reboot not implemented for OS: {os}")
+        except Exception as e:
+            print(f"Error rebooting system: {e}")
+    
+    def restart_program():
+        """
+        Restarts the current program, with file objects and descriptors cleanup
+        https://stackoverflow.com/a/54445517
+        """
+
+        try:
+            p = psutil.Process(os.getpid())
+            for handler in p.open_files() + p.net_connections():
+                os.close(handler.fd)
+        except Exception as e:
+            logging.error(e)
+
+        python = sys.executable
+        os.execl(python, python, "\"{}\"".format(sys.argv[0]))
+    
+    @contextmanager
+    def change_directory(directory: str):
+        original_cwd = os.getcwd()
+        os.chdir(directory)
+        try:
+            yield
+        finally:
+            os.chdir(original_cwd)
+    
+    def update_and_restart_system(self) -> bool:
+        try:
+            with System.change_directory(os.getcwd()):
+
+                # First we pull the changes from git in the current branch.
+                completed_process = subprocess.run(['git', 'pull'], capture_output=True)
+
+                if completed_process.returncode == 0:
+                    self._xlog.info("Git pull successful.")
+                else:
+                    self._xlog.error(f"Git pull failed: {completed_process.stderr.decode()}")
+                    self._xlog.debug(completed_process.stdout.decode())
+                    return False
+            
+            # Now we run the possible update of the python packages
+            completed_process = subprocess.run(['make', 'update'], capture_output=True)
+
+            if completed_process.returncode == 0:
+                self._xlog.info("Python packages updated successfully.")
+            else:
+                self._xlog.error(f"Python packages update failed: {completed_process.stderr.decode()}")
+                self._xlog.debug(completed_process.stdout.decode())
+                return False
+
+            # Finally, we restart the program.
+            self._xlog.info("Restarting the program...")
+            System.restart_program()
+        except Exception as e:
+            print(f"Error updating and restarting system: {e}")

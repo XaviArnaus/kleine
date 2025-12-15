@@ -96,7 +96,7 @@ class ScreenSections:
         # The left side is reserved for navigation icons: we show current module displayed.
         draw.text(Point(5, 5).to_image_point(),
                     text=f"{parameters.get('statusbar_nav_icon', '')}",
-                    font=parameters.get("statusbar_font"),
+                    font=parameters.get("statusbar_font_emoji"),
                     fill=parameters.get("statusbar_font_color"),
                     anchor="lt",
                     align="left")
