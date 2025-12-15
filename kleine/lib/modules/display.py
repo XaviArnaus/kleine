@@ -241,6 +241,7 @@ class Display(PyXavi):
         ScreenSections.shared_status_header(draw, {
             **parameters.to_dict(),
             "statusbar_font": self.canvas.FONT_SMALL,
+            "statusbar_font_emoji": self.canvas.FONT_SMALL_EMOJI,
             "statusbar_font_color": self.canvas.COLOR_WHITE,
             "screen_size": self.screen_size
         })

@@ -17,16 +17,19 @@ class Canvas(PyXavi):
     FONT_FILE: str = os.path.join(DEFAULT_FONT_PATH, "Font_with_emojis.ttc")
     COLOR_MODE = "RGB"  # '1' for 1-bit images, 'L' for greyscale, 'RGB' for true color, 'RGBA' for true color with transparency
 
+    FONT_SMALL_EMOJI: ImageFont = None
     FONT_SMALL: ImageFont = None
     FONT_MEDIUM: ImageFont = None
     FONT_BIG: ImageFont = None
     FONT_HUGE: ImageFont = None
+    FONT_ULTRA: ImageFont = None
 
-    FONT_SIZE_ULTRA = 85
-    FONT_SIZE_HUGE = 45
-    FONT_SIZE_BIG = 22
-    FONT_SIZE_MEDIUM = 14
-    FONT_SIZE_SMALL = 20
+    DEFAULT_FONT_SIZE_SMALL_EMOJI = 16
+    DEFAULT_FONT_SIZE_SMALL = 20
+    DEFAULT_FONT_SIZE_MEDIUM = 14
+    DEFAULT_FONT_SIZE_BIG = 22
+    DEFAULT_FONT_SIZE_HUGE = 45
+    DEFAULT_FONT_SIZE_ULTRA = 85
 
     DEFAULT_STROKE: int = 1
 
@@ -139,11 +142,12 @@ class Canvas(PyXavi):
         - Config: to use the overall app setup
         - Class default: Fonts must exist, so this is the last resort
         """
-        ultra_size = self.FONT_SIZE_ULTRA
-        huge_size = self.FONT_SIZE_HUGE
-        big_size = self.FONT_SIZE_BIG
-        medium_size = self.FONT_SIZE_MEDIUM
-        small_size = self.FONT_SIZE_SMALL
+        ultra_size = self.DEFAULT_FONT_SIZE_ULTRA
+        huge_size = self.DEFAULT_FONT_SIZE_HUGE
+        big_size = self.DEFAULT_FONT_SIZE_BIG
+        medium_size = self.DEFAULT_FONT_SIZE_MEDIUM
+        small_size = self.DEFAULT_FONT_SIZE_SMALL
+        small_emoji_size = self.DEFAULT_FONT_SIZE_SMALL_EMOJI
 
         self._xlog.debug(f"Initialising fonts from file: {self.FONT_FILE}")
 
@@ -181,3 +185,10 @@ class Canvas(PyXavi):
         elif (self._xconfig.key_exists(self.DEVICE_CONFIG_PREFIX + ".fonts.small")):
             small_size = self._xconfig.get(self.DEVICE_CONFIG_PREFIX + ".fonts.small")
         self.FONT_SMALL = ImageFont.truetype(self.FONT_FILE, small_size)
+
+        # Small emoji size
+        if (self._xparams.key_exists(self.DEVICE_CONFIG_PREFIX + ".fonts.small-emoji")):
+            small_emoji_size = self._xparams.get(self.DEVICE_CONFIG_PREFIX + ".fonts.small-emoji")
+        elif (self._xconfig.key_exists(self.DEVICE_CONFIG_PREFIX + ".fonts.small-emoji")):
+            small_emoji_size = self._xconfig.get(self.DEVICE_CONFIG_PREFIX + ".fonts.small-emoji")
+        self.FONT_SMALL_EMOJI = ImageFont.truetype(self.FONT_FILE, small_emoji_size)

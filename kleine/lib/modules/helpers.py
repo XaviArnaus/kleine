@@ -15,11 +15,24 @@ class ScreenSections:
         Draw a shared status header for all modules
         """
         if parameters.get("statusbar_show_battery", True):
+            # Take in account that aligning right makes the text box to start from max_with downwards.
+            # This means that we define the start drawing position from the corner up-right.
+
             battery_icon = "🔋" if int(parameters.get('battery_percentage', 0)) > 30 else "🪫"
             battery_icon = "⚡" if parameters.get('battery_is_charging', False) else battery_icon
-            draw.text(Point(parameters.get("screen_size").x - 105, 3).to_image_point(),
+            # Calculate the bounding box to adjust the battery icon position
+            bounding_box_battery = draw.textbbox(
+                Point(parameters.get("screen_size").x - 60, 5).to_image_point(),
+                text=f"{parameters.get('battery_percentage', 0)}%",
+                font=parameters.get("statusbar_font"),
+                anchor="rt",
+                align="right"
+            )
+            battery_percentage__end_x = parameters.get("screen_size").x - (bounding_box_battery[2] - bounding_box_battery[0]) - 60
+            battery_emoji_x = battery_percentage__end_x
+            draw.text(Point(battery_emoji_x, 4).to_image_point(),
                        text=battery_icon,
-                       font=parameters.get("statusbar_font"),
+                       font=parameters.get("statusbar_font_emoji"),
                        fill=parameters.get("statusbar_font_color"),
                        anchor="rt",
                        align="right")

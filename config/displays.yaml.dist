@@ -30,3 +30,4 @@ lcd:
     big: 22
     medium: 14
     small: 20
+    small-emoji: 18
