@@ -1,16 +1,10 @@
-from pyxavi import Config, Dictionary, dd
-from kleine.lib.abstract.pyxavi import PyXavi
-from kleine.lib.canvas.canvas import Canvas
-from kleine.lib.lcd.lcd import Lcd
-from kleine.lib.objects.errors import LackOfSetupError
+from pyxavi import Dictionary
+from kleine.lib.abstract.display_module import DisplayModule
 from kleine.lib.objects.point import Point
 from kleine.lib.objects.rectangle import Rectangle
-from kleine.lib.modules.helpers import Helpers, ScreenSections
+from kleine.lib.modules.helpers import Helpers
 
-from PIL import ImageDraw
-from datetime import datetime
-
-class Display(PyXavi):
+class Display(DisplayModule):
     """
     Display module abstract the graphical interaction to the user
 
@@ -18,28 +12,6 @@ class Display(PyXavi):
     Because we could have several displays at the same time (e.g., LCD and eInk), this module
     expects to receive a Canvas instance where to draw and a device instance where to send the final image.
     """
-
-    canvas: Canvas = None
-    device: Lcd = None
-
-    screen_size: Point = None
-
-    def __init__(self, config: Config = None, params: Dictionary = None):
-        super(Display, self).init_pyxavi(config=config, params=params)
-
-        # We're supposed to receive a canvas where to draw
-        if not params.key_exists("canvas"):
-            self._xlog.error("No canvas provided to display module")
-            raise LackOfSetupError("No canvas provided to display module")
-        self.canvas = params.get("canvas")
-
-        # We're supposed to receive a device where to send the final image
-        if not params.key_exists("device"):
-            self._xlog.error("No device provided to display module")
-            raise LackOfSetupError("No device provided to display module")
-        self.device = params.get("device")
-
-        self.screen_size = self.canvas.get_screen_size()
 
     def startup_splash(self):
         """
@@ -84,33 +56,6 @@ class Display(PyXavi):
 
         self._flush_canvas_to_device()
 
-    def module_temperature(self, parameters: Dictionary = None):
-        """
-        Show the current temperature on the display
-        """
-        self._xlog.info("Showing current temperature...")
-        draw = self.canvas.get_canvas()
-
-        # All modules should share a similar status header
-        self._shared_status_header(draw, parameters, "🌡")
-
-        # Print the temperature in the middle of the screen
-        draw.text(Point((self.screen_size.x / 2) - 5, self.screen_size.y / 2).to_image_point(),
-                   text=f"{parameters.get('temperature', 0)}°C",
-                   font=self.canvas.FONT_ULTRA,
-                   fill=self.canvas.COLOR_WHITE,
-                   anchor="mm",
-                   align="center")
-
-        draw.text(Point((self.screen_size.x / 2) - 5, (self.screen_size.y / 4) * 3).to_image_point(),
-                   text=f"💧 {parameters.get('humidity', 0)}%  🌦️ {parameters.get('air_pressure', 0)} hPa",
-                   font=self.canvas.FONT_BIG,
-                   fill=self.canvas.COLOR_WHITE,
-                   anchor="mm",
-                   align="center")
-
-        self._flush_canvas_to_device()
-
     def module_accelerometer(self, parameters: Dictionary = None):
         """
         Show the accelerometer readings on the display
@@ -132,43 +77,6 @@ class Display(PyXavi):
         # All modules should share a similar status header
         if parameters.get("statusbar_active", True):
             self._shared_status_header(draw, parameters, "🛩️")
-
-        self._flush_canvas_to_device()
-    
-    def module_info(self, parameters: Dictionary = None):
-        """
-        Show the information module on the display
-        """
-        self._xlog.info("Showing information module...")
-        draw = self.canvas.get_canvas()
-
-        # Draw a rectangle over the entire screen
-        draw.rectangle(Rectangle(Point(0, 0), self.screen_size).to_image_rectangle(),
-                       fill=self.canvas.COLOR_BLACK)
-        
-        # Prepare the info text
-        os_data: dict = parameters.get("os_info", {})
-        network_interface: dict = parameters.get("network_interface", {})
-        wifi_network: list[dict] = parameters.get("wifi_network", [])
-        info_text = [
-            f"OS & arch: {os_data.get('system', 'N/A')} / {os_data.get('machine', 'N/A')}",
-            f"IP address: {network_interface.get('ip', 'N/A')}",
-            f"MAC address: {network_interface.get('mac', 'N/A')}",
-            f"Wifi SSID: {wifi_network[0].get('ssid', 'N/A')}" if wifi_network else "Wifi SSID: N/A",
-            f"Wifi Sec: {wifi_network[0].get('security', 'N/A')}" if wifi_network else "Wifi Sec: N/A",
-            f"Wifi Signal: {wifi_network[0].get('signal', 'N/A')}" if wifi_network else "Wifi Signal: N/A",
-        ]
-        info_text_str = "\n".join(info_text)
-
-        draw.text(Point(10, 50).to_image_point(),
-                   text=info_text_str,
-                   font=self.canvas.FONT_MEDIUM,
-                   fill=self.canvas.COLOR_WHITE,
-                   align="left")
-
-        # All modules should share a similar status header
-        if parameters.get("statusbar_active", True):
-            self._shared_status_header(draw, parameters, "ℹ️")
 
         self._flush_canvas_to_device()
     
@@ -196,30 +104,6 @@ class Display(PyXavi):
 
         self._flush_canvas_to_device()
     
-    def module_power(self, parameters: Dictionary = None):
-        """
-        Show the power module on the display
-        """
-        self._xlog.info("Showing power module...")
-        draw = self.canvas.get_canvas()
-
-        # Draw a rectangle over the entire screen
-        draw.rectangle(Rectangle(Point(0, 0), self.screen_size).to_image_rectangle(),
-                       fill=self.canvas.COLOR_BLACK)
-        
-        draw.text(Point(self.screen_size.x / 2, self.screen_size.y / 2).to_image_point(),
-                   text="⛔️",
-                   font=self.canvas.FONT_ULTRA,
-                   fill=self.canvas.COLOR_WHITE,
-                   anchor="mm",
-                   align="center")
-
-        # All modules should share a similar status header
-        if parameters.get("statusbar_active", True):
-            self._shared_status_header(draw, parameters, "⛔️")
-
-        self._flush_canvas_to_device()
-    
     def blank_screen(self, parameters: Dictionary = None):
         """
         Show a blank screen on the display.
@@ -236,21 +120,3 @@ class Display(PyXavi):
             self._shared_status_header(draw, parameters)
 
         self._flush_canvas_to_device()
-    
-    def _shared_status_header(self, draw: ImageDraw.ImageDraw, parameters: Dictionary, module_icon: str = ""):
-        ScreenSections.shared_status_header(draw, {
-            **parameters.to_dict(),
-            "statusbar_nav_icon": module_icon,
-            "statusbar_font": self.canvas.FONT_SMALL,
-            "statusbar_font_emoji": self.canvas.FONT_SMALL_EMOJI,
-            "statusbar_font_color": self.canvas.COLOR_WHITE,
-            "screen_size": self.screen_size
-        })
-
-    def _flush_canvas_to_device(self):
-        """
-        Send the current canvas image to the display device
-        """
-        self._xlog.debug("Flushing canvas to display device...")
-        image = self.canvas.get_image()
-        self.device.flush_to_device(image)

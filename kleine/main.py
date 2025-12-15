@@ -11,6 +11,9 @@ from kleine.lib.gpio.gpio import Gpio
 from kleine.lib.lcd.lcd import Lcd
 from kleine.lib.canvas.canvas import Canvas
 from kleine.lib.modules.display import Display
+from kleine.lib.modules.display_power import DisplayPower
+from kleine.lib.modules.display_temperature import DisplayTemperature
+from kleine.lib.modules.display_info import DisplayInfo
 from kleine.lib.utils.maintenance import Maintenance
 from kleine.lib.utils.system import System
 
@@ -23,14 +26,19 @@ class Main(PyXavi):
     STATUSBAR_SHOW_BATTERY: bool = True
 
     # accelerometer: Accelerometer = None
-    # air_pressure: AirPressure = None
-    # temperature: Temperature = None
+    air_pressure: AirPressure = None
+    temperature: Temperature = None
     ups: Ups = None
     gpio: Gpio = None
     lcd: Lcd = None
     canvas: Canvas = None
-    display: Display = None
     maintenance: Maintenance = None
+
+    # All DisplayModules classes should have its own instance here
+    display: Display = None
+    display_temperature: DisplayTemperature = None
+    display_info: DisplayInfo = None
+    display_power: DisplayPower = None
 
     _last_processed_minute: int = -1
     scheduled_values: Dictionary = Dictionary({
@@ -68,11 +76,23 @@ class Main(PyXavi):
         }))
 
         # Initialise the Display module
-        self._xlog.info("Initialising Display module")
+        self._xlog.info("Initialising Display modules")
         self.display = Display(config=self._xconfig, params=Dictionary({
             "canvas": self.canvas,
             "device": self.lcd,
             "app_version": self._xparams.get("app_version")
+        }))
+        self.display_power = DisplayPower(config=self._xconfig, params=Dictionary({
+            "canvas": self.canvas,
+            "device": self.lcd
+        }))
+        self.display_temperature = DisplayTemperature(config=self._xconfig, params=Dictionary({
+            "canvas": self.canvas,
+            "device": self.lcd
+        }))
+        self.display_info = DisplayInfo(config=self._xconfig, params=Dictionary({
+            "canvas": self.canvas,
+            "device": self.lcd
         }))
 
         # Initialise the GPIO
@@ -142,7 +162,7 @@ class Main(PyXavi):
                     # Temperature module
                     if self.application_modules[selected_module] == ModuleDefinitions.TEMPERATURE:
                         self._xlog.debug("Running Temperature module")
-                        self.display.module_temperature(parameters=Dictionary({
+                        self.display_temperature.module(parameters=Dictionary({
                             "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
                             "statusbar_show_temperature": False,
                             "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
@@ -168,7 +188,7 @@ class Main(PyXavi):
                     # Power module
                     elif self.application_modules[selected_module] == ModuleDefinitions.POWER:
                         self._xlog.debug("Running Power module")
-                        self.display.module_power(parameters=Dictionary({
+                        self.display_power.module(parameters=Dictionary({
                             "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
                             "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
                             "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
@@ -180,7 +200,7 @@ class Main(PyXavi):
                     # Info module
                     elif self.application_modules[selected_module] == ModuleDefinitions.INFO:
                         self._xlog.debug("Running Info module")
-                        self.display.module_info(parameters=Dictionary({
+                        self.display_info.module(parameters=Dictionary({
                             "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
                             "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
                             "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
