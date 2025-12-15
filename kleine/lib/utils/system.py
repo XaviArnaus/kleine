@@ -101,5 +101,4 @@ class System:
         else:
             # Unsupported OS for WiFi scanning
             pass
-        dd(networks)
         return networks

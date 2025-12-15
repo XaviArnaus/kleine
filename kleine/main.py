@@ -219,15 +219,6 @@ class Main(PyXavi):
                 # self._xlog.debug("Test accelerometer...")
                 # self.accelerometer.test()
 
-                # self._xlog.debug("Test air pressure...")
-                # self.air_pressure.test()
-
-                # self._xlog.debug("Test temperature...")
-                # self.temperature.test()
-
-                # self._xlog.debug("Test UPS...")
-                # self.ups.test()
-
         except Exception as e:
             self._xlog.error(f"Exception in main run: {e}")
         except KeyboardInterrupt:
