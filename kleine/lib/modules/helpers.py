@@ -41,7 +41,8 @@ class ScreenSections:
                 anchor="rt",
                 align="right"
             )
-            next_right_slot_x -= (bounding_box_time[2] - bounding_box_time[0]) + ScreenSections.STATUS_BAR_PICES_SPACING
+            # For any reason we need extra spacing after the time
+            next_right_slot_x -= (bounding_box_time[2] - bounding_box_time[0]) + 12 + ScreenSections.STATUS_BAR_PICES_SPACING
 
         if parameters.get("statusbar_show_battery", True):
 

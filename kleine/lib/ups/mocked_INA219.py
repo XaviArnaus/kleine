@@ -8,7 +8,7 @@ class MockedINA219(PyXavi):
 
     def getBusVoltage_V(self):
         # Mocked voltage reading
-        return 12.0
+        return 4.008
 
     def getCurrent_mA(self):
         # Mocked current reading
