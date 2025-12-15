@@ -92,7 +92,7 @@ class Display(PyXavi):
         draw = self.canvas.get_canvas()
 
         # All modules should share a similar status header
-        self._shared_status_header(draw, parameters)
+        self._shared_status_header(draw, parameters, "🌡")
 
         # Print the temperature in the middle of the screen
         draw.text(Point((self.screen_size.x / 2) - 5, self.screen_size.y / 2).to_image_point(),
@@ -131,7 +131,7 @@ class Display(PyXavi):
 
         # All modules should share a similar status header
         if parameters.get("statusbar_active", True):
-            self._shared_status_header(draw, parameters)
+            self._shared_status_header(draw, parameters, "🛩️")
 
         self._flush_canvas_to_device()
     
@@ -168,7 +168,7 @@ class Display(PyXavi):
 
         # All modules should share a similar status header
         if parameters.get("statusbar_active", True):
-            self._shared_status_header(draw, parameters)
+            self._shared_status_header(draw, parameters, "ℹ️")
 
         self._flush_canvas_to_device()
     
@@ -192,7 +192,7 @@ class Display(PyXavi):
 
         # All modules should share a similar status header
         if parameters.get("statusbar_active", True):
-            self._shared_status_header(draw, parameters)
+            self._shared_status_header(draw, parameters, "⚙️")
 
         self._flush_canvas_to_device()
     
@@ -208,7 +208,7 @@ class Display(PyXavi):
                        fill=self.canvas.COLOR_BLACK)
         
         draw.text(Point(self.screen_size.x / 2, self.screen_size.y / 2).to_image_point(),
-                   text="📴",
+                   text="⛔️",
                    font=self.canvas.FONT_ULTRA,
                    fill=self.canvas.COLOR_WHITE,
                    anchor="mm",
@@ -216,7 +216,7 @@ class Display(PyXavi):
 
         # All modules should share a similar status header
         if parameters.get("statusbar_active", True):
-            self._shared_status_header(draw, parameters)
+            self._shared_status_header(draw, parameters, "⛔️")
 
         self._flush_canvas_to_device()
     
@@ -237,9 +237,10 @@ class Display(PyXavi):
 
         self._flush_canvas_to_device()
     
-    def _shared_status_header(self, draw: ImageDraw.ImageDraw, parameters: Dictionary):
+    def _shared_status_header(self, draw: ImageDraw.ImageDraw, parameters: Dictionary, module_icon: str = ""):
         ScreenSections.shared_status_header(draw, {
             **parameters.to_dict(),
+            "statusbar_nav_icon": module_icon,
             "statusbar_font": self.canvas.FONT_SMALL,
             "statusbar_font_emoji": self.canvas.FONT_SMALL_EMOJI,
             "statusbar_font_color": self.canvas.COLOR_WHITE,
