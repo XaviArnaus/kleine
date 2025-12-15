@@ -73,9 +73,9 @@ class Helpers:
     """
 
     @staticmethod
-    def wrap_text_if_needed(canvas: ImageDraw.ImageDraw, text: str, max_width, font: ImageFont, logger: logging.Logger = None) -> str:
+    def wrap_text_if_needed(draw: ImageDraw.ImageDraw, text: str, max_width, font: ImageFont, logger: logging.Logger = None) -> str:
         try:
-            width_text = canvas.textlength(text.replace("\n", ""), font)
+            width_text = draw.textlength(text.replace("\n", ""), font)
             if(width_text <= max_width):
                 return text
             else:
@@ -86,7 +86,7 @@ class Helpers:
                 
                 for word in words:
                     test_line = current_line + (" " if current_line != "" else "") + word
-                    width_test_line = canvas.textlength(test_line, font)
+                    width_test_line = draw.textlength(test_line, font)
                     if(width_test_line <= max_width):
                         current_line = test_line
                     else:
@@ -102,3 +102,4 @@ class Helpers:
                 logger.debug(text)
 
                 return text
+    
