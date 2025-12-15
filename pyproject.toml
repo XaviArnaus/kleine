@@ -21,6 +21,8 @@ pillow = "^11.2.1"
 numpy = "^2.3.4"
 lgpio = [{version="^0.2.2.0", markers="sys_platform=='linux'"}]
 pynput = "^1.8.1"
+ifcfg = "^0.24"
+macwifi = [{version="^0.0.5", markers="sys_platform=='darwin'"}]
 
 [tool.poetry.scripts]
 main = "runner:run"

@@ -12,6 +12,7 @@ from kleine.lib.lcd.lcd import Lcd
 from kleine.lib.canvas.canvas import Canvas
 from kleine.lib.modules.display import Display
 from kleine.lib.utils.maintenance import Maintenance
+from kleine.lib.utils.system import System
 
 import time, math
 
@@ -137,6 +138,8 @@ class Main(PyXavi):
                 # Run the selected module.
                 # Must happen after the button press handling to avoid skipping modules.
                 if should_refresh:
+
+                    # Temperature module
                     if self.application_modules[selected_module] == ModuleDefinitions.TEMPERATURE:
                         self._xlog.debug("Running Temperature module")
                         self.display.module_temperature(parameters=Dictionary({
@@ -149,6 +152,8 @@ class Main(PyXavi):
                             "humidity": self.scheduled_values.get("humidity"),
                             "air_pressure": self.scheduled_values.get("air_pressure")
                         }))
+                    
+                    # Accelerometer module
                     elif self.application_modules[selected_module] == ModuleDefinitions.ACCELEROMETER:
                         self._xlog.debug("Running Accelerometer module")
                         self.display.module_accelerometer(parameters=Dictionary({
@@ -159,6 +164,8 @@ class Main(PyXavi):
                             "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
                             "temperature": self.scheduled_values.get("temperature")
                         }))
+
+                    # Power module
                     elif self.application_modules[selected_module] == ModuleDefinitions.POWER:
                         self._xlog.debug("Running Power module")
                         self.display.module_power(parameters=Dictionary({
@@ -169,6 +176,8 @@ class Main(PyXavi):
                             "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
                             "temperature": self.scheduled_values.get("temperature")
                         }))
+                    
+                    # Info module
                     elif self.application_modules[selected_module] == ModuleDefinitions.INFO:
                         self._xlog.debug("Running Info module")
                         self.display.module_info(parameters=Dictionary({
@@ -177,8 +186,13 @@ class Main(PyXavi):
                             "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
                             "battery_percentage": self.scheduled_values.get("battery_percentage"),
                             "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
-                            "temperature": self.scheduled_values.get("temperature")
+                            "temperature": self.scheduled_values.get("temperature"),
+                            "os_info": System.get_os_info(),
+                            "network_interface": System.get_default_network_interface(),
+                            "wifi_networks": System.get_connected_wifi_info()
                         }))
+                    
+                    # Settings module
                     elif self.application_modules[selected_module] == ModuleDefinitions.SETTINGS:
                         self._xlog.debug("Running Settings module")
                         self.display.module_settings(parameters=Dictionary({
@@ -189,6 +203,8 @@ class Main(PyXavi):
                             "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
                             "temperature": self.scheduled_values.get("temperature")
                         }))
+                    
+                    # Unknown module
                     else:
                         self._xlog.debug("Selected module " + self.application_modules[selected_module] + " not implemented yet.")
                         self.display.blank_screen(parameters=Dictionary({

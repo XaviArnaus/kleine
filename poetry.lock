@@ -256,6 +256,18 @@ files = [
 all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2)"]
 
 [[package]]
+name = "ifcfg"
+version = "0.24"
+description = "Python ifconfig wrapper for Unix/Linux/MacOSX + ipconfig for Windows"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "ifcfg-0.24-py2.py3-none-any.whl", hash = "sha256:950f31ddc3fdd877724fb4154b744434471106088ecf10170b96063c24b3c0b7"},
+    {file = "ifcfg-0.24.tar.gz", hash = "sha256:64f60f7a0d15c85876b76b5f79246ed8c27bf5f79e5753ec88287145884661ab"},
+]
+
+[[package]]
 name = "lgpio"
 version = "0.2.2.0"
 description = "Linux SBC GPIO module"
@@ -277,6 +289,19 @@ files = [
     {file = "lgpio-0.2.2.0-cp39-cp39-manylinux_2_34_aarch64.whl", hash = "sha256:9ed135824c717901457dcf2462bb1af9f5445aa6e56bb7a9263fc064620ef586"},
     {file = "lgpio-0.2.2.0-cp39-cp39-manylinux_2_34_x86_64.whl", hash = "sha256:f95d6a6db23f99e745e0aee36cd49a515dd6846a5ddb49474c73a390bb2048e2"},
     {file = "lgpio-0.2.2.0.tar.gz", hash = "sha256:11372e653b200f76a0b3ef8a23a0735c85ec678a9f8550b9893151ed0f863fff"},
+]
+
+[[package]]
+name = "macwifi"
+version = "0.0.5"
+description = "Macwifi is a Python module that helps you to manage the WiFi on macOS."
+optional = false
+python-versions = ">=3.6"
+groups = ["main"]
+markers = "sys_platform == \"darwin\""
+files = [
+    {file = "macwifi-0.0.5-py3-none-any.whl", hash = "sha256:d448bbccae337df43d4482cdae15192de3469751fc312de18ce8184c137f5b8e"},
+    {file = "macwifi-0.0.5.tar.gz", hash = "sha256:10256a1b602dfca993da957d837a062c727755f1c96c013ff550c7682e02609c"},
 ]
 
 [[package]]
@@ -981,4 +1006,4 @@ tooling-extras = ["pyaml (>=23.7.0)", "pypandoc-binary (>=1.11)", "pytest (>=7.4
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "e54ede96bf6d5d82b5aa23a6e51c0a5dc937733cf22a102e47c0a1992c17a64a"
+content-hash = "caf5c9fbf32e8f4b1dfaff1927889f685c69bdb9909dbdb8d46fb4e8d3a166bc"
