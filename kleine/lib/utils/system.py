@@ -94,9 +94,10 @@ class System:
                 if "link auth" in line:
                     security = line.split(':')[1].strip()
                     info["security"] = security
-                if info:
-                    networks.append(info)
-                    info = {}
+
+            if info:
+                networks.append(info)
+                info = {}
         else:
             # Unsupported OS for WiFi scanning
             pass

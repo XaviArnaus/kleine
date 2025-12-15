@@ -189,7 +189,7 @@ class Main(PyXavi):
                             "temperature": self.scheduled_values.get("temperature"),
                             "os_info": System.get_os_info(),
                             "network_interface": System.get_default_network_interface(),
-                            "wifi_networks": System.get_connected_wifi_info()
+                            "wifi_network": System.get_connected_wifi_info()
                         }))
                     
                     # Settings module

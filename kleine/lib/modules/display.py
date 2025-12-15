@@ -1,4 +1,4 @@
-from pyxavi import Config, Dictionary
+from pyxavi import Config, Dictionary, dd
 from kleine.lib.abstract.pyxavi import PyXavi
 from kleine.lib.canvas.canvas import Canvas
 from kleine.lib.lcd.lcd import Lcd
@@ -146,12 +146,25 @@ class Display(PyXavi):
         draw.rectangle(Rectangle(Point(0, 0), self.screen_size).to_image_rectangle(),
                        fill=self.canvas.COLOR_BLACK)
         
-        draw.text(Point(self.screen_size.x / 2, self.screen_size.y / 2).to_image_point(),
-                   text="ℹ️",
-                   font=self.canvas.FONT_ULTRA,
+        # Prepare the info text
+        os_data: dict = parameters.get("os_info", {})
+        network_interface: dict = parameters.get("network_interface", {})
+        wifi_network: list[dict] = parameters.get("wifi_network", [])
+        info_text = [
+            f"OS & arch: {os_data.get('system', 'N/A')} / {os_data.get('machine', 'N/A')}",
+            f"IP address: {network_interface.get('ip', 'N/A')}",
+            f"MAC address: {network_interface.get('mac', 'N/A')}",
+            f"Wifi SSID: {wifi_network[0].get('ssid', 'N/A')}" if wifi_network else "Wifi SSID: N/A",
+            f"Wifi Sec: {wifi_network[0].get('security', 'N/A')}" if wifi_network else "Wifi Sec: N/A",
+            f"Wifi Signal: {wifi_network[0].get('signal', 'N/A')}" if wifi_network else "Wifi Signal: N/A",
+        ]
+        info_text_str = "\n".join(info_text)
+
+        draw.text(Point(10, 50).to_image_point(),
+                   text=info_text_str,
+                   font=self.canvas.FONT_MEDIUM,
                    fill=self.canvas.COLOR_WHITE,
-                   anchor="mm",
-                   align="center")
+                   align="left")
 
         # All modules should share a similar status header
         if parameters.get("statusbar_active", True):
