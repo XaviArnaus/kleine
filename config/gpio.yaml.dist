@@ -6,7 +6,7 @@ gpio:
   buttons:
     - name: yellow
       pin: 16
-      mocked_as: "esc"
+      mocked_as: "tab"
     - name: green
       pin: 26
       mocked_as: "enter"

@@ -1,11 +1,11 @@
-from pyxavi import Config, Dictionary
+from pyxavi import Config, Dictionary, full_stack, dd
 from kleine.lib.abstract.pyxavi import PyXavi
 
 from .mocked_gpiozero import MockedButton
 
 class Gpio(PyXavi):
 
-    buttons: dict = {}
+    buttons: dict[str, MockedButton] = {}
 
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(Gpio, self).init_pyxavi(config=config, params=params)
@@ -19,9 +19,13 @@ class Gpio(PyXavi):
     def initialize_buttons(self):
 
         # Gather the definitions from the config
-        button_definitions = self._xconfig.get("gpio.buttons", [])
-        for button in button_definitions:
-            self.buttons[button["name"]] = self._new_button(button["pin"], button["mocked_as"])
+        try:
+            button_definitions = self._xconfig.get("gpio.buttons", [])
+            for button in button_definitions:
+                self.buttons[button["name"]] = self._new_button(button["pin"], button["mocked_as"])
+        except Exception as e:
+            self._xlog.error(f"Error initializing GPIO buttons: {e}")
+            self._xlog.debug(full_stack())
 
     def is_button_pressed(self, button_name: str) -> bool:
         if button_name not in self.buttons:

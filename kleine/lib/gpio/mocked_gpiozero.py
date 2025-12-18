@@ -20,12 +20,12 @@ class MockedButton(PyXavi):
     _is_pressed: bool = False
     _listener = None
 
-    def __init__(self, pin: int, keyboard_key_binding_to: str = "space", config: Config = None, params: Dictionary = None):
+    def __init__(self, pin: int, keyboard_key_binding_to: str = None, config: Config = None, params: Dictionary = None):
         super(MockedButton, self).init_pyxavi(config=config, params=params)
 
         self.pin = pin
         if keyboard_key_binding_to is None:
-            keyboard_key_binding_to = "space"
+            raise ValueError("keyboard_key_binding_to must be provided for MockedButton")
         self._is_pressed = False
 
         self._make_binding(keyboard_key_binding_to)
@@ -55,6 +55,8 @@ class MockedButton(PyXavi):
             self.key_to_emulate_pin = keyboard.Key.enter
         elif key_binding == "esc":
             self.key_to_emulate_pin = keyboard.Key.esc
+        elif key_binding == "tab":
+            self.key_to_emulate_pin = keyboard.Key.tab
         else:
             self.key_to_emulate_pin = key_binding
 
