@@ -53,6 +53,8 @@ class MockedButton(PyXavi):
             self.key_to_emulate_pin = keyboard.Key.space
         elif key_binding == "enter":
             self.key_to_emulate_pin = keyboard.Key.enter
+        elif key_binding == "esc":
+            self.key_to_emulate_pin = keyboard.Key.esc
         else:
             self.key_to_emulate_pin = key_binding
 
@@ -60,5 +62,5 @@ class MockedButton(PyXavi):
         self._listener.start()
     
     def close(self):
-        if self.listener is not None:
-            self.listener.stop()
+        if self._listener is not None:
+            self._listener.stop()

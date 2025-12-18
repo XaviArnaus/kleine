@@ -6,10 +6,13 @@ gpio:
   buttons:
     - name: yellow
       pin: 16
-      mocked_as: "space"
+      mocked_as: "esc"
     - name: green
       pin: 26
       mocked_as: "enter"
+    - name: blue
+      pin: 5
+      mocked_as: "space"
 
 temperature:
   # [Bool] Simply ignores temperature sensor hardware and returns mock values

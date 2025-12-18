@@ -27,7 +27,7 @@ lcd:
   fonts:
     ultra: 85
     huge: 45
-    big: 22
-    medium: 14
+    big: 28
+    medium: 24
     small: 20
-    small-emoji: 18
+    small-emoji: 16
