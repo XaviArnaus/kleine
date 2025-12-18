@@ -47,9 +47,9 @@ class Display(DisplayModule):
                        draw, 
                        subtitle, 
                        self.screen_size.x - 10, 
-                       self.canvas.FONT_MEDIUM, 
+                       self.canvas.FONT_SMALL, 
                        self._xlog),
-                   font=self.canvas.FONT_MEDIUM,
+                   font=self.canvas.FONT_SMALL,
                    fill=self.canvas.COLOR_WHITE,
                    anchor="mm",
                    align="center")

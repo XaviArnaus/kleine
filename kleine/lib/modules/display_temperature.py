@@ -24,7 +24,7 @@ class DisplayTemperature(DisplayModule):
 
         draw.text(Point((self.screen_size.x / 2) - 5, (self.screen_size.y / 4) * 3).to_image_point(),
                    text=f"💧 {parameters.get('humidity', 0)}%  🌦️ {parameters.get('air_pressure', 0)} hPa",
-                   font=self.canvas.FONT_BIG,
+                   font=self.canvas.FONT_MEDIUM,
                    fill=self.canvas.COLOR_WHITE,
                    anchor="mm",
                    align="center")

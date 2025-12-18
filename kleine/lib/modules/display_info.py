@@ -32,7 +32,7 @@ class DisplayInfo(DisplayModule):
 
         draw.text(Point(10, 50).to_image_point(),
                    text=info_text_str,
-                   font=self.canvas.FONT_MEDIUM,
+                   font=self.canvas.FONT_SMALL,
                    fill=self.canvas.COLOR_WHITE,
                    align="left")
 

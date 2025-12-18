@@ -107,7 +107,7 @@ class System(PyXavi):
         else:
             # Unsupported OS for WiFi scanning
             pass
-        dd(networks)
+        # dd(networks)
         return networks
 
     @staticmethod
