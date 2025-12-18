@@ -1,68 +1,72 @@
-from pyxavi import Config, Dictionary
+from __future__ import annotations
+from pyxavi import Config, Dictionary, dd
 from kleine.lib.abstract.pyxavi import PyXavi
+from pynput.keyboard import Listener, Key
 
-# class MockedGpiozero(PyXavi):
-#     """
-#     Mocked version of gpiozero library for non-Linux systems or testing purposes.
-#     """
+class MockedButtons(PyXavi):
+    """
+    Mocking gpiozero.Button for testing purposes.
+    This aims to have a single mocking instance with all mocked buttons defined.
+    This way we intend to reduce the number of keyboard listeners created.
+    """
+    buttons: dict[Key, bool] = {}
+    buttons_by_pin: dict[str, Key] = {}
+    _listener = None
 
-#     def __init__(self, config: Config = None, params: Dictionary = None):
-#         super(MockedGpiozero, self).init_pyxavi(config=config, params=params)
-#         self._xlog.info("Initialized MockedGpiozero for testing purposes.")
+    def __init__(self, config: Config = None, params: Dictionary = None):
+        super(MockedButtons, self).init_pyxavi(config=config, params=params)
+        self.buttons = {}
+    
+    def add_button(self, pin: int, mocked_as: str):
+
+        # Initially, accepting what it comes
+        mocked_key = mocked_as
+
+        # Now we go through our known special keys
+        if mocked_as == "space":
+            mocked_key = Key.space
+        elif mocked_as == "enter":
+            mocked_key = Key.enter
+        elif mocked_as == "esc":
+            mocked_key = Key.esc
+        elif mocked_as == "tab":
+            mocked_key = Key.tab
+
+        # The value is the initial state of the button (not pressed)
+        self.buttons[mocked_key] = False
+
+        # Now we fill the reverse mapping
+        self.buttons_by_pin[str(pin)] = mocked_key
+
+    def is_button_pressed(self, pin: int) -> bool:
+        if str(pin) not in self.buttons_by_pin:
+            self._xlog.error(f"Button with pin '{pin}' not defined in mocked buttons")
+            raise KeyError(f"Button with pin '{pin}' not defined in mocked buttons")
+
+        key = self.buttons_by_pin[str(pin)]
+        value = self.buttons[key]
+        if value:
+            self.buttons[key] = False  # Reset after reading
+        return value
+    
+    def _on_press(self, key):
+        if key in self.buttons:
+            self._xlog.debug(f"Mocking GPIO: {key} key was PRESSED")
+            self.buttons[key] = True
+    
+    def start_listening(self):
+        self._listener = Listener(on_press=self._on_press)
+        self._listener.start()
+
+    def stop_listening(self):
+        if self._listener is not None:
+            self._listener.stop()
 
 class MockedButton(PyXavi):
     """
     Mocked version of gpiozero.Button for testing purposes.
     """
 
-    pin: int = None
-    key_to_emulate_pin: str = None
-    _is_pressed: bool = False
-    _listener = None
-
-    def __init__(self, pin: int, keyboard_key_binding_to: str = None, config: Config = None, params: Dictionary = None):
-        super(MockedButton, self).init_pyxavi(config=config, params=params)
-
-        self.pin = pin
-        if keyboard_key_binding_to is None:
-            raise ValueError("keyboard_key_binding_to must be provided for MockedButton")
-        self._is_pressed = False
-
-        self._make_binding(keyboard_key_binding_to)
-
     @property
     def is_pressed(self) -> bool:
-        value = self._is_pressed
-        if value:
-            self._is_pressed = False  # Reset after reading
-        return value
-
-    def _on_press(self, key):
-        if key == self.key_to_emulate_pin:
-            self._xlog.debug(f"Mocking GPIO: {self.key_to_emulate_pin} key (meaning pin {self.pin}) was PRESSED")
-            self._is_pressed = True
-
-    def _make_binding(self, key_binding: str):
-        '''
-        Internal method to create keyboard binding for mocking the button press.
-        Currently not used as we check the key state directly in is_pressed property.
-        '''
-        from pynput import keyboard
-
-        if key_binding == "space":
-            self.key_to_emulate_pin = keyboard.Key.space
-        elif key_binding == "enter":
-            self.key_to_emulate_pin = keyboard.Key.enter
-        elif key_binding == "esc":
-            self.key_to_emulate_pin = keyboard.Key.esc
-        elif key_binding == "tab":
-            self.key_to_emulate_pin = keyboard.Key.tab
-        else:
-            self.key_to_emulate_pin = key_binding
-
-        self._listener = keyboard.Listener(on_press=self._on_press)
-        self._listener.start()
-    
-    def close(self):
-        if self._listener is not None:
-            self._listener.stop()
+        pass

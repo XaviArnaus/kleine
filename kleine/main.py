@@ -316,6 +316,11 @@ class Main(PyXavi):
             self._xlog.debug("Closing LCD")
             self.lcd.close()
         
+        # Close the GPIO
+        if self.gpio is not None:
+            self._xlog.debug("Closing GPIO")
+            self.gpio.close()
+
         # Close the UPS
         if self.ups is not None:
             self._xlog.debug("Closing UPS")

@@ -564,10 +564,8 @@ description = "Monitor and control user input devices"
 optional = false
 python-versions = "*"
 groups = ["main"]
-files = [
-    {file = "pynput-1.8.1-py2.py3-none-any.whl", hash = "sha256:42dfcf27404459ca16ca889c8fb8ffe42a9fe54f722fd1a3e130728e59e768d2"},
-    {file = "pynput-1.8.1.tar.gz", hash = "sha256:70d7c8373ee98911004a7c938742242840a5628c004573d84ba849d4601df81e"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 evdev = {version = ">=1.3", markers = "\"linux\" in sys_platform"}
@@ -575,6 +573,12 @@ pyobjc-framework-ApplicationServices = {version = ">=8.0", markers = "sys_platfo
 pyobjc-framework-Quartz = {version = ">=8.0", markers = "sys_platform == \"darwin\""}
 python-xlib = {version = ">=0.17", markers = "\"linux\" in sys_platform"}
 six = "*"
+
+[package.source]
+type = "git"
+url = "https://github.com/moses-palmer/pynput.git"
+reference = "fixup/macos"
+resolved_reference = "d5ec7da12364905b472c2c9a02b6121ba2e741f1"
 
 [[package]]
 name = "pyobjc-core"
@@ -1039,4 +1043,4 @@ tooling-extras = ["pyaml (>=23.7.0)", "pypandoc-binary (>=1.11)", "pytest (>=7.4
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "acf53a524d81838c20d3b999306841e331555e7a8f9984ac5affe8c4d43fa2b6"
+content-hash = "5290354107c0d8a11a1276affb69f5fa6b963d2a1252a1628d7c58b2aacb2487"
