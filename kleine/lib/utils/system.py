@@ -1,7 +1,7 @@
 import platform, ifcfg, subprocess, os, psutil, sys, logging
 from contextlib import contextmanager
 
-from pyxavi import Config, Dictionary
+from pyxavi import Config, Dictionary, dd
 from kleine.lib.abstract.pyxavi import PyXavi
 
 class System(PyXavi):
@@ -107,6 +107,7 @@ class System(PyXavi):
         else:
             # Unsupported OS for WiFi scanning
             pass
+        dd(networks)
         return networks
 
     @staticmethod
