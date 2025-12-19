@@ -8,6 +8,8 @@ class MockedButtons(PyXavi):
     Mocking gpiozero.Button for testing purposes.
     This aims to have a single mocking instance with all mocked buttons defined.
     This way we intend to reduce the number of keyboard listeners created.
+    This change from having one listener per button to a single listener for all buttons
+    fixed the Mac OS issue where more than 2 key listeners provoked "Abort trap: 6" errors.
     """
     buttons: dict[Key, bool] = {}
     buttons_by_pin: dict[str, Key] = {}
