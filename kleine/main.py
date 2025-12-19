@@ -1,4 +1,4 @@
-from pyxavi import Config, Dictionary
+from pyxavi import Config, Dictionary, full_stack
 from kleine.lib.abstract.pyxavi import PyXavi
 
 from kleine.lib.objects.module_definitions import ModuleDefinitions, PowerActions
@@ -154,6 +154,7 @@ class Main(PyXavi):
         selected_module = -1
         selected_option_in_module = -1
         modal_message = ""
+        modal_wait = False
         refresh_again = False
 
         try:
@@ -202,14 +203,30 @@ class Main(PyXavi):
                         self._xlog.info("Green button pressed - triggering action for option in module " + 
                                         self.application_modules[selected_module] + 
                                         ": " + option_key)
+                        
+                        # This is a bit hacky, but we want to show a "Please wait" modal message while performing the action.
+                        modal_message = "Please wait..."
+                        self.refresh_screen(
+                            selected_module=selected_module,
+                            selected_option_in_module=selected_option_in_module,
+                            modal_message=modal_message,
+                            modal_wait=modal_wait,
+                            refresh_again=refresh_again
+                        )
 
+                        # Now trigger the action
                         modal_message = self.trigger_selected_option_action(
                             module_name=self.application_modules[selected_module],
                             option_key=option_key
                         )
+
+                        # If we have a message to show, we set the flag to refresh the screen
                         if modal_message != "":
                             self._xlog.info(f"Action result: {modal_message}")
+                            # Refresh the screen so the modal message is shown
                             should_refresh = True
+                            # Wait for the modal message to be acknowledged
+                            modal_wait = True
 
                     time.sleep(0.2) # Debounce delay
 
@@ -218,81 +235,105 @@ class Main(PyXavi):
                 # Must happen after the button press handling to avoid skipping modules.
                 if should_refresh:
 
-                    # Prepare the statusbar info common to all modules
-                    shared_data = Dictionary({
-                        # Data for the status bar
-                        "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
-                        "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
-                        "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
-                        "battery_percentage": self.scheduled_values.get("battery_percentage"),
-                        "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
-                        "temperature": self.scheduled_values.get("temperature"),
-                        # Any mnessage that we want to show in a modal window
-                        "modal_message": modal_message,
-                    })
-
-                    # Temperature module
-                    if self.application_modules[selected_module] == ModuleDefinitions.TEMPERATURE:
-                        # Show temperature
-                        self._xlog.debug("Running Temperature module")
-                        self.display_temperature.module(parameters=shared_data.merge(Dictionary({
-                            "statusbar_show_temperature": False,  # Temperature module already shows temperature
-                            "temperature": self.scheduled_values.get("temperature"),
-                            "humidity": self.scheduled_values.get("humidity"),
-                            "air_pressure": self.scheduled_values.get("air_pressure")
-                        })))
-                    
-                    # Accelerometer module
-                    elif self.application_modules[selected_module] == ModuleDefinitions.ACCELEROMETER:
-                        self._xlog.debug("Running Accelerometer module")
-                        self.display.module_accelerometer(parameters=shared_data)
-
-                    # Power module
-                    elif self.application_modules[selected_module] == ModuleDefinitions.POWER:
-                        self._xlog.debug("Running Power module")
-                        self.display_power.module(parameters=shared_data.merge(Dictionary({
-                            "selected_option": options_in_current_module[selected_option_in_module] if selected_option_in_module != -1 else ""
-                        })))
-                    
-                    # Info module
-                    elif self.application_modules[selected_module] == ModuleDefinitions.INFO:
-                        self._xlog.debug("Running Info module")
-                        self.display_info.module(parameters=shared_data.merge(Dictionary({
-                            "os_info": System.get_os_info(),
-                            "network_interface": System.get_default_network_interface(),
-                            "wifi_network": System.get_connected_wifi_info()
-                        })))
-
-                    # Settings module
-                    elif self.application_modules[selected_module] == ModuleDefinitions.SETTINGS:
-                        self._xlog.debug("Running Settings module")
-                        self.display.module_settings(parameters=shared_data)
-                    
-                    # Unknown module
-                    else:
-                        self._xlog.debug("Selected module " + self.application_modules[selected_module] + " not implemented yet.")
-                        self.display.blank_screen(parameters=shared_data)
-                    
-                    # Did we show a modal message?
-                    if modal_message != "":
-                        # Wait 3 seconds to let the user read it
-                        time.sleep(3)
-                        # Clear modal message after showing it
-                        modal_message = ""
-                        # And refresh the screen again to remove it
-                        self._xlog.debug("Clearing modal message after showing it.")
-                        refresh_again = True
+                    self.refresh_screen(
+                        selected_module=selected_module,
+                        selected_option_in_module=selected_option_in_module,
+                        modal_message=modal_message,
+                        modal_wait=modal_wait,
+                        refresh_again=refresh_again
+                    )
 
                 # self._xlog.debug("Test accelerometer...")
                 # self.accelerometer.test()
 
         except Exception as e:
             self._xlog.error(f"Exception in main run: {e}")
+            self._xlog.debug(full_stack())
         except KeyboardInterrupt:
             self._xlog.info("Control + C detected")
 
         # However it happened, just close nicely.
         self.close_nicely()
+    
+    def refresh_screen(self, 
+                       selected_module: int, 
+                       selected_option_in_module: int, 
+                       modal_message: str, 
+                       modal_wait: bool,
+                       refresh_again: bool = False):
+        """
+        Refresh the screen based on the selected module and option.
+        """
+        # Prepare the statusbar info common to all modules
+        shared_data = Dictionary({
+            # Data for the status bar
+            "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
+            "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
+            "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
+            "battery_percentage": self.scheduled_values.get("battery_percentage"),
+            "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
+            "temperature": self.scheduled_values.get("temperature"),
+            # Any mnessage that we want to show in a modal window
+            "modal_message": modal_message,
+        })
+
+        # We access the options in the current module if any was actually selected
+        if self.application_modules[selected_module] in self.options_tree and selected_option_in_module != -1:
+            options_in_current_module = self.options_tree[self.application_modules[selected_module]]
+
+        # Temperature module
+        if self.application_modules[selected_module] == ModuleDefinitions.TEMPERATURE:
+            # Show temperature
+            self._xlog.debug("Running Temperature module")
+            self.display_temperature.module(parameters=shared_data.merge(Dictionary({
+                "statusbar_show_temperature": False,  # Temperature module already shows temperature
+                "temperature": self.scheduled_values.get("temperature"),
+                "humidity": self.scheduled_values.get("humidity"),
+                "air_pressure": self.scheduled_values.get("air_pressure")
+            })))
+        
+        # Accelerometer module
+        elif self.application_modules[selected_module] == ModuleDefinitions.ACCELEROMETER:
+            self._xlog.debug("Running Accelerometer module")
+            self.display.module_accelerometer(parameters=shared_data)
+
+        # Power module
+        elif self.application_modules[selected_module] == ModuleDefinitions.POWER:
+            self._xlog.debug("Running Power module")
+            self.display_power.module(parameters=shared_data.merge(Dictionary({
+                "selected_option": options_in_current_module[selected_option_in_module] if selected_option_in_module != -1 else ""
+            })))
+        
+        # Info module
+        elif self.application_modules[selected_module] == ModuleDefinitions.INFO:
+            self._xlog.debug("Running Info module")
+            self.display_info.module(parameters=shared_data.merge(Dictionary({
+                "os_info": System.get_os_info(),
+                "network_interface": System.get_default_network_interface(),
+                "wifi_network": System.get_connected_wifi_info()
+            })))
+
+        # Settings module
+        elif self.application_modules[selected_module] == ModuleDefinitions.SETTINGS:
+            self._xlog.debug("Running Settings module")
+            self.display.module_settings(parameters=shared_data)
+        
+        # Unknown module
+        else:
+            self._xlog.debug("Selected module " + self.application_modules[selected_module] + " not implemented yet.")
+            self.display.blank_screen(parameters=shared_data)
+        
+        # Did we show a modal message?
+        if modal_message != "":
+            # Wait 3 seconds to let the user read it
+            if modal_wait:
+                time.sleep(3)
+            # Clear modal message after showing it
+            modal_message = ""
+            modal_wait = False
+            # And refresh the screen again to remove it
+            self._xlog.debug("Clearing modal message after showing it.")
+            refresh_again = True
 
     def do_every_minute_tasks(self) -> bool:
         """
