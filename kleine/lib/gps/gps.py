@@ -14,7 +14,7 @@ class GPS(PyXavi):
             self.driver = MockedSerial(config=config, params=params)
         else:
             from kleine.lib.gps.serial import GpsSerial
-            self.driver = GpsSerial()
+            self.driver = GpsSerial(config=config, params=params)
 
     def get_position(self) -> dict:
         return self.driver.read_serial_data()
