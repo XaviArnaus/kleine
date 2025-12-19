@@ -1,7 +1,6 @@
 from __future__ import annotations
 from pyxavi import Config, Dictionary, dd
 from kleine.lib.abstract.pyxavi import PyXavi
-from pynput.keyboard import Listener, Key
 
 class MockedButtons(PyXavi):
     """
@@ -11,8 +10,8 @@ class MockedButtons(PyXavi):
     This change from having one listener per button to a single listener for all buttons
     fixed the Mac OS issue where more than 2 key listeners provoked "Abort trap: 6" errors.
     """
-    buttons: dict[Key, bool] = {}
-    buttons_by_pin: dict[str, Key] = {}
+    buttons: dict = {}
+    buttons_by_pin: dict = {}
     _listener = None
 
     def __init__(self, config: Config = None, params: Dictionary = None):
@@ -20,6 +19,8 @@ class MockedButtons(PyXavi):
         self.buttons = {}
     
     def add_button(self, pin: int, mocked_as: str):
+
+        from pynput.keyboard import Key
 
         # Initially, accepting what it comes
         mocked_key = mocked_as
@@ -57,6 +58,8 @@ class MockedButtons(PyXavi):
             self.buttons[key] = True
     
     def start_listening(self):
+        from pynput.keyboard import Listener
+
         self._listener = Listener(on_press=self._on_press)
         self._listener.start()
 
