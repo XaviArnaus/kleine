@@ -1,6 +1,7 @@
 class ModuleDefinitions:
     TEMPERATURE = "temperature"
     ACCELEROMETER = "accelerometer"
+    GPS = "gps"
     INFO = "info"
     SETTINGS = "settings"
     POWER = "power"

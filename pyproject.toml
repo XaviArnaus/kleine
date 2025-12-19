@@ -24,6 +24,7 @@ pynput = "^1.8.1"
 ifcfg = "^0.24"
 macwifi = [{version="^0.0.5", markers="sys_platform=='darwin'"}]
 psutil = "^7.1.3"
+pynmea2 = "^1.19.0"
 
 [tool.poetry.scripts]
 main = "runner:run"

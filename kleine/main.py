@@ -8,6 +8,8 @@ from kleine.lib.air_pressure.air_pressure import AirPressure
 from kleine.lib.temperature.temperature import Temperature
 from kleine.lib.ups.ups import Ups
 from kleine.lib.gpio.gpio import Gpio
+from kleine.lib.gps.gps import GPS
+
 from kleine.lib.lcd.lcd import Lcd
 from kleine.lib.canvas.canvas import Canvas
 from kleine.lib.modules.display import Display
@@ -15,6 +17,8 @@ from kleine.lib.modules.display_power import DisplayPower
 from kleine.lib.modules.display_temperature import DisplayTemperature
 from kleine.lib.modules.display_info import DisplayInfo
 from kleine.lib.modules.display_accelerometer import DisplayAccelerometer
+from kleine.lib.modules.display_gps import DisplayGPS
+
 from kleine.lib.utils.maintenance import Maintenance
 from kleine.lib.utils.system import System
 
@@ -31,6 +35,7 @@ class Main(PyXavi):
     temperature: Temperature = None
     ups: Ups = None
     gpio: Gpio = None
+    gps: GPS = None
     lcd: Lcd = None
     canvas: Canvas = None
     maintenance: Maintenance = None
@@ -53,12 +58,17 @@ class Main(PyXavi):
         "gyroscope": (0,0,0),
         "magnetometer": (0,0,0),
         "pitch_roll_yaw": (0.0,0.0,0.0),
+        "gps": {
+            "latitude": 0.0,
+            "longitude": 0.0,
+        }
     })
 
     # The index of the application modules is the order to cycle through them
     application_modules = [
         ModuleDefinitions.TEMPERATURE,
         ModuleDefinitions.ACCELEROMETER,
+        ModuleDefinitions.GPS,
         ModuleDefinitions.INFO,
         ModuleDefinitions.SETTINGS,
         ModuleDefinitions.POWER,
@@ -116,10 +126,18 @@ class Main(PyXavi):
             "canvas": self.canvas,
             "device": self.lcd
         }))
+        self.display_gps = DisplayGPS(config=self._xconfig, params=Dictionary({
+            "canvas": self.canvas,
+            "device": self.lcd
+        }))
 
         # Initialise the GPIO
         self._xlog.info("Initialising GPIO")
         self.gpio = Gpio(config=self._xconfig, params=self._xparams)
+
+        # Initialise the GPS
+        self._xlog.info("Initialising GPS")
+        self.gps = GPS(config=self._xconfig, params=self._xparams)
 
         # # Initialise the accelerometer
         self._xlog.info("Initialising accelerometer.")
@@ -244,9 +262,6 @@ class Main(PyXavi):
                             modal_wait = True
 
                     time.sleep(0.2) # Debounce delay
-                
-
-
 
                 # Run the selected module.
                 # Must happen after the button press handling to avoid skipping modules.
@@ -315,6 +330,14 @@ class Main(PyXavi):
                 "magnetometer": self.real_time_values.get("magnetometer"),
                 "pitch_roll_yaw": self.real_time_values.get("pitch_roll_yaw"),
             })))
+        
+        # GPS module
+        elif self.application_modules[selected_module] == ModuleDefinitions.GPS:
+            self._xlog.debug("Running GPS module")
+            gps_info = self.gps.get_position()
+            self.display_gps.module(parameters=shared_data.merge(Dictionary({
+                "gps_info": gps_info
+            })))
 
         # Power module
         elif self.application_modules[selected_module] == ModuleDefinitions.POWER:
@@ -378,13 +401,15 @@ class Main(PyXavi):
             self.real_time_values.set("magnetometer", (mag_x, mag_y, mag_z))
             self.real_time_values.set("pitch_roll_yaw", (pitch, roll, yaw))
 
-            # print("\r\n /-------------------------------------------------------------/ \r\n")
-            # print('\r\n Roll = %.2f , Pitch = %.2f , Yaw = %.2f\r\n'%(roll,pitch,yaw))
-            # print('\r\nAcceleration:  X = %d , Y = %d , Z = %d\r\n'%(accel_x,accel_y,accel_z))  
-            # print('\r\nGyroscope:     X = %d , Y = %d , Z = %d\r\n'%(gyro_x,gyro_y,gyro_z))
-            # print('\r\nMagnetic:      X = %d , Y = %d , Z = %d\r\n'%(mag_x,mag_y,mag_z))
-            # print("QMITemp=%.2f C\r\n"%temp)
-
+            return True
+        
+        elif self.application_modules[selected_module] == ModuleDefinitions.GPS:
+            # Get GPS position
+            gps_info = self.gps.get_position()
+            self.real_time_values.set("gps", {
+                "latitude": gps_info.get("latitude", 0.0),
+                "longitude": gps_info.get("longitude", 0.0),
+            })
             return True
 
         return False
