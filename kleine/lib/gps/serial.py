@@ -7,7 +7,7 @@ class GpsSerial(PyXavi):
     SERIAL_PORT: str = "/dev/ttyS0"
 
     def __init__(self, config: Config = None, params: Dictionary = None):
-        super(GpsSerial, self).__init__(config=config, params=params)
+        super(GpsSerial, self).init_pyxavi(config=config, params=params)
     
     
     def read_serial_data(self) -> dict:
