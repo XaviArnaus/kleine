@@ -17,6 +17,7 @@ class Canvas(PyXavi):
     FONT_FILE: str = os.path.join(DEFAULT_FONT_PATH, "Font_with_emojis.ttc")
     COLOR_MODE = "RGB"  # '1' for 1-bit images, 'L' for greyscale, 'RGB' for true color, 'RGBA' for true color with transparency
 
+    FONT_TINY: ImageFont = None
     FONT_SMALL_EMOJI: ImageFont = None
     FONT_SMALL: ImageFont = None
     FONT_MEDIUM: ImageFont = None
@@ -24,6 +25,7 @@ class Canvas(PyXavi):
     FONT_HUGE: ImageFont = None
     FONT_ULTRA: ImageFont = None
 
+    DEFAULT_FONT_SIZE_TINY = 16
     DEFAULT_FONT_SIZE_SMALL_EMOJI = 16
     DEFAULT_FONT_SIZE_SMALL = 20
     DEFAULT_FONT_SIZE_MEDIUM = 24
@@ -192,3 +194,10 @@ class Canvas(PyXavi):
         elif (self._xconfig.key_exists(self.DEVICE_CONFIG_PREFIX + ".fonts.small-emoji")):
             small_emoji_size = self._xconfig.get(self.DEVICE_CONFIG_PREFIX + ".fonts.small-emoji")
         self.FONT_SMALL_EMOJI = ImageFont.truetype(self.FONT_FILE, small_emoji_size)
+
+        # Tiny size
+        if (self._xparams.key_exists(self.DEVICE_CONFIG_PREFIX + ".fonts.tiny")):
+            tiny_size = self._xparams.get(self.DEVICE_CONFIG_PREFIX + ".fonts.tiny")
+        elif (self._xconfig.key_exists(self.DEVICE_CONFIG_PREFIX + ".fonts.tiny")):
+            tiny_size = self._xconfig.get(self.DEVICE_CONFIG_PREFIX + ".fonts.tiny")
+        self.FONT_TINY = ImageFont.truetype(self.FONT_FILE, tiny_size)
