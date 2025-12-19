@@ -26,6 +26,7 @@ class GpsSerial(PyXavi):
             with serial.Serial(port, baudrate=9600, timeout=1) as ser:
                 line = ser.readline().decode('ascii', errors='replace').strip()
                 try:
+                    # Read the GPS Vendor PDF. We should be parsing all possible GPS Talker IDs!!
                     if line[0:6]=="$GPRMC":
                         msg = pynmea2.parse(line)
                         self._xlog.debug(f"Parsed NMEA sentence: {msg}")
