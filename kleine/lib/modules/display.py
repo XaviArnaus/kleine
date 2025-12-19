@@ -17,7 +17,7 @@ class Display(DisplayModule):
         """
         Show a startup splash screen
         """
-        self._xlog.info("Showing startup splash screen...")
+        self._xlog.debug("Showing startup splash screen...")
         draw = self.canvas.get_canvas()
         
         # Main title

@@ -9,7 +9,7 @@ class DisplayInfo(DisplayModule):
         """
         Show the information module on the display
         """
-        self._xlog.info("Showing information module...")
+        self._xlog.debug("Showing information module...")
         draw = self.canvas.get_canvas()
 
         # Draw a rectangle over the entire screen

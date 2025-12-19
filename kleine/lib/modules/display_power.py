@@ -16,7 +16,7 @@ class DisplayPower(DisplayModule):
         """
         Show the power module on the display
         """
-        self._xlog.info("Showing power module, selected option: " + parameters.get("selected_option", "none"))
+        self._xlog.debug("Showing power module, selected option: " + parameters.get("selected_option", "none"))
         draw = self.canvas.get_canvas()
 
         # Draw a rectangle over the entire screen

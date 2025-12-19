@@ -8,7 +8,7 @@ class DisplayTemperature(DisplayModule):
         """
         Show the current temperature on the display
         """
-        self._xlog.info("Showing current temperature...")
+        self._xlog.debug("Showing current temperature...")
         draw = self.canvas.get_canvas()
 
         # All modules should share a similar status header
