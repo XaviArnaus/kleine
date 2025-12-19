@@ -134,11 +134,15 @@ class Main(PyXavi):
         time.sleep(3)
 
         # We have a pair of physical buttons.
-        # The yellow button is for "select" and the green button is for "enter".
+        # - The yellow button is for "menu select"
+        # - The blue button is for "option select"
+        # - The green button is for "enter".
         # The app rotates through different tests or displays on yellow button press like token ring.
         # The yellow button press moves to the next test/display.
+        # The blue button press selects an option in the current test/display.
         # The green button press performs an action on the current test/display.
         selected_module = -1
+        selected_option_in_module = -1
 
         try:
             while True:
@@ -159,82 +163,58 @@ class Main(PyXavi):
                 # Must happen after the button press handling to avoid skipping modules.
                 if should_refresh:
 
+                    # Prepare the statusbar info common to all modules
+                    statusbar_info = Dictionary({
+                        "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
+                        "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
+                        "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
+                        "battery_percentage": self.scheduled_values.get("battery_percentage"),
+                        "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
+                        "temperature": self.scheduled_values.get("temperature")
+                    })
+
                     # Temperature module
                     if self.application_modules[selected_module] == ModuleDefinitions.TEMPERATURE:
+                        # Show temperature
                         self._xlog.debug("Running Temperature module")
-                        self.display_temperature.module(parameters=Dictionary({
-                            "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
-                            "statusbar_show_temperature": False,
-                            "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
-                            "battery_percentage": self.scheduled_values.get("battery_percentage"),
-                            "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
+                        self.display_temperature.module(parameters=statusbar_info.merge(Dictionary({
+                            "statusbar_show_temperature": False,  # Temperature module already shows temperature
                             "temperature": self.scheduled_values.get("temperature"),
                             "humidity": self.scheduled_values.get("humidity"),
                             "air_pressure": self.scheduled_values.get("air_pressure")
-                        }))
+                        })))
                     
                     # Accelerometer module
                     elif self.application_modules[selected_module] == ModuleDefinitions.ACCELEROMETER:
                         self._xlog.debug("Running Accelerometer module")
-                        self.display.module_accelerometer(parameters=Dictionary({
-                            "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
-                            "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
-                            "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
-                            "battery_percentage": self.scheduled_values.get("battery_percentage"),
-                            "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
-                            "temperature": self.scheduled_values.get("temperature")
-                        }))
+                        self.display.module_accelerometer(parameters=statusbar_info)
 
                     # Power module
                     elif self.application_modules[selected_module] == ModuleDefinitions.POWER:
                         self._xlog.debug("Running Power module")
-                        self.display_power.module(parameters=Dictionary({
-                            "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
-                            "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
-                            "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
-                            "battery_percentage": self.scheduled_values.get("battery_percentage"),
-                            "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
-                            "temperature": self.scheduled_values.get("temperature")
-                        }))
+                        # Reset the selected option in module
+                        selected_option_in_module = -1
+                        # Show power options
+                        self.display_power.module(parameters=statusbar_info)
                     
                     # Info module
                     elif self.application_modules[selected_module] == ModuleDefinitions.INFO:
                         self._xlog.debug("Running Info module")
-                        self.display_info.module(parameters=Dictionary({
-                            "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
-                            "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
-                            "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
-                            "battery_percentage": self.scheduled_values.get("battery_percentage"),
-                            "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
-                            "temperature": self.scheduled_values.get("temperature"),
+                        self.display_info.module(parameters=statusbar_info.merge(Dictionary({
                             "os_info": System.get_os_info(),
                             "network_interface": System.get_default_network_interface(),
                             "wifi_network": System.get_connected_wifi_info()
-                        }))
-                    
+                        })))
+
                     # Settings module
                     elif self.application_modules[selected_module] == ModuleDefinitions.SETTINGS:
                         self._xlog.debug("Running Settings module")
-                        self.display.module_settings(parameters=Dictionary({
-                            "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
-                            "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
-                            "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
-                            "battery_percentage": self.scheduled_values.get("battery_percentage"),
-                            "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
-                            "temperature": self.scheduled_values.get("temperature")
-                        }))
+                        self.display.module_settings(parameters=statusbar_info)
                     
                     # Unknown module
                     else:
                         self._xlog.debug("Selected module " + self.application_modules[selected_module] + " not implemented yet.")
-                        self.display.blank_screen(parameters=Dictionary({
-                            "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
-                            "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
-                            "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
-                            "battery_percentage": self.scheduled_values.get("battery_percentage"),
-                            "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
-                            "temperature": self.scheduled_values.get("temperature")
-                        }))
+                        self.display.blank_screen(parameters=statusbar_info)
 
                 # self._xlog.debug("Test accelerometer...")
                 # self.accelerometer.test()
