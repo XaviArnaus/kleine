@@ -1,7 +1,7 @@
 from pyxavi import Config, Dictionary
 from kleine.lib.abstract.pyxavi import PyXavi
 
-from kleine.lib.objects.module_definitions import ModuleDefinitions
+from kleine.lib.objects.module_definitions import ModuleDefinitions, PowerActions
 
 # from kleine.lib.accelerometer.accelerometer import Accelerometer
 from kleine.lib.air_pressure.air_pressure import AirPressure
@@ -55,6 +55,16 @@ class Main(PyXavi):
         ModuleDefinitions.SETTINGS,
         ModuleDefinitions.POWER,
     ]
+
+    # Options tree for each module.
+    # The index is the order of the options in the module.
+    options_tree = {
+        ModuleDefinitions.POWER: [
+            PowerActions.POWER_SHUTDOWN,
+            PowerActions.POWER_REBOOT,
+            PowerActions.POWER_UPDATE_RESTART,
+        ],
+    }
 
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(Main, self).init_pyxavi(config=config, params=params)
@@ -133,7 +143,7 @@ class Main(PyXavi):
         self.display.startup_splash()
         time.sleep(3)
 
-        # We have a pair of physical buttons.
+        # We have 3 physical buttons.
         # - The yellow button is for "menu select"
         # - The blue button is for "option select"
         # - The green button is for "enter".
@@ -143,41 +153,89 @@ class Main(PyXavi):
         # The green button press performs an action on the current test/display.
         selected_module = -1
         selected_option_in_module = -1
+        modal_message = ""
+        refresh_again = False
 
         try:
             while True:
 
                 # Check the things to do every minute
-                should_refresh = self.do_every_minute_tasks() or selected_module == -1
+                should_refresh = self.do_every_minute_tasks() or selected_module == -1 or refresh_again
+
+                # The refresh flag is set to False after each check
+                # It comes from the previous loop iteration, in case we showed a modal message
+                refresh_again = False
 
                 # Handle module selection by pressing the Yellow button or at startup
                 if self.gpio.is_button_pressed("yellow") or selected_module == -1:
                     selected_module += 1
                     if selected_module >= len(self.application_modules):
                         selected_module = 0
-                    self._xlog.info("Yellow button pressed - moving to next module: " + self.application_modules[selected_module])
-                    time.sleep(0.5) # Debounce delay
+                    
+                    self._xlog.info("Yellow button pressed - moving to next module: " + 
+                                    self.application_modules[selected_module])
+                    # Reset option selection when changing module
+                    selected_option_in_module = -1
+                    time.sleep(0.2) # Debounce delay
                     should_refresh = True
                 
+                # Handle option selection in the current module by pressing the Blue button
+                if self.gpio.is_button_pressed("blue"):
+                    if self.application_modules[selected_module] in self.options_tree:
+                        selected_option_in_module += 1
+                        options_in_current_module = self.options_tree[self.application_modules[selected_module]]
+                        if selected_option_in_module >= len(options_in_current_module):
+                            selected_option_in_module = 0
+                        
+                        self._xlog.info("Blue button pressed - moving to next option in module " + 
+                                        self.application_modules[selected_module] + 
+                                        ": " + options_in_current_module[selected_option_in_module])
+                        time.sleep(0.2) # Debounce delay
+                        should_refresh = True
+                
+                # Handle action in the current module by pressing the Green button
+                if self.gpio.is_button_pressed("green"):
+                    if self.application_modules[selected_module] in self.options_tree and selected_option_in_module != -1:
+                        options_in_current_module = self.options_tree[self.application_modules[selected_module]]
+                        option_key = options_in_current_module[selected_option_in_module]
+
+                        self._xlog.info("Green button pressed - triggering action for option in module " + 
+                                        self.application_modules[selected_module] + 
+                                        ": " + option_key)
+
+                        modal_message = self.trigger_selected_option_action(
+                            module_name=self.application_modules[selected_module],
+                            option_key=option_key
+                        )
+                        if modal_message != "":
+                            self._xlog.info(f"Action result: {modal_message}")
+                            should_refresh = True
+
+                    time.sleep(0.2) # Debounce delay
+
+
                 # Run the selected module.
                 # Must happen after the button press handling to avoid skipping modules.
                 if should_refresh:
 
                     # Prepare the statusbar info common to all modules
-                    statusbar_info = Dictionary({
+                    shared_data = Dictionary({
+                        # Data for the status bar
                         "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
                         "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
                         "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
                         "battery_percentage": self.scheduled_values.get("battery_percentage"),
                         "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
-                        "temperature": self.scheduled_values.get("temperature")
+                        "temperature": self.scheduled_values.get("temperature"),
+                        # Any mnessage that we want to show in a modal window
+                        "modal_message": modal_message,
                     })
 
                     # Temperature module
                     if self.application_modules[selected_module] == ModuleDefinitions.TEMPERATURE:
                         # Show temperature
                         self._xlog.debug("Running Temperature module")
-                        self.display_temperature.module(parameters=statusbar_info.merge(Dictionary({
+                        self.display_temperature.module(parameters=shared_data.merge(Dictionary({
                             "statusbar_show_temperature": False,  # Temperature module already shows temperature
                             "temperature": self.scheduled_values.get("temperature"),
                             "humidity": self.scheduled_values.get("humidity"),
@@ -187,20 +245,19 @@ class Main(PyXavi):
                     # Accelerometer module
                     elif self.application_modules[selected_module] == ModuleDefinitions.ACCELEROMETER:
                         self._xlog.debug("Running Accelerometer module")
-                        self.display.module_accelerometer(parameters=statusbar_info)
+                        self.display.module_accelerometer(parameters=shared_data)
 
                     # Power module
                     elif self.application_modules[selected_module] == ModuleDefinitions.POWER:
                         self._xlog.debug("Running Power module")
-                        # Reset the selected option in module
-                        selected_option_in_module = -1
-                        # Show power options
-                        self.display_power.module(parameters=statusbar_info)
+                        self.display_power.module(parameters=shared_data.merge(Dictionary({
+                            "selected_option": options_in_current_module[selected_option_in_module] if selected_option_in_module != -1 else ""
+                        })))
                     
                     # Info module
                     elif self.application_modules[selected_module] == ModuleDefinitions.INFO:
                         self._xlog.debug("Running Info module")
-                        self.display_info.module(parameters=statusbar_info.merge(Dictionary({
+                        self.display_info.module(parameters=shared_data.merge(Dictionary({
                             "os_info": System.get_os_info(),
                             "network_interface": System.get_default_network_interface(),
                             "wifi_network": System.get_connected_wifi_info()
@@ -209,12 +266,22 @@ class Main(PyXavi):
                     # Settings module
                     elif self.application_modules[selected_module] == ModuleDefinitions.SETTINGS:
                         self._xlog.debug("Running Settings module")
-                        self.display.module_settings(parameters=statusbar_info)
+                        self.display.module_settings(parameters=shared_data)
                     
                     # Unknown module
                     else:
                         self._xlog.debug("Selected module " + self.application_modules[selected_module] + " not implemented yet.")
-                        self.display.blank_screen(parameters=statusbar_info)
+                        self.display.blank_screen(parameters=shared_data)
+                    
+                    # Did we show a modal message?
+                    if modal_message != "":
+                        # Wait 3 seconds to let the user read it
+                        time.sleep(3)
+                        # Clear modal message after showing it
+                        modal_message = ""
+                        # And refresh the screen again to remove it
+                        self._xlog.debug("Clearing modal message after showing it.")
+                        refresh_again = True
 
                 # self._xlog.debug("Test accelerometer...")
                 # self.accelerometer.test()
@@ -280,6 +347,43 @@ class Main(PyXavi):
         
         # No change in minute, no tasks to do
         return False
+    
+    def trigger_selected_option_action(self, module_name: str, option_key: str) -> str:
+        self._xlog.info(f"Triggering action for {module_name}, option: {option_key}")
+        returning_value = ""
+
+        if module_name == ModuleDefinitions.POWER:
+
+            if option_key == PowerActions.POWER_SHUTDOWN:
+                if self._xconfig.get("ups.mock", False):
+                    self._xlog.info("UPS is in mock mode, not shutting down.")
+                else:
+                    self._xlog.info("Shutting down")
+                    self.close_nicely()
+                    System.power_off_system()
+
+            elif option_key == PowerActions.POWER_REBOOT:
+                if self._xconfig.get("ups.mock", False):
+                    self._xlog.info("UPS is in mock mode, not rebooting.")
+                else:
+                    self._xlog.info("Rebooting")
+                    self.close_nicely()
+                    System.reboot_system()
+
+            elif option_key == PowerActions.POWER_UPDATE_RESTART:
+                self._xlog.info("Updating and restarting application")
+                system = System(config=self._xconfig, params=self._xparams)
+                result = system.update_system()
+                if result:
+                    self._xlog.info("Update successful, restarting application")
+                    self.close_nicely()
+                    System.restart_program()
+                else:
+                    self._xlog.error("Update failed, not restarting application")
+                    returning_value = "Update failed"
+                    
+        return returning_value
+
 
     def close_nicely(self):
         self._xlog.debug("Closing nicely")

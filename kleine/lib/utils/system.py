@@ -1,7 +1,7 @@
 import platform, ifcfg, subprocess, os, psutil, sys, logging
 from contextlib import contextmanager
 
-from pyxavi import Config, Dictionary, dd
+from pyxavi import Config, Dictionary, full_stack
 from kleine.lib.abstract.pyxavi import PyXavi
 
 class System(PyXavi):
@@ -111,7 +111,7 @@ class System(PyXavi):
         return networks
 
     @staticmethod
-    def power_off_system():
+    def power_off_system() -> str:
         os = platform.system()
         try:
             if os.lower() == "linux":
@@ -123,10 +123,10 @@ class System(PyXavi):
             else:
                 raise NotImplementedError(f"Power off not implemented for OS: {os}")
         except Exception as e:
-            print(f"Error powering off system: {e}")
-    
+            return f"Error powering off system: {e}"
+
     @staticmethod
-    def reboot_system():
+    def reboot_system() -> str:
         os = platform.system()
         try:
             if os.lower() == "linux":
@@ -138,7 +138,7 @@ class System(PyXavi):
             else:
                 raise NotImplementedError(f"Reboot not implemented for OS: {os}")
         except Exception as e:
-            print(f"Error rebooting system: {e}")
+            return f"Error rebooting system: {e}"
     
     def restart_program():
         """
@@ -154,7 +154,7 @@ class System(PyXavi):
             logging.error(e)
 
         python = sys.executable
-        os.execl(python, python, "\"{}\"".format(sys.argv[0]))
+        os.execl(python, python, "runner.py")
     
     @contextmanager
     def change_directory(directory: str):
@@ -165,7 +165,7 @@ class System(PyXavi):
         finally:
             os.chdir(original_cwd)
     
-    def update_and_restart_system(self) -> bool:
+    def update_system(self) -> bool:
         try:
             with System.change_directory(os.getcwd()):
 
@@ -174,6 +174,7 @@ class System(PyXavi):
 
                 if completed_process.returncode == 0:
                     self._xlog.info("Git pull successful.")
+                    self._xlog.debug(completed_process.stdout.decode())
                 else:
                     self._xlog.error(f"Git pull failed: {completed_process.stderr.decode()}")
                     self._xlog.debug(completed_process.stdout.decode())
@@ -184,13 +185,14 @@ class System(PyXavi):
 
             if completed_process.returncode == 0:
                 self._xlog.info("Python packages updated successfully.")
+                self._xlog.debug(completed_process.stdout.decode())
             else:
                 self._xlog.error(f"Python packages update failed: {completed_process.stderr.decode()}")
                 self._xlog.debug(completed_process.stdout.decode())
                 return False
-
-            # Finally, we restart the program.
-            self._xlog.info("Restarting the program...")
-            System.restart_program()
+            
+            return True
         except Exception as e:
-            print(f"Error updating and restarting system: {e}")
+            self._xlog.error(f"Error updating the system: {e}")
+            self._xlog.debug(full_stack())
+            return False

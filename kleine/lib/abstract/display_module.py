@@ -47,6 +47,39 @@ class DisplayModule(PyXavi):
             "statusbar_font_color": self.canvas.COLOR_WHITE,
             "screen_size": self.screen_size
         })))
+    
+    def _shared_modal_message(self, draw: ImageDraw.ImageDraw, parameters: Dictionary):
+        """
+        Draw a shared modal message box for all modules
+        """
+        modal_message = parameters.get("modal_message", None)
+        if modal_message is not None and modal_message == "":
+            return
+        
+        # Define the modal box size
+        box_width = self.screen_size.x - 40
+        box_height = 100
+
+        # Draw the modal box background
+        draw.rectangle(
+            (
+                (20, (self.screen_size.y - box_height) / 2),
+                (20 + box_width, (self.screen_size.y - box_height) / 2 + box_height)
+            ),
+            fill=self.canvas.COLOR_BLACK,
+            outline=self.canvas.COLOR_WHITE,
+            width=2
+        )
+
+        # Draw the modal message text
+        draw.text(
+            ((self.screen_size.x / 2), (self.screen_size.y / 2)),
+            text=modal_message,
+            font=self.canvas.FONT_MEDIUM,
+            fill=self.canvas.COLOR_WHITE,
+            anchor="mm",
+            align="center"
+        )
 
     def _flush_canvas_to_device(self):
         """
