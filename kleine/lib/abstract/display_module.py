@@ -40,14 +40,13 @@ class DisplayModule(PyXavi):
         self.screen_size = self.canvas.get_screen_size()
     
     def _shared_status_header(self, draw: ImageDraw.ImageDraw, parameters: Dictionary, module_icon: str = ""):
-        ScreenSections.shared_status_header(draw, {
-            **parameters.to_dict(),
+        ScreenSections.shared_status_header(draw, parameters.merge(Dictionary({
             "statusbar_nav_icon": module_icon,
             "statusbar_font": self.canvas.FONT_SMALL,
             "statusbar_font_emoji": self.canvas.FONT_SMALL_EMOJI,
             "statusbar_font_color": self.canvas.COLOR_WHITE,
             "screen_size": self.screen_size
-        })
+        })))
 
     def _flush_canvas_to_device(self):
         """

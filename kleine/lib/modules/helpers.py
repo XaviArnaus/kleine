@@ -12,7 +12,7 @@ class ScreenSections:
     STATUS_BAR_PICES_SPACING = 5 
 
     @staticmethod
-    def shared_status_header(draw: ImageDraw.ImageDraw, parameters: dict):
+    def shared_status_header(draw: ImageDraw.ImageDraw, parameters: Dictionary):
         """
         Draw a shared status header for all modules
         """
