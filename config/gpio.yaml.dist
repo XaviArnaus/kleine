@@ -29,3 +29,7 @@ air_pressure:
 accelerometer:
   # [Bool] Simply ignores accelerometer hardware and returns mock values
   mock: True
+
+gps:
+  # [Bool] Simply ignores GPS hardware and returns mock values
+  mock: True
