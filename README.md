@@ -109,6 +109,31 @@ We can see messages incoming by peeking into the file handler
 sudo cat /dev/ttyS0
 ```
 
+I had problems with the permissions of the serial port:
+```
+$ ll /dev/ttyS0
+crw------- 1 root root 4, 64 Dec 19 15:21 /dev/ttyS0
+```
+
+Be sure that the Serial is setup properly. The Serial Shell needs to be deactivated but the hardware needs to be activated.
+
+Set it up through `sudo raspi-config` > Interfaces > Serial and answer:
+- "No" to the first question
+- "Yes" to the second question
+
+so that the summary is presented like:
+```
+The serial login shell is disabled
+The serial interface is enabled
+```
+
+Then:
+```
+$ ll /dev/ttyS0
+crw-rw---- 1 root dialout 4, 64 Dec 19 15:22 /dev/ttyS0
+xavier@kleine:~/kleine $ kleine
+```
+
 ## Python
 
 ## Poetry
