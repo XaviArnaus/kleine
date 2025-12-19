@@ -334,9 +334,8 @@ class Main(PyXavi):
         # GPS module
         elif self.application_modules[selected_module] == ModuleDefinitions.GPS:
             self._xlog.debug("Running GPS module")
-            gps_info = self.gps.get_position()
             self.display_gps.module(parameters=shared_data.merge(Dictionary({
-                "gps_info": gps_info
+                "gps_info": self.real_time_values.get("gps")
             })))
 
         # Power module

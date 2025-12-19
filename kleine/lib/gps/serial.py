@@ -24,7 +24,7 @@ class GpsSerial(PyXavi):
                 try:
                     if line[0:6]=="$GPRMC":
                         msg = pynmea2.parse(line)
-                        self._xlog.info(f"Parsed NMEA sentence: {msg}")
+                        self._xlog.debug(f"Parsed NMEA sentence: {msg}")
                         sentence_is_valid = True
                         return {
                             "latitude": msg.latitude,
