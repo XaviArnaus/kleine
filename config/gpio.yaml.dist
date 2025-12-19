@@ -21,3 +21,11 @@ temperature:
 humidity:
   # [Bool] Simply ignores humidity sensor hardware and returns mock values
   mock: True
+
+air_pressure:
+  # [Bool] Simply ignores air pressure sensor hardware and returns mock values
+  mock: True
+
+accelerometer:
+  # [Bool] Simply ignores accelerometer hardware and returns mock values
+  mock: True

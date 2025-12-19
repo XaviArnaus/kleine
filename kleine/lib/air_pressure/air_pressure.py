@@ -1,7 +1,7 @@
 from pyxavi import Config, Dictionary
 from kleine.lib.abstract.pyxavi import PyXavi
 
-from .Mocked_LPS22HB import MockedLPS22HB
+from .mocked_LPS22HB import MockedLPS22HB
 import time
 
 class AirPressure(PyXavi):

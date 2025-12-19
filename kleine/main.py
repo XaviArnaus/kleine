@@ -3,7 +3,7 @@ from kleine.lib.abstract.pyxavi import PyXavi
 
 from kleine.lib.objects.module_definitions import ModuleDefinitions, PowerActions
 
-# from kleine.lib.accelerometer.accelerometer import Accelerometer
+from kleine.lib.accelerometer.accelerometer import Accelerometer
 from kleine.lib.air_pressure.air_pressure import AirPressure
 from kleine.lib.temperature.temperature import Temperature
 from kleine.lib.ups.ups import Ups
@@ -14,6 +14,7 @@ from kleine.lib.modules.display import Display
 from kleine.lib.modules.display_power import DisplayPower
 from kleine.lib.modules.display_temperature import DisplayTemperature
 from kleine.lib.modules.display_info import DisplayInfo
+from kleine.lib.modules.display_accelerometer import DisplayAccelerometer
 from kleine.lib.utils.maintenance import Maintenance
 from kleine.lib.utils.system import System
 
@@ -39,12 +40,19 @@ class Main(PyXavi):
     display_temperature: DisplayTemperature = None
     display_info: DisplayInfo = None
     display_power: DisplayPower = None
+    display_accelerometer: DisplayAccelerometer = None
 
     _last_processed_minute: int = -1
     scheduled_values: Dictionary = Dictionary({
         "temperature": 0,
         "humidity": 0,
         "air_pressure": 0,
+    })
+    real_time_values: Dictionary = Dictionary({
+        "acceleration": (0,0,0),
+        "gyroscope": (0,0,0),
+        "magnetometer": (0,0,0),
+        "pitch_roll_yaw": (0.0,0.0,0.0),
     })
 
     # The index of the application modules is the order to cycle through them
@@ -104,14 +112,18 @@ class Main(PyXavi):
             "canvas": self.canvas,
             "device": self.lcd
         }))
+        self.display_accelerometer = DisplayAccelerometer(config=self._xconfig, params=Dictionary({
+            "canvas": self.canvas,
+            "device": self.lcd
+        }))
 
         # Initialise the GPIO
         self._xlog.info("Initialising GPIO")
         self.gpio = Gpio(config=self._xconfig, params=self._xparams)
 
         # # Initialise the accelerometer
-        # self._xlog.info("Initialising accelerometer.")
-        # self.accelerometer = Accelerometer(config=self._xconfig, params=self._xparams)
+        self._xlog.info("Initialising accelerometer.")
+        self.accelerometer = Accelerometer(config=self._xconfig, params=self._xparams)
 
         # Initialise the air pressure sensor
         self._xlog.info("Initialising air pressure sensor")
@@ -166,6 +178,9 @@ class Main(PyXavi):
                 # The refresh flag is set to False after each check
                 # It comes from the previous loop iteration, in case we showed a modal message
                 refresh_again = False
+
+                # Check real-time tasks
+                should_refresh = should_refresh or self.do_real_time_tasks(selected_module)
 
                 # Handle module selection by pressing the Yellow button or at startup
                 if self.gpio.is_button_pressed("yellow") or selected_module == -1:
@@ -229,6 +244,8 @@ class Main(PyXavi):
                             modal_wait = True
 
                     time.sleep(0.2) # Debounce delay
+                
+
 
 
                 # Run the selected module.
@@ -242,9 +259,6 @@ class Main(PyXavi):
                         modal_wait=modal_wait,
                         refresh_again=refresh_again
                     )
-
-                # self._xlog.debug("Test accelerometer...")
-                # self.accelerometer.test()
 
         except Exception as e:
             self._xlog.error(f"Exception in main run: {e}")
@@ -295,7 +309,12 @@ class Main(PyXavi):
         # Accelerometer module
         elif self.application_modules[selected_module] == ModuleDefinitions.ACCELEROMETER:
             self._xlog.debug("Running Accelerometer module")
-            self.display.module_accelerometer(parameters=shared_data)
+            self.display_accelerometer.module(parameters=shared_data.merge(Dictionary({
+                "acceleration": self.real_time_values.get("acceleration"),
+                "gyroscope": self.real_time_values.get("gyroscope"),
+                "magnetometer": self.real_time_values.get("magnetometer"),
+                "pitch_roll_yaw": self.real_time_values.get("pitch_roll_yaw"),
+            })))
 
         # Power module
         elif self.application_modules[selected_module] == ModuleDefinitions.POWER:
@@ -334,6 +353,41 @@ class Main(PyXavi):
             # And refresh the screen again to remove it
             self._xlog.debug("Clearing modal message after showing it.")
             refresh_again = True
+    
+    def do_real_time_tasks(self, selected_module: int) -> bool:
+        """
+        Tasks that need to be done in real-time.
+        Returns True if refreshing the screen is needed, False otherwise.
+
+        Will not do too much logging here, as it pollutes the logs a lot.
+        """
+        
+        # We avoid doing a lot of stuff here, as it is called for every loop iteration.
+        # So, we only work on the given sensors if we're in the corresponding module.
+        if self.application_modules[selected_module] == ModuleDefinitions.ACCELEROMETER:
+
+            # Get accelerometer values
+            accel_x, accel_y, accel_z = self.accelerometer.get_accelerometer_values()
+            gyro_x, gyro_y, gyro_z = self.accelerometer.get_gyroscope_values()
+            mag_x, mag_y, mag_z = self.accelerometer.get_magnetometer_values()
+            # temp = self.accelerometer.get_temperature()
+            pitch, roll, yaw = self.accelerometer.get_pitch_roll_yaw()
+
+            self.real_time_values.set("acceleration", (accel_x, accel_y, accel_z))
+            self.real_time_values.set("gyroscope", (gyro_x, gyro_y, gyro_z))
+            self.real_time_values.set("magnetometer", (mag_x, mag_y, mag_z))
+            self.real_time_values.set("pitch_roll_yaw", (pitch, roll, yaw))
+
+            # print("\r\n /-------------------------------------------------------------/ \r\n")
+            # print('\r\n Roll = %.2f , Pitch = %.2f , Yaw = %.2f\r\n'%(roll,pitch,yaw))
+            # print('\r\nAcceleration:  X = %d , Y = %d , Z = %d\r\n'%(accel_x,accel_y,accel_z))  
+            # print('\r\nGyroscope:     X = %d , Y = %d , Z = %d\r\n'%(gyro_x,gyro_y,gyro_z))
+            # print('\r\nMagnetic:      X = %d , Y = %d , Z = %d\r\n'%(mag_x,mag_y,mag_z))
+            # print("QMITemp=%.2f C\r\n"%temp)
+
+            return True
+
+        return False
 
     def do_every_minute_tasks(self) -> bool:
         """
