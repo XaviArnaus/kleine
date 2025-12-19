@@ -706,6 +706,21 @@ pyobjc-core = ">=12.1"
 pyobjc-framework-Cocoa = ">=12.1"
 
 [[package]]
+name = "pyserial"
+version = "3.5"
+description = "Python Serial Port Extension"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "pyserial-3.5-py2.py3-none-any.whl", hash = "sha256:c4451db6ba391ca6ca299fb3ec7bae67a5c55dde170964c7a14ceefec02f2cf0"},
+    {file = "pyserial-3.5.tar.gz", hash = "sha256:3c77e014170dfffbd816e6ffc205e9842efb10be9f58ec16d3e8675b4925cddb"},
+]
+
+[package.extras]
+cp2110 = ["hidapi"]
+
+[[package]]
 name = "python-dotenv"
 version = "1.2.1"
 description = "Read key-value pairs from a .env file and set them as environment variables"
@@ -1055,4 +1070,4 @@ tooling-extras = ["pyaml (>=23.7.0)", "pypandoc-binary (>=1.11)", "pytest (>=7.4
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "81ee2f65d06b56806f9d63cfa8276505370c7f6d6824bcc445892a4429fbe0d2"
+content-hash = "9cbafd08d666d38826d19ecb6bec4b680487f56a53840792dac9d47b155ac0fd"
