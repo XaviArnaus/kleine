@@ -26,7 +26,7 @@ class GpsSerial(PyXavi):
                     self._xlog.debug(f"Parsed NMEA sentence: {msg}")
                     if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
                         sentence_is_valid = True
-                        dd(msg)
+                        print(msg)
                         return {
                             "latitude": round(msg.latitude, 6),
                             "longitude": round(msg.longitude, 6),
