@@ -52,20 +52,20 @@ class NMEAReader(PyXavi):
 
         # Initialize serial connection
         try:
-            self.serial_device = serial.Serial(NMEAReader.SERIAL_PORT, NMEAReader.BAUD_RATE, timeout=1)
-            time.sleep(2)  # Wait for module to initialize
+            # self.serial_device = serial.Serial(NMEAReader.SERIAL_PORT, NMEAReader.BAUD_RATE, timeout=1)
+            # time.sleep(2)  # Wait for module to initialize
 
-            self._xlog.debug(">>> Configuring GNSS systems...")
-            self.configure_gnss_systems(self.serial_device)
+            # self._xlog.debug(">>> Configuring GNSS systems...")
+            # self.configure_gnss_systems(self.serial_device)
 
-            self._xlog.debug(">>> Setting output interval...")
-            self.configure_update_rate(self.serial_device, NMEAReader.UPDATE_INTERVAL_MS)
+            # self._xlog.debug(">>> Setting output interval...")
+            # self.configure_update_rate(self.serial_device, NMEAReader.UPDATE_INTERVAL_MS)
 
-            self._xlog.debug(">>> Enabling NMEA messages...")
-            self.configure_nmea_output(self.serial_device)
+            # self._xlog.debug(">>> Enabling NMEA messages...")
+            # self.configure_nmea_output(self.serial_device)
 
-            self._xlog.debug(">>> Saving configuration...")
-            self.save_configuration(self.serial_device)
+            # self._xlog.debug(">>> Saving configuration...")
+            # self.save_configuration(self.serial_device)
 
             self._xlog.debug(">>> Configuration done. Starting data read...\n")
             self.receiver_thread = threading.Thread(target=self.read_nmea_loop, args=(
@@ -133,7 +133,8 @@ class NMEAReader(PyXavi):
         xlog.debug(">>> Listening for NMEA data...\n")
         last_fix_time = None
 
-        with ser:
+        # with ser:
+        with serial.Serial(NMEAReader.SERIAL_PORT, NMEAReader.BAUD_RATE, timeout=1) as ser:
             xlog.debug("Context Serial")
             while True:
                 xlog.debug("Loop")
