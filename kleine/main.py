@@ -73,11 +73,12 @@ class Main(PyXavi):
 
     # The index of the application modules is the order to cycle through them
     application_modules = [
+        ModuleDefinitions.GPS,
         ModuleDefinitions.TEMPERATURE,
         ModuleDefinitions.ACCELEROMETER,
-        ModuleDefinitions.GPS,
+        # ModuleDefinitions.GPS,
         ModuleDefinitions.INFO,
-        ModuleDefinitions.SETTINGS,
+        # ModuleDefinitions.SETTINGS,
         ModuleDefinitions.POWER,
     ]
 
@@ -420,6 +421,25 @@ class Main(PyXavi):
             self.gathered_values.set("pitch_roll_yaw", (pitch, roll, yaw))
 
             return True
+        
+        if self.application_modules[selected_module] == ModuleDefinitions.GPS:
+                # Get GPS position
+                gps_info = self.gps.get_position()
+
+                if gps_info is None:
+                    return False
+                
+                self.gathered_values.set("gps", {
+                    "latitude": gps_info.get("latitude", 0.0),
+                    "longitude": gps_info.get("longitude", 0.0),
+                    "direction_latitude": gps_info.get("direction_latitude", None),
+                    "direction_longitude": gps_info.get("direction_longitude", None),
+                    "altitude": gps_info.get("altitude", None),
+                    "altitude_units": gps_info.get("altitude_units", None),
+                    "timestamp": gps_info.get("timestamp", None),
+                    "status": gps_info.get("status", None),
+                })
+                return True
 
         return False
     
@@ -439,24 +459,24 @@ class Main(PyXavi):
             self._last_processed_second = current_second
             self._xlog.debug("🕐 New second detected: " + str(current_second) + f". Running every-second {self.SECONDS_TO_REACT_FOR_TASKS}s tasks.")
 
-            if self.application_modules[selected_module] == ModuleDefinitions.GPS:
-                # Get GPS position
-                gps_info = self.gps.get_position()
+            # if self.application_modules[selected_module] == ModuleDefinitions.GPS:
+            #     # Get GPS position
+            #     gps_info = self.gps.get_position()
 
-                if gps_info is None:
-                    return False
+            #     if gps_info is None:
+            #         return False
                 
-                self.gathered_values.set("gps", {
-                    "latitude": gps_info.get("latitude", 0.0),
-                    "longitude": gps_info.get("longitude", 0.0),
-                    "direction_latitude": gps_info.get("direction_latitude", None),
-                    "direction_longitude": gps_info.get("direction_longitude", None),
-                    "altitude": gps_info.get("altitude", None),
-                    "altitude_units": gps_info.get("altitude_units", None),
-                    "timestamp": gps_info.get("timestamp", None),
-                    "status": gps_info.get("status", None),
-                })
-                return True
+            #     self.gathered_values.set("gps", {
+            #         "latitude": gps_info.get("latitude", 0.0),
+            #         "longitude": gps_info.get("longitude", 0.0),
+            #         "direction_latitude": gps_info.get("direction_latitude", None),
+            #         "direction_longitude": gps_info.get("direction_longitude", None),
+            #         "altitude": gps_info.get("altitude", None),
+            #         "altitude_units": gps_info.get("altitude_units", None),
+            #         "timestamp": gps_info.get("timestamp", None),
+            #         "status": gps_info.get("status", None),
+            #     })
+            #     return True
 
         return False
 
