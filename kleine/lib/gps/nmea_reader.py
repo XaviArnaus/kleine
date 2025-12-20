@@ -139,8 +139,9 @@ class NMEAReader(PyXavi):
                 xlog.debug("Loop")
                 try:
                     line = ser.readline().decode('ascii', errors='replace').strip()
-                    dd(line)
+                    xlog.debug(f"Line: {line}")
                     if not line.startswith("$"):
+                        xlog.debug("Uselsess line")
                         continue
 
                     try:
@@ -186,7 +187,7 @@ class NMEAReader(PyXavi):
                                 output_queue.put(nmea_data)
 
                     except pynmea2.ParseError as e:
-                        self._xlog.error(f"Failed to parse NMEA sentence: {e}")
+                        xlog.error(f"Failed to parse NMEA sentence: {e}")
                         continue
 
                 except KeyboardInterrupt:
