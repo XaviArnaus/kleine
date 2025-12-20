@@ -45,9 +45,10 @@ class GpsSerial(PyXavi):
         
         if not sentence_is_valid:
             self._xlog.error("Timeout reached while reading GPS data from serial port")
-            return {
-                "latitude": None,
-                "longitude": None,
-                "timestamp": None,
-                "status": "V"  # V = Void (no valid data)
-            }
+            # return {
+            #     "latitude": None,
+            #     "longitude": None,
+            #     "timestamp": None,
+            #     "status": "V"  # V = Void (no valid data)
+            # }
+            return None

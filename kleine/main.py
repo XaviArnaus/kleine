@@ -405,6 +405,10 @@ class Main(PyXavi):
         elif self.application_modules[selected_module] == ModuleDefinitions.GPS:
             # Get GPS position
             gps_info = self.gps.get_position()
+
+            if gps_info is None:
+                return False
+            
             self.real_time_values.set("gps", {
                 "latitude": gps_info.get("latitude", 0.0),
                 "longitude": gps_info.get("longitude", 0.0),

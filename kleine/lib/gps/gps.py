@@ -16,5 +16,5 @@ class GPS(PyXavi):
             from kleine.lib.gps.serial import GpsSerial
             self.driver = GpsSerial(config=config, params=params)
 
-    def get_position(self) -> dict:
+    def get_position(self) -> dict | None:
         return self.driver.read_serial_data()
