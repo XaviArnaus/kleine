@@ -77,7 +77,6 @@ class NMEAReader(PyXavi):
             self._xlog.debug(">>> Configuration done. Starting data read...\n")
             self.receiver_thread = threading.Thread(target=self.read_nmea_loop, args=(
                 self.serial_device, 
-                config, 
                 self._xlog,
                 self.thread_lock,
                 self.flag_lock
