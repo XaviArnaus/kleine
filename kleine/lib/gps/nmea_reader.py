@@ -26,6 +26,7 @@ class NMEAReader(PyXavi):
 
     serial_device: serial.Serial = None
     output_queue: queue.Queue = None
+    lock: threading.Lock = None
     receiver_thread: threading.Thread = None
     loop_is_allowed = True
 
@@ -48,7 +49,9 @@ class NMEAReader(PyXavi):
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(NMEAReader, self).init_pyxavi(config=config, params=params)
 
-        self.output_queue = params.get("output_queue", queue.Queue())
+        self.lock = threading.Lock()
+
+        # self.output_queue = params.get("output_queue", queue.Queue())
         # if self.output_queue is None:
         #     raise ValueError("An output_queue to deliver data is required")
 
@@ -170,10 +173,12 @@ class NMEAReader(PyXavi):
                                 # "status": "A" if fix_status > 0 else "V",
                             }
                             # output_queue.put(nmea_data)
+                            self.lock.acquire()
                             self.cumulative_data = {
                                 **self.cumulative_data,
                                 **nmea_data
                             }
+                            self.lock.release()
                             xlog.debug(f"Put into the queue: {nmea_data['latitude']},{nmea_data['longitude']}")
 
                         # if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
@@ -256,8 +261,11 @@ class NMEAReader(PyXavi):
         # self._xlog.debug("Consuming the NMEA messages queue comming from the reading thread")
         # count = self.consume_nmea_data()
         # self._xlog.debug(f"Return the last compiled state from {count} messages")
-        self._xlog.debug(f"Return the last compiled message state")
-        return self.cumulative_data
+        # self._xlog.debug(f"Return the last compiled message state")
+        self.lock.acquire()
+        data = self.cumulative_data
+        self.lock.release()
+        return data
 
     def consume_nmea_data(self) -> int:
         """
