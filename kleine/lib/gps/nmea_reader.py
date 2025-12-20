@@ -169,7 +169,11 @@ class NMEAReader(PyXavi):
                                 "timestamp": msg.timestamp.isoformat() if hasattr(msg, 'timestamp') else None,
                                 # "status": "A" if fix_status > 0 else "V",
                             }
-                            output_queue.put(nmea_data)
+                            # output_queue.put(nmea_data)
+                            self.cumulative_data = {
+                                **nmea_data,
+                                **self.cumulative_data
+                            }
                             xlog.debug(f"Put into the queue: {nmea_data['latitude']},{nmea_data['longitude']}")
 
                         # if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
@@ -249,9 +253,10 @@ class NMEAReader(PyXavi):
             self.output_queue.task_done()
 
     def get_gps_data(self) -> dict:
-        self._xlog.debug("Consuming the NMEA messages queue comming from the reading thread")
-        count = self.consume_nmea_data()
-        self._xlog.debug(f"Return the last compiled state from {count} messages")
+        # self._xlog.debug("Consuming the NMEA messages queue comming from the reading thread")
+        # count = self.consume_nmea_data()
+        # self._xlog.debug(f"Return the last compiled state from {count} messages")
+        self._xlog.debug(f"Return the last compiled message state")
         return self.cumulative_data
 
     def consume_nmea_data(self) -> int:
