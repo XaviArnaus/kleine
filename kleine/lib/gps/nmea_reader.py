@@ -162,8 +162,9 @@ class NMEAReader(PyXavi):
                                 # "status": "A" if fix_status > 0 else "V",
                             }
                             output_queue.put(nmea_data)
+                            xlog.debug(f"Put into the queue: {nmea_data['latitude']},{nmea_data['longitude']}")
                         else:
-                            self._xlog.debug("NMEA sentence does not contain GPS position data")
+                            xlog.debug("NMEA sentence does not contain GPS position data")
 
                         # if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
                         #     sentence_is_valid = True
@@ -252,8 +253,8 @@ class NMEAReader(PyXavi):
         Also, technically it may never end.
         """
         count = 0
-        while not self.output_queue.empty():
-            nmea_data: dict = self.output_queue.get()  # wait for data
+        for queue_item in iter(self.output_queue.get, None):
+            nmea_data: dict = queue_item  # wait for data
             self.cumulative_data = {
                 **nmea_data,
                 **self.cumulative_data
