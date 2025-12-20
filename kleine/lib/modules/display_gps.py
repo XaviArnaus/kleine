@@ -21,6 +21,10 @@ class DisplayGPS(DisplayModule):
         gps_text = [
             f"Latitude: {gps_data.get('latitude', 'N/A')}",
             f"Longitude: {gps_data.get('longitude', 'N/A')}",
+            f"Direction Lat: {gps_data.get('direction_latitude', 'N/A')}",
+            f"Direction Lon: {gps_data.get('direction_longitude', 'N/A')}",
+            f"Altitude: {gps_data.get('altitude', 'N/A')} {gps_data.get('altitude_units', '')}",
+            f"Status: {gps_data.get('status', 'N/A')}",
             f"Timestamp: {gps_data.get('timestamp', 'N/A')}",
         ]
         gps_text_str = "\n".join(gps_text)
