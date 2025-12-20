@@ -13,8 +13,10 @@ class GPS(PyXavi):
         if self._xconfig.get("gps.mock", True):
             self.driver = MockedSerial(config=config, params=params)
         else:
-            from kleine.lib.gps.serial import GpsSerial
-            self.driver = GpsSerial(config=config, params=params)
+            # from kleine.lib.gps.serial import GpsSerial
+            # self.driver = GpsSerial(config=config, params=params)
+            from kleine.lib.gps.nmea_reader import NMEAReader
+            self.driver = NMEAReader(config=config, params=params)
 
     def get_position(self) -> dict | None:
-        return self.driver.read_serial_data()
+        return self.driver.get_gps_data()

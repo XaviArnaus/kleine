@@ -14,3 +14,6 @@ class MockedSerial(PyXavi):
             "timestamp": "12:34:56",
             "status": "A"
         }
+    
+    def get_gps_data(self) -> dict:
+        return self.read_serial_data()
