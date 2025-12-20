@@ -153,12 +153,12 @@ class NMEAReader(PyXavi):
                             nmea_data = {
                                 "latitude": round(msg.latitude, 6),
                                 "longitude": round(msg.longitude, 6),
-                                "direction_latitude": msg.lat_dir,
-                                "direction_longitude": msg.lon_dir,
+                                "direction_latitude": msg.lat_dir if hasattr(msg, 'lat_dir') else None,
+                                "direction_longitude": msg.lon_dir if hasattr(msg, 'lon_dir') else None,
                                 # "interval": interval,
-                                "altitude": msg.altitude,
-                                "altitude_units": msg.altitude_units,
-                                "timestamp": msg.timestamp.isoformat(),
+                                "altitude": msg.altitude if hasattr(msg, 'altitude') else None,
+                                "altitude_units": msg.altitude_units if hasattr(msg, 'altitude_units') else None,
+                                "timestamp": msg.timestamp.isoformat() if hasattr(msg, 'timestamp') else None,
                                 # "status": "A" if fix_status > 0 else "V",
                             }
                             output_queue.put(nmea_data)
