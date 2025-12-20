@@ -195,6 +195,9 @@ class NMEAReader(PyXavi):
                     break
     
     def close(self):
+        while self.output_queue.get():
+            self._xlog.debug("hey")
+            self.output_queue.task_done()
         self.receiver_thread.join()
 
     def get_gps_data(self) -> dict:
@@ -211,7 +214,7 @@ class NMEAReader(PyXavi):
         """
         count = 0
         while not self.output_queue.empty():
-            nmea_data: dict = self.output_queue.get(timeout=5)  # wait for data
+            nmea_data: dict = self.output_queue.get()  # wait for data
             self.cumulative_data = {
                 **nmea_data,
                 **self.cumulative_data
