@@ -4,6 +4,11 @@ import pynmea2, serial
 from datetime import datetime, timedelta
 
 class GpsSerial(PyXavi):
+    """
+    This is the first approach to read from the GPS
+    It works, but it's pretty simple and did not develop further.
+    It is not used. Please refer to the NMEAReader
+    """
 
     SERIAL_PORT: str = "/dev/ttyS0"
     TIMEOUT_IN_SECS: int = 30
