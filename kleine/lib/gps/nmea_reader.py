@@ -167,7 +167,7 @@ class NMEAReader(PyXavi):
                             current_time = time.time()
                             interval = (current_time - last_fix_time) if last_fix_time else 0
                             last_fix_time = current_time
-                            xlog.info(f"[GGA] Fix: {fix_status} | Interval: {interval:.2f}s | Time: {msg.timestamp} | Lat: {msg.latitude} {msg.lat_dir} | Lon: {msg.longitude} {msg.lon_dir} | Alt: {msg.altitude} {msg.altitude_units}")
+                            # xlog.info(f"[GGA] Fix: {fix_status} | Interval: {interval:.2f}s | Time: {msg.timestamp} | Lat: {msg.latitude} {msg.lat_dir} | Lon: {msg.longitude} {msg.lon_dir} | Alt: {msg.altitude} {msg.altitude_units}")
                             # Send data to output queue
                             nmea_data = {
                                 "latitude": round(msg.latitude, 6),
@@ -191,7 +191,7 @@ class NMEAReader(PyXavi):
                             current_time = time.time()
                             interval = (current_time - last_fix_time) if last_fix_time else 0
                             last_fix_time = current_time
-                            xlog.info(f"[RMC] Interval: {interval:.2f}s | Time: {msg.timestamp} | Lat: {msg.latitude} | Lon: {msg.longitude} | Speed: {msg.spd_over_grnd} knots | Heading: {msg.true_course}°")
+                            # xlog.info(f"[RMC] Interval: {interval:.2f}s | Time: {msg.timestamp} | Lat: {msg.latitude} | Lon: {msg.longitude} | Speed: {msg.spd_over_grnd} knots | Heading: {msg.true_course}°")
                             # Send data to output queue
                             nmea_data = {
                                 "latitude": round(msg.latitude, 6),
