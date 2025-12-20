@@ -171,8 +171,8 @@ class NMEAReader(PyXavi):
                             }
                             # output_queue.put(nmea_data)
                             self.cumulative_data = {
-                                **nmea_data,
-                                **self.cumulative_data
+                                **self.cumulative_data,
+                                **nmea_data
                             }
                             xlog.debug(f"Put into the queue: {nmea_data['latitude']},{nmea_data['longitude']}")
 
