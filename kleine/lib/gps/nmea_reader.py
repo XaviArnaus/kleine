@@ -142,13 +142,43 @@ class NMEAReader(PyXavi):
                 try:
                     line = ser.readline().decode('ascii', errors='replace').strip()
                     xlog.debug(f"Line: {line}")
-                    # if not line.startswith("$"):
-                    #     xlog.debug("Uselsess line")
-                    #     continue
+                    if not line.startswith("$"):
+                        xlog.debug("Uselsess line")
+                        continue
 
-                    # try:
+                    try:
+                        msg = pynmea2.parse(line)
+                        xlog.debug(f"Parsed NMEA sentence: {msg}")
+                        nmea_data = {
+                            "latitude": round(msg.latitude, 6),
+                            "longitude": round(msg.longitude, 6),
+                            "direction_latitude": msg.lat_dir,
+                            "direction_longitude": msg.lon_dir,
+                            # "interval": interval,
+                            "altitude": msg.altitude,
+                            "altitude_units": msg.altitude_units,
+                            "timestamp": msg.timestamp.isoformat(),
+                            # "status": "A" if fix_status > 0 else "V",
+                        }
+                        output_queue.put(nmea_data)
+                        # if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
+                        #     sentence_is_valid = True
+                        #     print(msg)
+                        #     return {
+                        #         "latitude": round(msg.latitude, 6),
+                        #         "longitude": round(msg.longitude, 6),
+                        #         "direction_latitude": msg.lat_dir if hasattr(msg, 'lat_dir') else None,
+                        #         "direction_longitude": msg.lon_dir if hasattr(msg, 'lon_dir') else None,
+                        #         "altitude": msg.altitude if hasattr(msg, 'altitude') else None,
+                        #         "altitude_units": msg.altitude_units if hasattr(msg, 'altitude_units') else None,
+                        #         "timestamp": msg.timestamp.isoformat() if hasattr(msg, 'timestamp') else None,
+                        #         "status": msg.status if hasattr(msg, 'status') else None,
+                        #     }
+                        # else:
+                        #     self._xlog.debug("NMEA sentence does not contain GPS position data")
+
                     #     msg = pynmea2.parse(line)
-
+                    #
                     #     if isinstance(msg, pynmea2.types.talker.GGA):
                     #         fix_status = int(msg.gps_qual)
                     #         if fix_status > 0:  # Only show if there's a fix
@@ -188,9 +218,9 @@ class NMEAReader(PyXavi):
                     #             }
                     #             output_queue.put(nmea_data)
 
-                    # except pynmea2.ParseError as e:
-                    #     xlog.error(f"Failed to parse NMEA sentence: {e}")
-                    #     # continue
+                    except pynmea2.ParseError as e:
+                        xlog.error(f"Failed to parse NMEA sentence: {e}")
+                        # continue
 
                 except KeyboardInterrupt:
                     xlog.warning("Stopped.")
