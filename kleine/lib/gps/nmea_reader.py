@@ -27,6 +27,7 @@ class NMEAReader(PyXavi):
     serial_device: serial.Serial = None
     output_queue: queue.Queue = None
     receiver_thread: threading.Thread = None
+    loop_is_allowed = True
 
     cumulative_data = {
         # Incoming from GGA
@@ -73,7 +74,8 @@ class NMEAReader(PyXavi):
                 self.serial_device, 
                 config, 
                 self._xlog,
-                self.output_queue
+                self.output_queue,
+                self.loop_is_allowed
             ))
             self.receiver_thread.start()
         except serial.SerialException as e:
@@ -130,14 +132,20 @@ class NMEAReader(PyXavi):
         self.send_command(ser, "PQTMSAVEPAR")
 
 
-    def read_nmea_loop(self, ser: serial.Serial, config: Config = None, xlog: Logger = None, output_queue: queue.Queue = None):
+    def read_nmea_loop(
+            self, 
+            ser: serial.Serial, 
+            config: Config = None,
+            xlog: Logger = None, 
+            output_queue: queue.Queue = None,
+            loop_is_allowed = True):
         xlog.debug(">>> Listening for NMEA data...\n")
         last_fix_time = None
 
         # with ser:
         with serial.Serial(NMEAReader.SERIAL_PORT, NMEAReader.BAUD_RATE, timeout=1) as ser:
             xlog.debug("Context Serial")
-            while True:
+            while loop_is_allowed:
                 xlog.debug("Loop")
                 try:
                     line = ser.readline().decode('ascii', errors='replace').strip()
@@ -163,8 +171,6 @@ class NMEAReader(PyXavi):
                             }
                             output_queue.put(nmea_data)
                             xlog.debug(f"Put into the queue: {nmea_data['latitude']},{nmea_data['longitude']}")
-                        else:
-                            xlog.debug("NMEA sentence does not contain GPS position data")
 
                         # if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
                         #     sentence_is_valid = True
@@ -236,6 +242,8 @@ class NMEAReader(PyXavi):
                     xlog.debug(full_stack())
 
     def close(self):
+        self.loop_is_allowed = False
+        self.receiver_thread.join()
         while self.output_queue.get():
             self._xlog.debug("hey")
             self.output_queue.task_done()
