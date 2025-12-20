@@ -204,8 +204,8 @@ class NMEAReader(PyXavi):
                                 nmea_data = {
                                     "latitude": round(msg.latitude, 6),
                                     "longitude": round(msg.longitude, 6),
-                                    "speed": round(msg.spd_over_grnd, 6)  if hasattr(msg, "spd_over_grnd") else None,
-                                    "heading": round(msg.true_course, 6) if hasattr(msg, "true_course") else None,
+                                    "speed": round(msg.spd_over_grnd, 6)  if hasattr(msg, "spd_over_grnd") and msg.spd_over_grnd is not None else None,
+                                    "heading": round(msg.true_course, 6) if hasattr(msg, "true_course") and msg.true_course is not None else None,
                                     "interval": interval,
                                     "timestamp": msg.timestamp.isoformat() if hasattr(msg, "timestamp") else None,
                                     "status": msg.status if hasattr(msg, "status") else None,
