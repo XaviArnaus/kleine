@@ -1,4 +1,4 @@
-from pyxavi import Config, Dictionary
+from pyxavi import Config, Dictionary, dd
 from kleine.lib.abstract.pyxavi import PyXavi
 
 from kleine.lib.gps.mocked_serial import MockedSerial
@@ -19,4 +19,20 @@ class GPS(PyXavi):
             self.driver = NMEAReader(config=config, params=params)
 
     def get_position(self) -> dict | None:
-        return self.driver.get_gps_data()
+        data = self.driver.get_gps_data()
+        dd({
+            # Incoming from GGA
+            "latitude": data.get("latitude"),
+            "longitude": data.get("longitude"),
+            "direction_latitude": data.get("direction_latitude"),
+            "direction_longitude": data.get("direction_longitude"),
+            "interval": data.get("interval"),
+            "altitude": data.get("altitude"),
+            "altitude_units": data.get("altitude_units"),
+            "timestamp": data.get("timestamp"),
+            "status": data.get("status"),
+            # Unmerged from RMC
+            "speed": data.get("speed"),
+            "heading": data.get("heading"),
+        })
+        return data

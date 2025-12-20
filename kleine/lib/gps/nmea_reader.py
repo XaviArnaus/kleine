@@ -189,20 +189,23 @@ class NMEAReader(PyXavi):
     
     def get_gps_data(self) -> dict:
         self._xlog.debug("Consuming the NMEA messages queue comming from the reading thread")
-        self.consume_nmea_data()
-        self._xlog.debug("Return the last compiled state")
+        count = self.consume_nmea_data()
+        self._xlog.debug(f"Return the last compiled state from {count} messages")
         return self.cumulative_data
 
-    def consume_nmea_data(self):
+    def consume_nmea_data(self) -> int:
         """
         Consume data from the output queue.
         Be aware that this actually makes `interval` and `speed` kinda useless.
         Also, technically it may never end.
         """
+        count = 0
         while not self.output_queue.empty():
             nmea_data: dict = self.output_queue.get(timeout=5)  # wait for data
             self.cumulative_data = {
                 **nmea_data,
                 **self.cumulative_data
             }
+            count += 1
             self.output_queue.task_done()
+        return count
