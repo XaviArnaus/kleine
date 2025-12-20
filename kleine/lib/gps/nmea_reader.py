@@ -1,4 +1,4 @@
-from pyxavi import Config, Dictionary, full_stack
+from pyxavi import Config, Dictionary, full_stack, dd
 from kleine.lib.abstract.pyxavi import PyXavi
 
 import serial
@@ -136,6 +136,7 @@ class NMEAReader(PyXavi):
         while True:
             try:
                 line = ser.readline().decode('ascii', errors='ignore').strip()
+                dd(line)
                 if not line.startswith("$"):
                     continue
 
@@ -181,7 +182,8 @@ class NMEAReader(PyXavi):
                             }
                             output_queue.put(nmea_data)
 
-                except pynmea2.ParseError:
+                except pynmea2.ParseError as e:
+                    self._xlog.error(f"Failed to parse NMEA sentence: {e}")
                     continue
 
             except KeyboardInterrupt:
@@ -190,7 +192,7 @@ class NMEAReader(PyXavi):
     
     def close(self):
         self.receiver_thread.join()
-    
+
     def get_gps_data(self) -> dict:
         self._xlog.debug("Consuming the NMEA messages queue comming from the reading thread")
         count = self.consume_nmea_data()
