@@ -26,7 +26,8 @@ class NMEAReader(PyXavi):
 
     serial_device: serial.Serial = None
     output_queue: queue.Queue = None
-    lock: threading.Lock = None
+    thread_lock: threading.Lock = None
+    flag_lock: threading.Lock = None
     receiver_thread: threading.Thread = None
     loop_is_allowed = True
 
@@ -49,7 +50,8 @@ class NMEAReader(PyXavi):
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(NMEAReader, self).init_pyxavi(config=config, params=params)
 
-        self.lock = threading.Lock()
+        self.thread_lock = threading.Lock()
+        self.flag_lock = threading.Lock()
 
         # self.output_queue = params.get("output_queue", queue.Queue())
         # if self.output_queue is None:
@@ -77,8 +79,8 @@ class NMEAReader(PyXavi):
                 self.serial_device, 
                 config, 
                 self._xlog,
-                self.output_queue,
-                self.loop_is_allowed
+                self.thread_lock,
+                self.flag_lock
             ))
             self.receiver_thread.start()
         except serial.SerialException as e:
@@ -138,18 +140,24 @@ class NMEAReader(PyXavi):
     def read_nmea_loop(
             self, 
             ser: serial.Serial, 
-            config: Config = None,
             xlog: Logger = None, 
-            output_queue: queue.Queue = None,
-            loop_is_allowed = True):
+            thread_lock: threading.Lock = None,
+            flag_lock: threading.Lock = None):
         xlog.debug(">>> Listening for NMEA data...\n")
         last_fix_time = None
 
         # with ser:
         with serial.Serial(NMEAReader.SERIAL_PORT, NMEAReader.BAUD_RATE, timeout=1) as ser:
             xlog.debug("Context Serial")
-            while loop_is_allowed:
+
+            while True:
                 xlog.debug("Loop")
+
+                with flag_lock:
+                    if not self.loop_is_allowed:
+                        xlog.debug("Loop not allowed, exiting it.")
+                        break
+
                 try:
                     line = ser.readline().decode('ascii', errors='replace').strip()
                     xlog.debug(f"Line: {line}")
@@ -160,26 +168,75 @@ class NMEAReader(PyXavi):
                     try:
                         msg = pynmea2.parse(line)
                         xlog.debug(f"Parsed NMEA sentence: {msg}")
-                        if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
-                            nmea_data = {
-                                "latitude": round(msg.latitude, 6),
-                                "longitude": round(msg.longitude, 6),
-                                "direction_latitude": msg.lat_dir if hasattr(msg, 'lat_dir') else None,
-                                "direction_longitude": msg.lon_dir if hasattr(msg, 'lon_dir') else None,
-                                # "interval": interval,
-                                "altitude": msg.altitude if hasattr(msg, 'altitude') else None,
-                                "altitude_units": msg.altitude_units if hasattr(msg, 'altitude_units') else None,
-                                "timestamp": msg.timestamp.isoformat() if hasattr(msg, 'timestamp') else None,
-                                # "status": "A" if fix_status > 0 else "V",
-                            }
-                            # output_queue.put(nmea_data)
-                            self.lock.acquire()
-                            self.cumulative_data = {
-                                **self.cumulative_data,
-                                **nmea_data
-                            }
-                            self.lock.release()
-                            xlog.debug(f"Put into the queue: {nmea_data['latitude']},{nmea_data['longitude']}")
+
+
+                        if isinstance(msg, pynmea2.types.talker.GGA):
+                            fix_status = int(msg.gps_qual)
+                            if fix_status > 0:  # Only show if there's a fix
+                                current_time = time.time()
+                                interval = (current_time - last_fix_time) if last_fix_time else 0
+                                last_fix_time = current_time
+                                xlog.info(f"[GGA] Fix: {fix_status} | Interval: {interval:.2f}s | Time: {msg.timestamp} | Lat: {msg.latitude} {msg.lat_dir} | Lon: {msg.longitude} {msg.lon_dir} | Alt: {msg.altitude} {msg.altitude_units}")
+                                # Send data to output queue
+                                nmea_data = {
+                                    "latitude": round(msg.latitude, 6),
+                                    "longitude": round(msg.longitude, 6),
+                                    "direction_latitude": msg.lat_dir,
+                                    "direction_longitude": msg.lon_dir,
+                                    "interval": interval,
+                                    "altitude": msg.altitude,
+                                    "altitude_units": msg.altitude_units,
+                                    "timestamp": msg.timestamp.isoformat(),
+                                    "status": "A" if fix_status > 0 else "V",
+                                }
+                                with thread_lock:
+                                    self.cumulative_data = {
+                                        **self.cumulative_data,
+                                        **nmea_data
+                                    }
+
+                        elif isinstance(msg, pynmea2.types.talker.RMC):
+                            if msg.status == 'A':  # A = Valid fix
+                                current_time = time.time()
+                                interval = (current_time - last_fix_time) if last_fix_time else 0
+                                last_fix_time = current_time
+                                xlog.info(f"[RMC] Interval: {interval:.2f}s | Time: {msg.timestamp} | Lat: {msg.latitude} | Lon: {msg.longitude} | Speed: {msg.spd_over_grnd} knots | Heading: {msg.true_course}°")
+                                # Send data to output queue
+                                nmea_data = {
+                                    "latitude": round(msg.latitude, 6),
+                                    "longitude": round(msg.longitude, 6),
+                                    "speed": round(msg.spd_over_grnd, 6),
+                                    "heading": round(msg.true_course, 6),
+                                    "interval": interval,
+                                    "timestamp": msg.timestamp.isoformat(),
+                                    "status": msg.status,
+                                }
+                                with thread_lock:
+                                    self.cumulative_data = {
+                                        **self.cumulative_data,
+                                        **nmea_data
+                                    }
+
+                        # if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
+                        #     nmea_data = {
+                        #         "latitude": round(msg.latitude, 6),
+                        #         "longitude": round(msg.longitude, 6),
+                        #         "direction_latitude": msg.lat_dir if hasattr(msg, 'lat_dir') else None,
+                        #         "direction_longitude": msg.lon_dir if hasattr(msg, 'lon_dir') else None,
+                        #         # "interval": interval,
+                        #         "altitude": msg.altitude if hasattr(msg, 'altitude') else None,
+                        #         "altitude_units": msg.altitude_units if hasattr(msg, 'altitude_units') else None,
+                        #         "timestamp": msg.timestamp.isoformat() if hasattr(msg, 'timestamp') else None,
+                        #         # "status": "A" if fix_status > 0 else "V",
+                        #     }
+                        #     # output_queue.put(nmea_data)
+                        #     self.lock.acquire()
+                        #     self.cumulative_data = {
+                        #         **self.cumulative_data,
+                        #         **nmea_data
+                        #     }
+                        #     self.lock.release()
+                        #     xlog.debug(f"Put into the queue: {nmea_data['latitude']},{nmea_data['longitude']}")
 
                         # if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
                         #     sentence_is_valid = True
@@ -262,9 +319,8 @@ class NMEAReader(PyXavi):
         # count = self.consume_nmea_data()
         # self._xlog.debug(f"Return the last compiled state from {count} messages")
         # self._xlog.debug(f"Return the last compiled message state")
-        self.lock.acquire()
-        data = self.cumulative_data
-        self.lock.release()
+        with self.thread_lock:
+            data = self.cumulative_data
         return data
 
     def consume_nmea_data(self) -> int:
