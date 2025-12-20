@@ -18,30 +18,32 @@ class GpsSerial(PyXavi):
         # When we have a valid sentence, we return it and finish.
 
         # We introduce a timeout mechanism to avoid infinite loops
-        timeout_time = datetime.now() + timedelta(seconds=self.TIMEOUT_IN_SECS)
+        # timeout_time = datetime.now() + timedelta(seconds=self.TIMEOUT_IN_SECS)
         sentence_is_valid = False
-        while not sentence_is_valid and datetime.now() < timeout_time:
+        # while not sentence_is_valid and datetime.now() < timeout_time:
 
-            port=self.SERIAL_PORT
-            with serial.Serial(port, baudrate=9600, timeout=1) as ser:
-                line = ser.readline().decode('ascii', errors='replace').strip()
-                self._xlog.debug(f"Read line from GPS serial: {line}")
-                try:
-                    # Read the GPS Vendor PDF. We should be parsing all possible GPS Talker IDs!!
-                    # if line[0:6]=="$GPRMC":
-                        msg = pynmea2.parse(line)
-                        self._xlog.debug(f"Parsed NMEA sentence: {msg}")
-                        if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
-                            sentence_is_valid = True
-                            return {
-                                "latitude": msg.latitude,
-                                "longitude": msg.longitude,
-                                # "timestamp": msg.timestamp,
-                                # "status": msg.status
-                            }
-                except pynmea2.ParseError as e:
-                    self._xlog.error(f"Failed to parse NMEA sentence: {e}")
-                    continue
+        port=self.SERIAL_PORT
+        with serial.Serial(port, baudrate=9600, timeout=1) as ser:
+            line = ser.readline().decode('ascii', errors='replace').strip()
+            self._xlog.debug(f"Read line from GPS serial: {line}")
+            try:
+                # Read the GPS Vendor PDF. We should be parsing all possible GPS Talker IDs!!
+                # if line[0:6]=="$GPRMC":
+                    msg = pynmea2.parse(line)
+                    self._xlog.debug(f"Parsed NMEA sentence: {msg}")
+                    if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
+                        sentence_is_valid = True
+                        return {
+                            "latitude": msg.latitude,
+                            "longitude": msg.longitude,
+                            # "timestamp": msg.timestamp,
+                            # "status": msg.status
+                        }
+                    else:
+                        self._xlog.debug("NMEA sentence does not contain GPS position data")
+            except pynmea2.ParseError as e:
+                self._xlog.error(f"Failed to parse NMEA sentence: {e}")
+                # continue
         
         if not sentence_is_valid:
             self._xlog.error("Timeout reached while reading GPS data from serial port")
