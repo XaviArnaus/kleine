@@ -595,3 +595,8 @@ class Main(PyXavi):
         if self.ups is not None:
             self._xlog.debug("Closing UPS")
             self.ups.close()
+        
+        # Close the GPS reading thread
+        if self.gps is not None:
+            self._xlog.debug("Closing GPS")
+            self.gps.close()

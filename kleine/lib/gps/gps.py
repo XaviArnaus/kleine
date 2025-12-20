@@ -17,6 +17,9 @@ class GPS(PyXavi):
             # self.driver = GpsSerial(config=config, params=params)
             from kleine.lib.gps.nmea_reader import NMEAReader
             self.driver = NMEAReader(config=config, params=params)
+    
+    def close(self):
+        self.driver.close()
 
     def get_position(self) -> dict | None:
         data = self.driver.get_gps_data()

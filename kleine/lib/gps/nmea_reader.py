@@ -25,6 +25,7 @@ class NMEAReader(PyXavi):
 
     serial_device: serial.Serial = None
     output_queue: queue.Queue = None
+    receiver_thread: threading.Thread = None
 
     cumulative_data = {
         # Incoming from GGA
@@ -67,13 +68,13 @@ class NMEAReader(PyXavi):
             self.save_configuration(self.serial_device)
 
             self._xlog.debug(">>> Configuration done. Starting data read...\n")
-            read_thread = threading.Thread(target=self.read_nmea_loop, args=(
+            self.receiver_thread = threading.Thread(target=self.read_nmea_loop, args=(
                 self.serial_device, 
                 config, 
                 self._xlog,
                 self.output_queue
             ))
-            read_thread.start()
+            self.receiver_thread.start()
         except serial.SerialException as e:
             self._xlog.error(f"Serial error: {e}")
             self._xlog.debug(full_stack())
@@ -186,6 +187,9 @@ class NMEAReader(PyXavi):
             except KeyboardInterrupt:
                 xlog.warning("Stopped.")
                 break
+    
+    def close(self):
+        self.receiver_thread.join()
     
     def get_gps_data(self) -> dict:
         self._xlog.debug("Consuming the NMEA messages queue comming from the reading thread")

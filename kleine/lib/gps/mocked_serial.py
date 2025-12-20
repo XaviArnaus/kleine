@@ -17,3 +17,6 @@ class MockedSerial(PyXavi):
     
     def get_gps_data(self) -> dict:
         return self.read_serial_data()
+    
+    def close(self):
+        pass
