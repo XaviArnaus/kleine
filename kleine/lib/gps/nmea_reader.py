@@ -133,62 +133,65 @@ class NMEAReader(PyXavi):
         xlog.debug(">>> Listening for NMEA data...\n")
         last_fix_time = None
 
-        while True:
-            try:
-                line = ser.readline().decode('ascii', errors='ignore').strip()
-                dd(line)
-                if not line.startswith("$"):
-                    continue
-
+        with ser:
+            xlog.debug("Context Serial")
+            while True:
+                xlog.debug("Loop")
                 try:
-                    msg = pynmea2.parse(line)
+                    line = ser.readline().decode('ascii', errors='replace').strip()
+                    dd(line)
+                    if not line.startswith("$"):
+                        continue
 
-                    if isinstance(msg, pynmea2.types.talker.GGA):
-                        fix_status = int(msg.gps_qual)
-                        if fix_status > 0:  # Only show if there's a fix
-                            current_time = time.time()
-                            interval = (current_time - last_fix_time) if last_fix_time else 0
-                            last_fix_time = current_time
-                            xlog.info(f"[GGA] Fix: {fix_status} | Interval: {interval:.2f}s | Time: {msg.timestamp} | Lat: {msg.latitude} {msg.lat_dir} | Lon: {msg.longitude} {msg.lon_dir} | Alt: {msg.altitude} {msg.altitude_units}")
-                            # Send data to output queue
-                            nmea_data = {
-                                "latitude": round(msg.latitude, 6),
-                                "longitude": round(msg.longitude, 6),
-                                "direction_latitude": msg.lat_dir,
-                                "direction_longitude": msg.lon_dir,
-                                "interval": interval,
-                                "altitude": msg.altitude,
-                                "altitude_units": msg.altitude_units,
-                                "timestamp": msg.timestamp.isoformat(),
-                                "status": "A" if fix_status > 0 else "V",
-                            }
-                            output_queue.put(nmea_data)
+                    try:
+                        msg = pynmea2.parse(line)
 
-                    elif isinstance(msg, pynmea2.types.talker.RMC):
-                        if msg.status == 'A':  # A = Valid fix
-                            current_time = time.time()
-                            interval = (current_time - last_fix_time) if last_fix_time else 0
-                            last_fix_time = current_time
-                            xlog.info(f"[RMC] Interval: {interval:.2f}s | Time: {msg.timestamp} | Lat: {msg.latitude} | Lon: {msg.longitude} | Speed: {msg.spd_over_grnd} knots | Heading: {msg.true_course}°")
-                            # Send data to output queue
-                            nmea_data = {
-                                "latitude": round(msg.latitude, 6),
-                                "longitude": round(msg.longitude, 6),
-                                "speed": round(msg.spd_over_grnd, 6),
-                                "heading": round(msg.true_course, 6),
-                                "interval": interval,
-                                "timestamp": msg.timestamp.isoformat(),
-                                "status": msg.status,
-                            }
-                            output_queue.put(nmea_data)
+                        if isinstance(msg, pynmea2.types.talker.GGA):
+                            fix_status = int(msg.gps_qual)
+                            if fix_status > 0:  # Only show if there's a fix
+                                current_time = time.time()
+                                interval = (current_time - last_fix_time) if last_fix_time else 0
+                                last_fix_time = current_time
+                                xlog.info(f"[GGA] Fix: {fix_status} | Interval: {interval:.2f}s | Time: {msg.timestamp} | Lat: {msg.latitude} {msg.lat_dir} | Lon: {msg.longitude} {msg.lon_dir} | Alt: {msg.altitude} {msg.altitude_units}")
+                                # Send data to output queue
+                                nmea_data = {
+                                    "latitude": round(msg.latitude, 6),
+                                    "longitude": round(msg.longitude, 6),
+                                    "direction_latitude": msg.lat_dir,
+                                    "direction_longitude": msg.lon_dir,
+                                    "interval": interval,
+                                    "altitude": msg.altitude,
+                                    "altitude_units": msg.altitude_units,
+                                    "timestamp": msg.timestamp.isoformat(),
+                                    "status": "A" if fix_status > 0 else "V",
+                                }
+                                output_queue.put(nmea_data)
 
-                except pynmea2.ParseError as e:
-                    self._xlog.error(f"Failed to parse NMEA sentence: {e}")
-                    continue
+                        elif isinstance(msg, pynmea2.types.talker.RMC):
+                            if msg.status == 'A':  # A = Valid fix
+                                current_time = time.time()
+                                interval = (current_time - last_fix_time) if last_fix_time else 0
+                                last_fix_time = current_time
+                                xlog.info(f"[RMC] Interval: {interval:.2f}s | Time: {msg.timestamp} | Lat: {msg.latitude} | Lon: {msg.longitude} | Speed: {msg.spd_over_grnd} knots | Heading: {msg.true_course}°")
+                                # Send data to output queue
+                                nmea_data = {
+                                    "latitude": round(msg.latitude, 6),
+                                    "longitude": round(msg.longitude, 6),
+                                    "speed": round(msg.spd_over_grnd, 6),
+                                    "heading": round(msg.true_course, 6),
+                                    "interval": interval,
+                                    "timestamp": msg.timestamp.isoformat(),
+                                    "status": msg.status,
+                                }
+                                output_queue.put(nmea_data)
 
-            except KeyboardInterrupt:
-                xlog.warning("Stopped.")
-                break
+                    except pynmea2.ParseError as e:
+                        self._xlog.error(f"Failed to parse NMEA sentence: {e}")
+                        continue
+
+                except KeyboardInterrupt:
+                    xlog.warning("Stopped.")
+                    break
     
     def close(self):
         self.receiver_thread.join()
