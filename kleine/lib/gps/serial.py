@@ -25,18 +25,20 @@ class GpsSerial(PyXavi):
             port=self.SERIAL_PORT
             with serial.Serial(port, baudrate=9600, timeout=1) as ser:
                 line = ser.readline().decode('ascii', errors='replace').strip()
+                self._xlog.debug(f"Read line from GPS serial: {line}")
                 try:
                     # Read the GPS Vendor PDF. We should be parsing all possible GPS Talker IDs!!
                     # if line[0:6]=="$GPRMC":
                         msg = pynmea2.parse(line)
                         self._xlog.debug(f"Parsed NMEA sentence: {msg}")
-                        sentence_is_valid = True
-                        return {
-                            "latitude": msg.latitude,
-                            "longitude": msg.longitude,
-                            "timestamp": msg.timestamp,
-                            "status": msg.status
-                        }
+                        if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
+                            sentence_is_valid = True
+                            return {
+                                "latitude": msg.latitude,
+                                "longitude": msg.longitude,
+                                # "timestamp": msg.timestamp,
+                                # "status": msg.status
+                            }
                 except pynmea2.ParseError as e:
                     self._xlog.error(f"Failed to parse NMEA sentence: {e}")
                     continue
