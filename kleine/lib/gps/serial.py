@@ -1,4 +1,4 @@
-from pyxavi import Config, Dictionary
+from pyxavi import Config, Dictionary, dd
 from kleine.lib.abstract.pyxavi import PyXavi
 import pynmea2, serial
 from datetime import datetime, timedelta
@@ -13,31 +13,29 @@ class GpsSerial(PyXavi):
     
     def read_serial_data(self) -> dict:
 
-        # The approach that we do is to read the serial data line by line
-        # for some iterations and try to parse each line as an NMEA sentence.
-        # When we have a valid sentence, we return it and finish.
+        # Remember that we're already running inside a loop in main.py
+        # So we just need to read once from serial and return the data if valid
 
-        # We introduce a timeout mechanism to avoid infinite loops
-        # timeout_time = datetime.now() + timedelta(seconds=self.TIMEOUT_IN_SECS)
         sentence_is_valid = False
-        # while not sentence_is_valid and datetime.now() < timeout_time:
-
         port=self.SERIAL_PORT
         with serial.Serial(port, baudrate=9600, timeout=1) as ser:
             line = ser.readline().decode('ascii', errors='replace').strip()
             self._xlog.debug(f"Read line from GPS serial: {line}")
             try:
-                # Read the GPS Vendor PDF. We should be parsing all possible GPS Talker IDs!!
-                # if line[0:6]=="$GPRMC":
                     msg = pynmea2.parse(line)
                     self._xlog.debug(f"Parsed NMEA sentence: {msg}")
                     if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
                         sentence_is_valid = True
+                        dd(msg)
                         return {
-                            "latitude": msg.latitude,
-                            "longitude": msg.longitude,
-                            # "timestamp": msg.timestamp,
-                            # "status": msg.status
+                            "latitude": round(msg.latitude, 6),
+                            "longitude": round(msg.longitude, 6),
+                            "direction_latitude": msg.lat_dir if hasattr(msg, 'lat_dir') else None,
+                            "direction_longitude": msg.lon_dir if hasattr(msg, 'lon_dir') else None,
+                            "altitude": msg.altitude if hasattr(msg, 'altitude') else None,
+                            "altitude_units": msg.altitude_units if hasattr(msg, 'altitude_units') else None,
+                            "timestamp": msg.timestamp.isoformat() if hasattr(msg, 'timestamp') else None,
+                            "status": msg.status if hasattr(msg, 'status') else None,
                         }
                     else:
                         self._xlog.debug("NMEA sentence does not contain GPS position data")
@@ -47,10 +45,4 @@ class GpsSerial(PyXavi):
         
         if not sentence_is_valid:
             self._xlog.error("Timeout reached while reading GPS data from serial port")
-            # return {
-            #     "latitude": None,
-            #     "longitude": None,
-            #     "timestamp": None,
-            #     "status": "V"  # V = Void (no valid data)
-            # }
             return None

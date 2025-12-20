@@ -7,6 +7,11 @@ app:
   # Application name
   name: "Kleine"
 
+scheduler:
+  # [Integer] Update interval in seconds for the per-seconds scheduler.
+  # A value from 1 to 60, otherwise is discarded and assumed 2.
+  update_interval: 2
+
 
 # Filesystem definition
 storage:

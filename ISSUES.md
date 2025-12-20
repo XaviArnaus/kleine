@@ -132,4 +132,31 @@ Carbon.CFDataGetBytes(k_layout, CFRange(0, k_layout_size), ctypes.byref(k_layout
 
 ### Final solution, switch modules from `keyboard` to `pynput`
 
+## ✅ Mocking `gpiozero` library with `pynput` in Mac OS
+
+I used to have a `MockedButton` class that I used instead of `Button` class form `gpiozero`.
+The mistake was to bundle the `pynput` Listener together with the class, so 3 buttons are 3 listeners,
+and Mac OS started to complain after adding the 3rd button with:
+
+```
+Abort trap: 6
+```
+
+I've suspected that I was creating too many Listeners, as the Listener felt like was listening OS wide, and reworked to have only one Listener that checks all defined buttons at once, and that did the trick.
+
+
 https://pypi.org/project/pynput/
+
+## ✅ GPS was returning a lot of error messages
+
+https://ozzmaker.com/faq/i-am-seeing-the-message-more-than-100-frame-errors-uart-rx-was-disabled-what-do-i-need-to-do-to-fix-it/
+
+Receiving lot of sentences that include these error:
+```
+More than 100 frame errors, UART RX was disabled
+```
+
+I executed the following line and retried, but I also removed a double loop that I had in the code and now I'm not sure what fixed the issue.
+```
+/usr/bin/stty -F /dev/serial0 -echo
+```

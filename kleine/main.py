@@ -30,6 +30,8 @@ class Main(PyXavi):
     STATUSBAR_SHOW_TEMPERATURE: bool = True # Will be skipped in the temperature module
     STATUSBAR_SHOW_BATTERY: bool = True
 
+    SECONDS_TO_REACT_FOR_TASKS: int = 2
+
     # accelerometer: Accelerometer = None
     air_pressure: AirPressure = None
     temperature: Temperature = None
@@ -48,12 +50,11 @@ class Main(PyXavi):
     display_accelerometer: DisplayAccelerometer = None
 
     _last_processed_minute: int = -1
-    scheduled_values: Dictionary = Dictionary({
+    _last_processed_second: int = -1
+    gathered_values: Dictionary = Dictionary({
         "temperature": 0,
         "humidity": 0,
         "air_pressure": 0,
-    })
-    real_time_values: Dictionary = Dictionary({
         "acceleration": (0,0,0),
         "gyroscope": (0,0,0),
         "magnetometer": (0,0,0),
@@ -61,6 +62,12 @@ class Main(PyXavi):
         "gps": {
             "latitude": 0.0,
             "longitude": 0.0,
+            "direction_latitude": None,
+            "direction_longitude": None,
+            "altitude": None,
+            "altitude_units": None,
+            "timestamp": None,
+            "status": None,
         }
     })
 
@@ -91,6 +98,12 @@ class Main(PyXavi):
         # Lcd: is the hardware driver for the LCD screen. It wraps the ST7789 driver and the final drawing to it.
         # Canvas: is the drawing surface where we create images to be sent to the LCD.
         # Display: is the module that uses the Canvas to draw things like text, shapes, images, etc.
+        # DisplayWhatever: are specific modules that use Display to show specific information.
+
+        # Initialize some vars from the config or the state
+        seconds = self._xconfig.get("scheduler.update_interval", self.SECONDS_TO_REACT_FOR_TASKS)
+        if seconds >= 1 and seconds <= 60:
+            self.SECONDS_TO_REACT_FOR_TASKS = seconds
 
         # Initialise the LCD display
         self._xlog.info("Initialising LCD device")
@@ -190,15 +203,21 @@ class Main(PyXavi):
         try:
             while True:
 
-                # Check the things to do every minute
-                should_refresh = self.do_every_minute_tasks() or selected_module == -1 or refresh_again
+                # Accumulate the Should Refresh flag along the actions
+                should_refresh = refresh_again or selected_module == -1
 
-                # The refresh flag is set to False after each check
+                 # The refresh flag is set to False after each check
                 # It comes from the previous loop iteration, in case we showed a modal message
                 refresh_again = False
 
+                # Check the things to do every minute
+                should_refresh = self.do_every_minute_tasks() or should_refresh
+
+                # Check the things to do every given seconds
+                should_refresh = self.do_every_seconds_tasks(selected_module) or should_refresh
+
                 # Check real-time tasks
-                should_refresh = should_refresh or self.do_real_time_tasks(selected_module)
+                should_refresh = self.do_real_time_tasks(selected_module) or should_refresh
 
                 # Handle module selection by pressing the Yellow button or at startup
                 if self.gpio.is_button_pressed("yellow") or selected_module == -1:
@@ -299,10 +318,10 @@ class Main(PyXavi):
             "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
             "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
             "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
-            "battery_percentage": self.scheduled_values.get("battery_percentage"),
-            "battery_is_charging": self.scheduled_values.get("battery_is_charging"),
-            "temperature": self.scheduled_values.get("temperature"),
-            # Any mnessage that we want to show in a modal window
+            "battery_percentage": self.gathered_values.get("battery_percentage"),
+            "battery_is_charging": self.gathered_values.get("battery_is_charging"),
+            "temperature": self.gathered_values.get("temperature"),
+            # Any message that we want to show in a modal window
             "modal_message": modal_message,
         })
 
@@ -316,26 +335,26 @@ class Main(PyXavi):
             self._xlog.debug("Running Temperature module")
             self.display_temperature.module(parameters=shared_data.merge(Dictionary({
                 "statusbar_show_temperature": False,  # Temperature module already shows temperature
-                "temperature": self.scheduled_values.get("temperature"),
-                "humidity": self.scheduled_values.get("humidity"),
-                "air_pressure": self.scheduled_values.get("air_pressure")
+                "temperature": self.gathered_values.get("temperature"),
+                "humidity": self.gathered_values.get("humidity"),
+                "air_pressure": self.gathered_values.get("air_pressure")
             })))
         
         # Accelerometer module
         elif self.application_modules[selected_module] == ModuleDefinitions.ACCELEROMETER:
             self._xlog.debug("Running Accelerometer module")
             self.display_accelerometer.module(parameters=shared_data.merge(Dictionary({
-                "acceleration": self.real_time_values.get("acceleration"),
-                "gyroscope": self.real_time_values.get("gyroscope"),
-                "magnetometer": self.real_time_values.get("magnetometer"),
-                "pitch_roll_yaw": self.real_time_values.get("pitch_roll_yaw"),
+                "acceleration": self.gathered_values.get("acceleration"),
+                "gyroscope": self.gathered_values.get("gyroscope"),
+                "magnetometer": self.gathered_values.get("magnetometer"),
+                "pitch_roll_yaw": self.gathered_values.get("pitch_roll_yaw"),
             })))
         
         # GPS module
         elif self.application_modules[selected_module] == ModuleDefinitions.GPS:
             self._xlog.debug("Running GPS module")
             self.display_gps.module(parameters=shared_data.merge(Dictionary({
-                "gps_info": self.real_time_values.get("gps")
+                "gps_info": self.gathered_values.get("gps")
             })))
 
         # Power module
@@ -375,7 +394,7 @@ class Main(PyXavi):
             # And refresh the screen again to remove it
             self._xlog.debug("Clearing modal message after showing it.")
             refresh_again = True
-    
+
     def do_real_time_tasks(self, selected_module: int) -> bool:
         """
         Tasks that need to be done in real-time.
@@ -395,25 +414,49 @@ class Main(PyXavi):
             # temp = self.accelerometer.get_temperature()
             pitch, roll, yaw = self.accelerometer.get_pitch_roll_yaw()
 
-            self.real_time_values.set("acceleration", (accel_x, accel_y, accel_z))
-            self.real_time_values.set("gyroscope", (gyro_x, gyro_y, gyro_z))
-            self.real_time_values.set("magnetometer", (mag_x, mag_y, mag_z))
-            self.real_time_values.set("pitch_roll_yaw", (pitch, roll, yaw))
+            self.gathered_values.set("acceleration", (accel_x, accel_y, accel_z))
+            self.gathered_values.set("gyroscope", (gyro_x, gyro_y, gyro_z))
+            self.gathered_values.set("magnetometer", (mag_x, mag_y, mag_z))
+            self.gathered_values.set("pitch_roll_yaw", (pitch, roll, yaw))
 
             return True
-        
-        elif self.application_modules[selected_module] == ModuleDefinitions.GPS:
-            # Get GPS position
-            gps_info = self.gps.get_position()
 
-            if gps_info is None:
-                return False
-            
-            self.real_time_values.set("gps", {
-                "latitude": gps_info.get("latitude", 0.0),
-                "longitude": gps_info.get("longitude", 0.0),
-            })
-            return True
+        return False
+    
+    def do_every_seconds_tasks(self, selected_module: int, seconds: int = None) -> bool:
+        """
+        Tasks that need to be done every given seconds.
+        Returns True if refreshing the screen is needed, False otherwise.
+
+        Will not do too much logging here, as it pollutes the logs a lot.
+        """
+        if seconds is None:
+            seconds = self.SECONDS_TO_REACT_FOR_TASKS
+
+        current_second = time.localtime().tm_sec
+        triggering_second = self._last_processed_second + seconds
+        if current_second >= triggering_second or (current_second == 0 and triggering_second >= 60):
+            self._last_processed_second = current_second
+            self._xlog.debug("🕐 New second detected: " + str(current_second) + f". Running every-second {self.SECONDS_TO_REACT_FOR_TASKS}s tasks.")
+
+            if self.application_modules[selected_module] == ModuleDefinitions.GPS:
+                # Get GPS position
+                gps_info = self.gps.get_position()
+
+                if gps_info is None:
+                    return False
+                
+                self.gathered_values.set("gps", {
+                    "latitude": gps_info.get("latitude", 0.0),
+                    "longitude": gps_info.get("longitude", 0.0),
+                    "direction_latitude": gps_info.get("direction_latitude", None),
+                    "direction_longitude": gps_info.get("direction_longitude", None),
+                    "altitude": gps_info.get("altitude", None),
+                    "altitude_units": gps_info.get("altitude_units", None),
+                    "timestamp": gps_info.get("timestamp", None),
+                    "status": gps_info.get("status", None),
+                })
+                return True
 
         return False
 
@@ -433,22 +476,22 @@ class Main(PyXavi):
             # Get temperature and humidity from the temperature sensor
             if self.STATUSBAR_SHOW_TEMPERATURE:
                 current_temperature = round(self.temperature.get_temperature(), 1)
-                if current_temperature != self.scheduled_values.get("temperature", 0):
-                    self.scheduled_values.set("temperature", current_temperature)
+                if current_temperature != self.gathered_values.get("temperature", 0):
+                    self.gathered_values.set("temperature", current_temperature)
                     return_value = True
 
                 current_humidity = round(self.temperature.get_humidity(), 1)
-                if current_humidity != self.scheduled_values.get("humidity", 0):
-                    self.scheduled_values.set("humidity", current_humidity)
+                if current_humidity != self.gathered_values.get("humidity", 0):
+                    self.gathered_values.set("humidity", current_humidity)
                     return_value = True
 
                 current_air_pressure = round(self.air_pressure.get_air_pressure(), 1)
-                if current_air_pressure != self.scheduled_values.get("air_pressure", 0):
-                    self.scheduled_values.set("air_pressure", current_air_pressure)
+                if current_air_pressure != self.gathered_values.get("air_pressure", 0):
+                    self.gathered_values.set("air_pressure", current_air_pressure)
                     return_value = True
 
                 if return_value:
-                    self._xlog.info(f"Updated scheduled values: Temperature={self.scheduled_values.get('temperature')}°C, Humidity={self.scheduled_values.get('humidity')}%, Air Pressure={self.scheduled_values.get('air_pressure')} hPa")
+                    self._xlog.info(f"Updated gathered values: Temperature={self.gathered_values.get('temperature')}°C, Humidity={self.gathered_values.get('humidity')}%, Air Pressure={self.gathered_values.get('air_pressure')} hPa")
 
             if self.STATUSBAR_SHOW_TIME:
                 self._xlog.debug("Time change requires screen refresh.")
@@ -456,13 +499,13 @@ class Main(PyXavi):
             
             if self.STATUSBAR_SHOW_BATTERY:
                 current_battery_percentage = math.ceil(self.ups.get_battery_percentage())
-                if current_battery_percentage != self.scheduled_values.get("battery_percentage", 0):
-                    self.scheduled_values.set("battery_percentage", current_battery_percentage)
+                if current_battery_percentage != self.gathered_values.get("battery_percentage", 0):
+                    self.gathered_values.set("battery_percentage", current_battery_percentage)
                     return_value = True
 
                 current_battery_is_charging = self.ups.is_charging()
-                if current_battery_is_charging != self.scheduled_values.get("battery_is_charging", False):
-                    self.scheduled_values.set("battery_is_charging", current_battery_is_charging)
+                if current_battery_is_charging != self.gathered_values.get("battery_is_charging", False):
+                    self.gathered_values.set("battery_is_charging", current_battery_is_charging)
                     return_value = True
 
             # We have a status change
