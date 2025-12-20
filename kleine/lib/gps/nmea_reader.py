@@ -149,18 +149,22 @@ class NMEAReader(PyXavi):
                     try:
                         msg = pynmea2.parse(line)
                         xlog.debug(f"Parsed NMEA sentence: {msg}")
-                        nmea_data = {
-                            "latitude": round(msg.latitude, 6),
-                            "longitude": round(msg.longitude, 6),
-                            "direction_latitude": msg.lat_dir,
-                            "direction_longitude": msg.lon_dir,
-                            # "interval": interval,
-                            "altitude": msg.altitude,
-                            "altitude_units": msg.altitude_units,
-                            "timestamp": msg.timestamp.isoformat(),
-                            # "status": "A" if fix_status > 0 else "V",
-                        }
-                        output_queue.put(nmea_data)
+                        if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
+                            nmea_data = {
+                                "latitude": round(msg.latitude, 6),
+                                "longitude": round(msg.longitude, 6),
+                                "direction_latitude": msg.lat_dir,
+                                "direction_longitude": msg.lon_dir,
+                                # "interval": interval,
+                                "altitude": msg.altitude,
+                                "altitude_units": msg.altitude_units,
+                                "timestamp": msg.timestamp.isoformat(),
+                                # "status": "A" if fix_status > 0 else "V",
+                            }
+                            output_queue.put(nmea_data)
+                        else:
+                            self._xlog.debug("NMEA sentence does not contain GPS position data")
+
                         # if hasattr(msg, 'latitude') and hasattr(msg, 'longitude'):
                         #     sentence_is_valid = True
                         #     print(msg)
