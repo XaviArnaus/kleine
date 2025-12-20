@@ -188,17 +188,20 @@ class NMEAReader(PyXavi):
 
                     except pynmea2.ParseError as e:
                         xlog.error(f"Failed to parse NMEA sentence: {e}")
-                        continue
+                        # continue
 
                 except KeyboardInterrupt:
                     xlog.warning("Stopped.")
                     break
-    
+
+                except Exception as e:
+                    xlog.error(f"Error in the GPS thread loop: {e}")
+                    xlog.debug(full_stack())
+
     def close(self):
         while self.output_queue.get():
             self._xlog.debug("hey")
             self.output_queue.task_done()
-        self.receiver_thread.join()
 
     def get_gps_data(self) -> dict:
         self._xlog.debug("Consuming the NMEA messages queue comming from the reading thread")
