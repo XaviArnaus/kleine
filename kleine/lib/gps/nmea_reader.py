@@ -162,7 +162,7 @@ class NMEAReader(PyXavi):
                     # Ignore what does not contain data
                     if not line.startswith("$"):
                         if self.ACTIVATE_LOGGING:
-                            xlog.debug(f"🟠 Line does not start with $,  ignoring.")
+                            xlog.debug(f"🔵 Line does not start with $,  ignoring.")
                         continue
 
                     # Parse the sentence
@@ -224,7 +224,7 @@ class NMEAReader(PyXavi):
                                 }
                     else:
                         if self.ACTIVATE_LOGGING:
-                            xlog.debug("🔴 NMEA sentence is not GGA or RMC, ignoring.")
+                            xlog.debug("🟠 NMEA sentence is not GGA or RMC, ignoring.")
 
                 except pynmea2.ParseError as e:
                     xlog.error(f"Failed to parse NMEA sentence: {e}")
