@@ -1,3 +1,5 @@
+from datetime import time
+
 class Calculations:
 
     @staticmethod
@@ -9,7 +11,7 @@ class Calculations:
         return kmh / 1.852
 
     @staticmethod
-    def calculate_speed_between_points(previous_point: dict, current_point: dict, previous_time: float, current_time: float) -> float:
+    def calculate_speed_between_points(previous_point: dict, current_point: dict, previous_time: time, current_time: time) -> float:
         """
         Calculate speed between two GPS points given the time difference in seconds.
         Haversine formula is used to calculate the distance between two latitude/longitude points.

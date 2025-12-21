@@ -190,7 +190,7 @@ class NMEAReader(PyXavi):
                                 "interval": interval,
                                 "altitude": msg.altitude if hasattr(msg, "altitude") else None,
                                 "altitude_units": msg.altitude_units if hasattr(msg, "altitude_units") else None,
-                                "timestamp": msg.timestamp.isoformat() if hasattr(msg, "timestamp") else None,
+                                "timestamp": msg.timestamp if hasattr(msg, "timestamp") else None,
                                 "status": "A" if fix_status > 0 else "V",
                             }
                             with self.thread_lock:
@@ -215,7 +215,7 @@ class NMEAReader(PyXavi):
                                 "speed": round(Calculations.knots_to_kmh(msg.spd_over_grnd), 3)  if hasattr(msg, "spd_over_grnd") and msg.spd_over_grnd is not None else None,
                                 "heading": msg.true_course if hasattr(msg, "true_course") and msg.true_course is not None else None,
                                 "interval": interval,
-                                "timestamp": msg.timestamp.isoformat() if hasattr(msg, "timestamp") else None,
+                                "timestamp": msg.timestamp if hasattr(msg, "timestamp") else None,
                                 "status": msg.status if hasattr(msg, "status") else None,
                             }
                             with self.thread_lock:

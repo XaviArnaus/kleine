@@ -470,8 +470,8 @@ class Main(PyXavi):
                 return False
 
             # Calculate speed based on previous position
-            previous_time = self.gathered_values.get("gps", {}).get("timestamp", 0)
-            current_time = gps_info.get("timestamp", 0)
+            previous_time = self.gathered_values.get("gps", {}).get("timestamp", None)
+            current_time = gps_info.get("timestamp", None)
             previous_point = {
                 "latitude": self.gathered_values.get("gps", {}).get("latitude", 0.0),
                 "longitude": self.gathered_values.get("gps", {}).get("longitude", 0.0),
@@ -480,7 +480,11 @@ class Main(PyXavi):
                 "latitude": gps_info.get("latitude", 0.0),
                 "longitude": gps_info.get("longitude", 0.0),
             }
-            speed = Calculations.calculate_speed_between_points(previous_point, current_point, previous_time, current_time)
+            if previous_time is None or current_time is None:
+                speed = None
+            else:
+                speed = Calculations.calculate_speed_between_points(
+                    previous_point, current_point, previous_time, current_time)
 
             # Now update gathered values
             self.gathered_values.set("gps", {
