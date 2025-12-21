@@ -202,7 +202,7 @@ class NMEAReader(PyXavi):
 
                     elif isinstance(msg, pynmea2.types.talker.RMC):
                         if self.ACTIVATE_LOGGING:
-                            icon = "🟢" if fix_status > 0 else "🔴"
+                            icon = "🟢" if msg.status == 'A' else "🔴"
                             xlog.debug(f"{icon} It's a RMC sentence with status is: {msg.status} ( A=valid, V=invalid )")
                         if msg.status == 'A':  # A = Valid fix
                             current_time = time.time()
