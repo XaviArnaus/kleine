@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import datetime, time, date
 
 class Calculations:
 
@@ -39,7 +39,11 @@ class Calculations:
         distance_km = R * c
         distance_nm = distance_km * 0.539957  # Convert km to nautical miles
 
-        time_diff_secs = (datetime.fromisoformat(current_time.isoformat()) - datetime.fromisoformat(previous_time)).total_seconds()
+        current_date = date.today()
+        previous_time = datetime.combine(current_date, previous_time).timestamp()
+        current_time = datetime.combine(current_date, current_time).timestamp()
+
+        time_diff_secs = current_time - previous_time
 
         if time_diff_secs > 0:
             speed_knots = distance_nm / (time_diff_secs / 3600)  # Convert seconds to hours
