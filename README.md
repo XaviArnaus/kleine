@@ -62,7 +62,7 @@ sudo make install
 # For more information, please refer to the official website: https://github.com/gpiozero/lg
 ```
 
-### gps
+## GPS
 The GPS is a Beitian BN-880. The magnetometer is not connected (SDA SCL) because we already have one up and working in the Sense Hat. Therefore, only the VCC, GND, RX and TX are connected.
 
 The RPi has already activated the uart in the `/boot/firmware/config.txt`, so with the following
@@ -133,6 +133,43 @@ $ ll /dev/ttyS0
 crw-rw---- 1 root dialout 4, 64 Dec 19 15:22 /dev/ttyS0
 xavier@kleine:~/kleine $ kleine
 ```
+
+## Enable SSH via USB
+
+This is only to be able to connect a USB to a host and accept incoming SSH connections.
+
+https://raspberrypi.stackexchange.com/questions/66431/headless-pi-zero-ssh-access-over-usb
+
+1. Add the overlay in the config
+```
+sudo nano /boot/firmware/config.txt
+```
+
+and add `dtoverlay=dwc2`.
+
+In my case the line was already present at the bottom under the section `[cm5]`. I've moveid it under the `[all]` section
+
+2. Create an empty file in the `/boot` directory called `ssh`
+```
+sudo touch /boot/ssh
+```
+
+3. Tell the RPi to load the dwc2 module at start.
+```
+sudo nano /boot/firmware/cmdline.txt
+```
+
+and add `modules-load=dwc2,g_ether` just right after `rootwait`, with a space. For example, I had:
+```
+console=tty1 root=PARTUUID=a5f01904-02 rootfstype=ext4 fsck.repair=yes rootwait cfg80211.ieee80211_regdom=DE
+```
+
+and I left it as:
+```
+console=tty1 root=PARTUUID=a5f01904-02 rootfstype=ext4 fsck.repair=yes rootwait modules-load=dwc2,g_ether cfg80211.ieee80211_regdom=DE
+```
+
+4. Reboot
 
 ## Python
 
