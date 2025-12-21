@@ -483,8 +483,8 @@ class Main(PyXavi):
             if previous_time is None or current_time is None:
                 speed = None
             else:
-                speed = Calculations.calculate_speed_between_points(
-                    previous_point, current_point, previous_time, current_time)
+                speed = round(Calculations.calculate_speed_between_points(
+                    previous_point, current_point, previous_time, current_time), 1)
 
             # Now update gathered values
             self.gathered_values.set("gps", {
