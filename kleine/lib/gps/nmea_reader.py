@@ -25,8 +25,8 @@ class NMEAReader(PyXavi):
     # =================================
 
     serial_device: serial.Serial = None
-    thread_lock: threading.Lock = None
-    flag_lock: threading.Lock = None
+    # thread_lock: threading.Lock = None
+    # flag_lock: threading.Lock = None
     receiver_thread: threading.Thread = None
     loop_is_allowed = True
 
@@ -73,8 +73,8 @@ class NMEAReader(PyXavi):
             self.receiver_thread = threading.Thread(target=self.read_nmea_loop, args=(
                 self.serial_device, 
                 self._xlog,
-                self.thread_lock,
-                self.flag_lock
+                # self.thread_lock,
+                # self.flag_lock
             ))
             self.receiver_thread.start()
         except serial.SerialException as e:
@@ -135,8 +135,9 @@ class NMEAReader(PyXavi):
             self, 
             ser: serial.Serial, 
             xlog: Logger = None, 
-            thread_lock: threading.Lock = None,
-            flag_lock: threading.Lock = None):
+            # thread_lock: threading.Lock = None,
+            # flag_lock: threading.Lock = None
+            ):
         
         last_fix_time = None
 
@@ -144,10 +145,10 @@ class NMEAReader(PyXavi):
         with serial.Serial(NMEAReader.SERIAL_PORT, NMEAReader.BAUD_RATE, timeout=1) as ser:
             while True:
                 # Control if we want to quit
-                with flag_lock:
-                    if not self.loop_is_allowed:
-                        xlog.debug("Loop not allowed, exiting it.")
-                        break
+                # with flag_lock:
+                if not self.loop_is_allowed:
+                    xlog.debug("Loop not allowed, exiting it.")
+                    break
                 
                 try:
                     # Now, pick the next sentence
@@ -180,11 +181,11 @@ class NMEAReader(PyXavi):
                                 "timestamp": msg.timestamp.isoformat() if hasattr(msg, "timestamp") else None,
                                 "status": "A" if fix_status > 0 else "V",
                             }
-                            with thread_lock:
-                                self.cumulative_data = {
-                                    **self.cumulative_data,
-                                    **nmea_data
-                                }
+                            # with thread_lock:
+                            self.cumulative_data = {
+                                **self.cumulative_data,
+                                **nmea_data
+                            }
 
                     elif isinstance(msg, pynmea2.types.talker.RMC):
                         if msg.status == 'A':  # A = Valid fix
@@ -202,11 +203,11 @@ class NMEAReader(PyXavi):
                                 "timestamp": msg.timestamp.isoformat() if hasattr(msg, "timestamp") else None,
                                 "status": msg.status if hasattr(msg, "status") else None,
                             }
-                            with thread_lock:
-                                self.cumulative_data = {
-                                    **self.cumulative_data,
-                                    **nmea_data
-                                }
+                            # with thread_lock:
+                            self.cumulative_data = {
+                                **self.cumulative_data,
+                                **nmea_data
+                            }
 
                 except pynmea2.ParseError as e:
                     xlog.error(f"Failed to parse NMEA sentence: {e}")
@@ -224,8 +225,8 @@ class NMEAReader(PyXavi):
         self.receiver_thread.join()
 
     def get_gps_data(self) -> dict:
-        with self.thread_lock:
-            data = self.cumulative_data
+        # with self.thread_lock:
+        data = self.cumulative_data
         return data
     
     @staticmethod
