@@ -174,7 +174,8 @@ class NMEAReader(PyXavi):
                         # 6: INS Dead reckoning
                         fix_status = int(msg.gps_qual)
                         if self.ACTIVATE_LOGGING:
-                            xlog.debug(f"{"🟢" if fix_status > 0 else "🔴"} It's a GGA sentence with fix status is: {fix_status} ( > 0 is valid )")
+                            icon = "🟢" if fix_status > 0 else "🔴"
+                            xlog.debug(f"{icon} It's a GGA sentence with fix status is: {fix_status} ( > 0 is valid )")
                         if fix_status > 0:  # Only show if there's a fix
                             current_time = time.time()
                             interval = (current_time - last_fix_time) if last_fix_time else 0
@@ -201,7 +202,8 @@ class NMEAReader(PyXavi):
 
                     elif isinstance(msg, pynmea2.types.talker.RMC):
                         if self.ACTIVATE_LOGGING:
-                            xlog.debug(f"{"🟢" if fix_status > 0 else "🔴"} It's a RMC sentence with status is: {msg.status} ( A=valid, V=invalid )")
+                            icon = "🟢" if fix_status > 0 else "🔴"
+                            xlog.debug(f"{icon} It's a RMC sentence with status is: {msg.status} ( A=valid, V=invalid )")
                         if msg.status == 'A':  # A = Valid fix
                             current_time = time.time()
                             interval = (current_time - last_fix_time) if last_fix_time else 0

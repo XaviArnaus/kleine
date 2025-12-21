@@ -463,10 +463,10 @@ class Main(PyXavi):
             # ---- Get GPS position ----
             gps_info = self.gps.get_position()
 
-            if gps_info is None:
+            if gps_info is None or isinstance(gps_info, dict) is False:
                 return False
 
-            if int(gps_info.get("latitude", 0)) == 0 or int(gps_info.get("longitude", 0)) == 0:
+            if gps_info.get("latitude", None) is None or gps_info.get("longitude", None) is None:
                 return False
 
             # Calculate speed based on previous position
