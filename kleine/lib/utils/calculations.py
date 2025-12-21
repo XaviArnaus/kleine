@@ -39,7 +39,7 @@ class Calculations:
         distance_km = R * c
         distance_nm = distance_km * 0.539957  # Convert km to nautical miles
 
-        time_diff_secs = datetime.timestamp(current_time) - datetime.timestamp(previous_time)
+        time_diff_secs = (datetime.fromisoformat(current_time.isoformat()) - datetime.fromisoformat(previous_time)).total_seconds()
 
         if time_diff_secs > 0:
             speed_knots = distance_nm / (time_diff_secs / 3600)  # Convert seconds to hours
