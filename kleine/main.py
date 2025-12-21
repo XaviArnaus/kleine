@@ -21,6 +21,7 @@ from kleine.lib.modules.display_gps import DisplayGPS
 
 from kleine.lib.utils.maintenance import Maintenance
 from kleine.lib.utils.system import System
+from kleine.lib.utils.calculations import Calculations
 
 import time, math
 
@@ -459,13 +460,29 @@ class Main(PyXavi):
             self._last_processed_second = current_second
             self._xlog.debug("🕐 New second detected: " + str(current_second) + f". Running every-second {self.SECONDS_TO_REACT_FOR_TASKS}s tasks.")
 
-            # if self.application_modules[selected_module] == ModuleDefinitions.GPS:
-            # Get GPS position
+            # ---- Get GPS position ----
             gps_info = self.gps.get_position()
 
             if gps_info is None:
                 return False
-            
+
+            if int(gps_info.get("latitude", 0)) == 0 or int(gps_info.get("longitude", 0)) == 0:
+                return False
+
+            # Calculate speed based on previous position
+            previous_time = self.gathered_values.get("gps", {}).get("timestamp", 0)
+            current_time = gps_info.get("timestamp", 0)
+            previous_point = {
+                "latitude": self.gathered_values.get("gps", {}).get("latitude", 0.0),
+                "longitude": self.gathered_values.get("gps", {}).get("longitude", 0.0),
+            }
+            current_point = {
+                "latitude": gps_info.get("latitude", 0.0),
+                "longitude": gps_info.get("longitude", 0.0),
+            }
+            speed = Calculations.calculate_speed_between_points(previous_point, current_point, previous_time, current_time)
+
+            # Now update gathered values
             self.gathered_values.set("gps", {
                 "latitude": gps_info.get("latitude", 0.0),
                 "longitude": gps_info.get("longitude", 0.0),
@@ -475,6 +492,8 @@ class Main(PyXavi):
                 "altitude_units": gps_info.get("altitude_units", None),
                 "timestamp": gps_info.get("timestamp", None),
                 "status": gps_info.get("status", None),
+                "speed": speed,
+                "heading": gps_info.get("heading", None),
             })
             return True
 

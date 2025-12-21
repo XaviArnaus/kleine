@@ -1,5 +1,6 @@
 from pyxavi import Config, Dictionary, full_stack
 from kleine.lib.abstract.pyxavi import PyXavi
+from kleine.lib.utils.calculations import Calculations
 
 import serial
 import time
@@ -211,7 +212,7 @@ class NMEAReader(PyXavi):
                             nmea_data = {
                                 "latitude": round(msg.latitude, 6),
                                 "longitude": round(msg.longitude, 6),
-                                "speed": round(NMEAReader._knots_to_kmh(msg.spd_over_grnd), 3)  if hasattr(msg, "spd_over_grnd") and msg.spd_over_grnd is not None else None,
+                                "speed": round(Calculations.knots_to_kmh(msg.spd_over_grnd), 3)  if hasattr(msg, "spd_over_grnd") and msg.spd_over_grnd is not None else None,
                                 "heading": msg.true_course if hasattr(msg, "true_course") and msg.true_course is not None else None,
                                 "interval": interval,
                                 "timestamp": msg.timestamp.isoformat() if hasattr(msg, "timestamp") else None,
@@ -245,7 +246,3 @@ class NMEAReader(PyXavi):
         with self.thread_lock:
             data = self.cumulative_data
         return data
-    
-    @staticmethod
-    def _knots_to_kmh(knots: float) -> float:
-        return knots * 1.852
