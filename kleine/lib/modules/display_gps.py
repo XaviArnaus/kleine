@@ -19,13 +19,12 @@ class DisplayGPS(DisplayModule):
         # Prepare the GPS text
         gps_data: dict = parameters.get("gps_info", {})
         gps_text = [
-            f"Latitude: {gps_data.get('latitude', 'N/A')}",
-            f"Longitude: {gps_data.get('longitude', 'N/A')}",
-            f"Direction Lat: {gps_data.get('direction_latitude', 'N/A')}",
-            f"Direction Lon: {gps_data.get('direction_longitude', 'N/A')}",
-            f"Altitude: {gps_data.get('altitude', 'N/A')} {gps_data.get('altitude_units', '')}",
+            f"Latitude: {gps_data.get('latitude', 'N/A')} {gps_data.get('direction_latitude', '')}",
+            f"Longitude: {gps_data.get('longitude', 'N/A')} {gps_data.get('direction_longitude', '')}",
+            f"Altitude: {gps_data.get('altitude', 'N/A')} {gps_data.get('altitude_units', '').lower()}",
+            f"Speed: {gps_data.get('speed', 'N/A')} km/h",
             f"Status: {gps_data.get('status', 'N/A')}",
-            f"Timestamp: {gps_data.get('timestamp').isoformat() if gps_data.get('timestamp') else 'N/A'}",
+            # f"Timestamp: {gps_data.get('timestamp').isoformat() if gps_data.get('timestamp') else 'N/A'}",
             f"Signal Quality: {gps_data.get('signal_quality', 'N/A')}",
         ]
         gps_text_str = "\n".join(gps_text)
