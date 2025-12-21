@@ -43,7 +43,7 @@ class NMEAReader(PyXavi):
         "altitude_units": None,
         "timestamp": None,
         "status": None,
-        "signal_quality": None,
+        "signal_quality": 0,    # We start with 0 = no fix
         # Unmerged from RMC
         "speed": None,
         "heading": None,
