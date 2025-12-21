@@ -24,6 +24,8 @@ class NMEAReader(PyXavi):
     USE_BEIDOU = True
     # =================================
 
+    ACTIVATE_LOGGING = True
+
     serial_device: serial.Serial = None
     thread_lock: threading.Lock = None
     # flag_lock: threading.Lock = None
@@ -147,13 +149,15 @@ class NMEAReader(PyXavi):
                 # Control if we want to quit
                 # with flag_lock:
                 if not self.loop_is_allowed:
-                    xlog.debug("Loop not allowed, exiting it.")
+                    if self.ACTIVATE_LOGGING:
+                        xlog.debug("Loop not allowed, exiting it.")
                     break
                 
                 try:
                     # Now, pick the next sentence
                     line = ser.readline().decode('ascii', errors='replace').strip()
-                    xlog.debug(f"New NMEA sentence: {line}")
+                    if self.ACTIVATE_LOGGING:
+                        xlog.debug(f"New NMEA sentence: {line}")
 
                     # Ignore what does not contain data
                     if not line.startswith("$"):
@@ -161,15 +165,19 @@ class NMEAReader(PyXavi):
 
                     # Parse the sentence
                     msg = pynmea2.parse(line)
-                    xlog.debug(f"Parsed NMEA sentence: {msg}")
+                    if self.ACTIVATE_LOGGING:
+                        xlog.debug(f"Parsed NMEA sentence: {msg}")
 
                     if isinstance(msg, pynmea2.types.talker.GGA):
                         fix_status = int(msg.gps_qual)
+                        if self.ACTIVATE_LOGGING:
+                            xlog.debug(f"It's a GGA sentence with fix status is: {fix_status} ( > 0 is valid )")
                         if fix_status > 0:  # Only show if there's a fix
                             current_time = time.time()
                             interval = (current_time - last_fix_time) if last_fix_time else 0
                             last_fix_time = current_time
-                            xlog.info(f"[GGA] Fix: {fix_status} | Interval: {interval:.2f}s | Time: {msg.timestamp} | Lat: {msg.latitude} {msg.lat_dir} | Lon: {msg.longitude} {msg.lon_dir} | Alt: {msg.altitude} {msg.altitude_units}")
+                            if self.ACTIVATE_LOGGING:
+                                xlog.info(f"[GGA] Fix: {fix_status} | Interval: {interval:.2f}s | Time: {msg.timestamp} | Lat: {msg.latitude} {msg.lat_dir} | Lon: {msg.longitude} {msg.lon_dir} | Alt: {msg.altitude} {msg.altitude_units}")
                             # Send data to output queue
                             nmea_data = {
                                 "latitude": round(msg.latitude, 6),
@@ -189,11 +197,14 @@ class NMEAReader(PyXavi):
                                 }
 
                     elif isinstance(msg, pynmea2.types.talker.RMC):
+                        if self.ACTIVATE_LOGGING:
+                            xlog.debug(f"It's a RMC sentence with status is: {msg.status} ( A=valid, V=invalid )")
                         if msg.status == 'A':  # A = Valid fix
                             current_time = time.time()
                             interval = (current_time - last_fix_time) if last_fix_time else 0
                             last_fix_time = current_time
-                            xlog.info(f"[RMC] Interval: {interval:.2f}s | Time: {msg.timestamp} | Lat: {msg.latitude} | Lon: {msg.longitude} | Speed: {msg.spd_over_grnd} knots | Heading: {msg.true_course}°")
+                            if self.ACTIVATE_LOGGING:
+                                xlog.info(f"[RMC] Interval: {interval:.2f}s | Time: {msg.timestamp} | Lat: {msg.latitude} | Lon: {msg.longitude} | Speed: {msg.spd_over_grnd} knots | Heading: {msg.true_course}°")
                             # Send data to output queue
                             nmea_data = {
                                 "latitude": round(msg.latitude, 6),
@@ -209,6 +220,9 @@ class NMEAReader(PyXavi):
                                     **self.cumulative_data,
                                     **nmea_data
                                 }
+                    else:
+                        if self.ACTIVATE_LOGGING:
+                            xlog.debug("NMEA sentence is not GGA or RMC, ignoring.")
 
                 except pynmea2.ParseError as e:
                     xlog.error(f"Failed to parse NMEA sentence: {e}")
