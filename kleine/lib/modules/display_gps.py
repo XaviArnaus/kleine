@@ -26,6 +26,7 @@ class DisplayGPS(DisplayModule):
             f"Altitude: {gps_data.get('altitude', 'N/A')} {gps_data.get('altitude_units', '')}",
             f"Status: {gps_data.get('status', 'N/A')}",
             f"Timestamp: {gps_data.get('timestamp', 'N/A')}",
+            f"Signal Quality: {gps_data.get('signal_quality', 'N/A')}",
         ]
         gps_text_str = "\n".join(gps_text)
 

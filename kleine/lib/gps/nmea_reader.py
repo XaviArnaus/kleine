@@ -1,11 +1,10 @@
-from pyxavi import Config, Dictionary, full_stack, dd
+from pyxavi import Config, Dictionary, full_stack
 from kleine.lib.abstract.pyxavi import PyXavi
 
 import serial
 import time
 import threading
 import pynmea2
-import queue
 from logging import Logger
 
 # https://github.com/Brinda-93/GNSS_NMEA/blob/main/gnss_reader.py
@@ -24,7 +23,7 @@ class NMEAReader(PyXavi):
     USE_BEIDOU = True
     # =================================
 
-    ACTIVATE_LOGGING = True
+    ACTIVATE_LOGGING = False
 
     serial_device: serial.Serial = None
     thread_lock: threading.Lock = None
@@ -43,6 +42,7 @@ class NMEAReader(PyXavi):
         "altitude_units": None,
         "timestamp": None,
         "status": None,
+        "signal_quality": None,
         # Unmerged from RMC
         "speed": None,
         "heading": None,
@@ -52,7 +52,7 @@ class NMEAReader(PyXavi):
         super(NMEAReader, self).init_pyxavi(config=config, params=params)
 
         self.thread_lock = threading.Lock()
-        # self.flag_lock = threading.Lock()
+        self.ACTIVATE_LOGGING = self._xconfig.get("gps.activate_logging", self.ACTIVATE_LOGGING)
 
         # Initialize serial connection
         try:
@@ -74,9 +74,7 @@ class NMEAReader(PyXavi):
             self._xlog.debug(">>> Configuration done. Starting data read...\n")
             self.receiver_thread = threading.Thread(target=self.read_nmea_loop, args=(
                 self.serial_device, 
-                self._xlog,
-                # self.thread_lock,
-                # self.flag_lock
+                self._xlog
             ))
             self.receiver_thread.start()
         except serial.SerialException as e:
@@ -133,21 +131,14 @@ class NMEAReader(PyXavi):
     #     self.send_command(ser, "PQTMSAVEPAR")
 
 
-    def read_nmea_loop(
-            self, 
-            ser: serial.Serial, 
-            xlog: Logger = None, 
-            # thread_lock: threading.Lock = None,
-            # flag_lock: threading.Lock = None
-            ):
-        
+    def read_nmea_loop(self, ser: serial.Serial, xlog: Logger = None):
+
         last_fix_time = None
 
         # with ser:
         with serial.Serial(NMEAReader.SERIAL_PORT, NMEAReader.BAUD_RATE, timeout=1) as ser:
             while True:
-                # Control if we want to quit
-                # with flag_lock:
+                # Control if we want to quit the loop
                 if not self.loop_is_allowed:
                     if self.ACTIVATE_LOGGING:
                         xlog.debug("Loop not allowed, exiting it.")
@@ -171,9 +162,18 @@ class NMEAReader(PyXavi):
                         xlog.debug(f"Parsed NMEA sentence: {msg}")
 
                     if isinstance(msg, pynmea2.types.talker.GGA):
+                        self.cumulative_data["signal_quality"] = msg.gps_qual
+                        # GPS Fix status codes, 0 is invalid, bigger is more accuracy
+                        # 0: Fix not valid
+                        # 1: GPS fix
+                        # 2: Differential GPS fix (DGNSS), SBAS, OmniSTAR VBS, Beacon, RTX in GVBS mode
+                        # 3: Not applicable
+                        # 4: RTK Fixed, xFill
+                        # 5: RTK Float, OmniSTAR XP/HP, Location RTK, RTX
+                        # 6: INS Dead reckoning
                         fix_status = int(msg.gps_qual)
                         if self.ACTIVATE_LOGGING:
-                            xlog.debug(f"🔴 It's a GGA sentence with fix status is: {fix_status} ( > 0 is valid )")
+                            xlog.debug(f"{"🟢" if fix_status > 0 else "🔴"} It's a GGA sentence with fix status is: {fix_status} ( > 0 is valid )")
                         if fix_status > 0:  # Only show if there's a fix
                             current_time = time.time()
                             interval = (current_time - last_fix_time) if last_fix_time else 0
@@ -200,7 +200,7 @@ class NMEAReader(PyXavi):
 
                     elif isinstance(msg, pynmea2.types.talker.RMC):
                         if self.ACTIVATE_LOGGING:
-                            xlog.debug(f"🔴 It's a RMC sentence with status is: {msg.status} ( A=valid, V=invalid )")
+                            xlog.debug(f"{"🟢" if fix_status > 0 else "🔴"} It's a RMC sentence with status is: {msg.status} ( A=valid, V=invalid )")
                         if msg.status == 'A':  # A = Valid fix
                             current_time = time.time()
                             interval = (current_time - last_fix_time) if last_fix_time else 0

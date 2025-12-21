@@ -33,3 +33,5 @@ accelerometer:
 gps:
   # [Bool] Simply ignores GPS hardware and returns mock values
   mock: True
+  # [Bool] Activate detailed logging for GPS NMEA parsing
+  activate_logging: True

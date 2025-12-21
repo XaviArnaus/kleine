@@ -32,6 +32,7 @@ class GPS(PyXavi):
             "altitude_units": data.get("altitude_units"),
             "timestamp": data.get("timestamp"),
             "status": data.get("status"),
+            "signal_quality": data.get("signal_quality"),
             # Unmerged from RMC
             "speed": data.get("speed"),
             "heading": data.get("heading"),
