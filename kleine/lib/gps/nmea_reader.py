@@ -26,6 +26,8 @@ class NMEAReader(PyXavi):
     # =================================
 
     ACTIVATE_LOGGING = False
+    GOOD_SIGNAL_MIN_SATS = 6
+    POOR_SIGNAL_MIN_SATS = 2
 
     serial_device: serial.Serial = None
     thread_lock: threading.Lock = None
@@ -276,9 +278,9 @@ class NMEAReader(PyXavi):
             return GPSSignalQuality.SIGNAL_UNKNOWN
 
         if fix > 0:
-            if number_of_satellites >= 4:
+            if number_of_satellites >= self.GOOD_SIGNAL_MIN_SATS:
                 return GPSSignalQuality.SIGNAL_GOOD
-            elif number_of_satellites >= 2:
+            elif number_of_satellites >= self.POOR_SIGNAL_MIN_SATS:
                 return GPSSignalQuality.SIGNAL_WEAK
         return GPSSignalQuality.SIGNAL_POOR
 
