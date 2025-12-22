@@ -3,7 +3,16 @@ from kleine.lib.abstract.display_module import DisplayModule
 from kleine.lib.objects.point import Point
 from kleine.lib.objects.rectangle import Rectangle
 
+from kleine.lib.objects.gps_signal_quality import GPSSignalQuality
+
 class DisplayGPS(DisplayModule):
+
+    SIGNAL_STRINGS = [
+        "Poor",
+        "Weak",
+        "Good",
+    ]
+    SIGNAL_UNKNOWN = "Unknown"
 
     def module(self, parameters: Dictionary = None):
         """
@@ -18,6 +27,8 @@ class DisplayGPS(DisplayModule):
 
         # Prepare the GPS text
         gps_data: dict = parameters.get("gps_info", {})
+        signal_quality: int = gps_data.get("signal_quality", 0)
+        signal_quality = signal_quality if signal_quality < len(self.SIGNAL_STRINGS) else GPSSignalQuality.SIGNAL_GOOD
         gps_text = [
             f"Latitude: {gps_data.get('latitude', 'N/A')} {gps_data.get('direction_latitude', '')}",
             f"Longitude: {gps_data.get('longitude', 'N/A')} {gps_data.get('direction_longitude', '')}",
@@ -25,7 +36,7 @@ class DisplayGPS(DisplayModule):
             f"Speed: {gps_data.get('speed', 'N/A')} km/h",
             f"Status: {gps_data.get('status', 'N/A')}",
             # f"Timestamp: {gps_data.get('timestamp').isoformat() if gps_data.get('timestamp') else 'N/A'}",
-            f"Signal Quality: {gps_data.get('signal_quality', 'N/A')}",
+            f"Signal Quality: {self.SIGNAL_STRINGS[signal_quality] if signal_quality >= 0 else self.SIGNAL_UNKNOWN}",
             f"Num. Satellites: {gps_data.get('num_sats', 'N/A')}",
         ]
         gps_text_str = "\n".join(gps_text)
