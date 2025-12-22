@@ -320,11 +320,12 @@ class Main(PyXavi):
         """
 
         # Interfere in the drawing of the screen in case we need to say something
+        NO_SIGNAL = "No GPS signal detected"
         if self.application_modules[selected_module] == ModuleDefinitions.GPS:
             if self.gathered_values.get("gps", {}).get("signal_quality", 0) == 0:
-                if modal_message != "" and modal_message != "No GPS signal detected yet":
-                    self._xlog.warning(f"Overwritting the previous message: [{modal_message}] with [No GPS signal detected yet]" )
-                modal_message = "No GPS signal detected yet"
+                if modal_message != "" and modal_message != NO_SIGNAL:
+                    self._xlog.warning(f"Overwritting the previous message: [{modal_message}] with [{NO_SIGNAL}]" )
+                modal_message = NO_SIGNAL
             else:
                 modal_message = ""
 
