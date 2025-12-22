@@ -46,6 +46,26 @@ class Canvas(PyXavi):
     @property
     def COLOR_WHITE(self) -> tuple | int:
         return 255 if self.COLOR_MODE == "1" else (255, 255, 255)
+    
+    @property
+    def COLOR_RED(self) -> tuple | int:
+        return 255 if self.COLOR_MODE == "1" else (255, 0, 0)
+    
+    @property
+    def COLOR_GREEN(self) -> tuple | int:
+        return 255 if self.COLOR_MODE == "1" else (0, 255, 0)
+    
+    @property
+    def COLOR_BLUE(self) -> tuple | int:
+        return 255 if self.COLOR_MODE == "1" else (0, 0, 255)
+
+    @property
+    def COLOR_YELLOW(self) -> tuple | int:
+        return 255 if self.COLOR_MODE == "1" else (255, 255, 0)
+    
+    @property
+    def COLOR_ORANGE(self) -> tuple | int:
+        return 255 if self.COLOR_MODE == "1" else (255, 165, 0)
 
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(Canvas, self).init_pyxavi(config=config, params=params)

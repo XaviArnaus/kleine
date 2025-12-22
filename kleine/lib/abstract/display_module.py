@@ -1,4 +1,4 @@
-from pyxavi import Config, Dictionary
+from pyxavi import Config, Dictionary, dd
 from kleine.lib.abstract.pyxavi import PyXavi
 from kleine.lib.canvas.canvas import Canvas
 from kleine.lib.lcd.lcd import Lcd
@@ -39,24 +39,35 @@ class DisplayModule(PyXavi):
 
         self.screen_size = self.canvas.get_screen_size()
     
+    def _merge_statusbar_params_into(self, parameters: Dictionary) -> Dictionary:
+        """
+        Merge the status bar parameters into the provided parameters dictionary
+        """
+        return parameters.merge(Dictionary({
+            "statusbar_font": self.canvas.FONT_SMALL,
+            "statusbar_font_emoji": self.canvas.FONT_SMALL_EMOJI,
+            "statusbar_font_color": self.canvas.COLOR_WHITE,
+            "screen_size": self.screen_size,
+            "color": {
+                "white": self.canvas.COLOR_WHITE,
+                "green": self.canvas.COLOR_GREEN,
+                "red": self.canvas.COLOR_RED,
+                "blue": self.canvas.COLOR_BLUE,
+                "yellow": self.canvas.COLOR_YELLOW,
+                "orange": self.canvas.COLOR_ORANGE,
+            }
+        }))
+
     def _shared_status_header(self, draw: ImageDraw.ImageDraw, parameters: Dictionary, module_icon: str = ""):
-        ScreenSections.shared_status_header(draw, parameters.merge(Dictionary({
-            "statusbar_nav_icon": module_icon,
-            "statusbar_font": self.canvas.FONT_SMALL,
-            "statusbar_font_emoji": self.canvas.FONT_SMALL_EMOJI,
-            "statusbar_font_color": self.canvas.COLOR_WHITE,
-            "screen_size": self.screen_size
-        })))
+        ScreenSections.shared_status_header(draw, self._merge_statusbar_params_into(parameters)
+            .merge(Dictionary({
+                "statusbar_nav_icon": module_icon
+            })))
     
-    def _shared_status_footer(self, draw: ImageDraw.ImageDraw, parameters: Dictionary, module_icon: str = ""):
-        ScreenSections.shared_status_footer(draw, parameters.merge(Dictionary({
-            "statusbar_nav_icon": module_icon,
-            "statusbar_font": self.canvas.FONT_SMALL,
-            "statusbar_font_emoji": self.canvas.FONT_SMALL_EMOJI,
-            "statusbar_font_color": self.canvas.COLOR_WHITE,
-            "screen_size": self.screen_size
-        })))
-    
+    def _shared_status_footer(self, draw: ImageDraw.ImageDraw, parameters: Dictionary):
+        params = self._merge_statusbar_params_into(parameters)
+        ScreenSections.shared_status_footer(draw, params)
+
     def _shared_modal_message(self, draw: ImageDraw.ImageDraw, parameters: Dictionary):
         """
         Draw a shared modal message box for all modules

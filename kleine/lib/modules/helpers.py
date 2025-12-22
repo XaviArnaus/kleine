@@ -1,4 +1,4 @@
-from pyxavi import Dictionary
+from pyxavi import Dictionary, dd
 
 from kleine.lib.objects.module_definitions import ModuleDefinitions
 
@@ -71,11 +71,14 @@ class ScreenSections:
             # Draw battery icon. We'll use 3 emojis: full battery, low battery, charging
             battery_icon = "🔋" if int(parameters.get('battery_percentage', 0)) > 30 else "🪫"
             battery_icon = "⚡" if parameters.get('battery_is_charging', False) else battery_icon
- 
+            battery_icon_color = parameters.get("color.green") if int(parameters.get('battery_percentage', 0)) > 60 else \
+                parameters.get("color.orange") if int(parameters.get('battery_percentage', 0)) > 30 else parameters.get("color.red")
+            battery_icon_color = parameters.get("color.green") if parameters.get('battery_is_charging', False) else battery_icon_color
+
             draw.text((next_right_slot_x, 4),
                        text=battery_icon,
                        font=parameters.get("statusbar_font_emoji"),
-                       fill=parameters.get("statusbar_font_color"),
+                       fill=battery_icon_color,
                        anchor="rt",
                        align="right")
             # Update next right slot position
@@ -131,24 +134,24 @@ class ScreenSections:
         
         # We always show the yellow button on the left
         bounding_yellow_dot = draw.textbbox(
-                (5, icon_y),
-                   text="🟡",
-                   font=parameters.get("statusbar_font_emoji"),
-                   anchor="lb",
-                   align="left")
+            (5, icon_y),
+            text="🟡",
+            font=parameters.get("statusbar_font_emoji"),
+            anchor="lb",
+            align="left")
         draw.text((5, icon_y),
-                   text="🟡",
-                   font=parameters.get("statusbar_font_emoji"),
-                   fill="yellow",
-                   anchor="lb",
-                   align="left")
+            text="🟡",
+            font=parameters.get("statusbar_font_emoji"),
+            fill=parameters.get("color.yellow"),
+            anchor="lb",
+            align="left")
         yellow_text_x = 5 + (bounding_yellow_dot[2] - bounding_yellow_dot[0]) + ScreenSections.STATUS_BAR_PICES_SPACING
         draw.text((yellow_text_x, text_y),
-                   text="App",
-                   font=parameters.get("statusbar_font"),
-                   fill=parameters.get("statusbar_font_color"),
-                   anchor="lb",
-                   align="left")
+            text="App",
+            font=parameters.get("statusbar_font"),
+            fill=parameters.get("statusbar_font_color"),
+            anchor="lb",
+            align="left")
         
         if module_name is not None and module_name == ModuleDefinitions.POWER:
             # Show the blue button on the center
@@ -179,7 +182,7 @@ class ScreenSections:
             draw.text((blue_button_x, icon_y),
                 text="🔵",
                 font=parameters.get("statusbar_font_emoji"),
-                fill="blue",
+                fill=parameters.get("color.blue"),
                 anchor="mb",
                 align="center")
             draw.text((blue_text_x, text_y - 4),
@@ -206,7 +209,7 @@ class ScreenSections:
             draw.text((green_button_x, icon_y),
                 text="🟢",
                 font=parameters.get("statusbar_font_emoji"),
-                fill="green",
+                fill=parameters.get("color.green"),
                 anchor="rb",
                 align="right")
 
