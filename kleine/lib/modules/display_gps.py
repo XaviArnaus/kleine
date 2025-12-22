@@ -21,7 +21,7 @@ class DisplayGPS(DisplayModule):
         gps_text = [
             f"Latitude: {gps_data.get('latitude', 'N/A')} {gps_data.get('direction_latitude', '')}",
             f"Longitude: {gps_data.get('longitude', 'N/A')} {gps_data.get('direction_longitude', '')}",
-            f"Altitude: {gps_data.get('altitude', 'N/A')} {gps_data.get('altitude_units', '').lower()}",
+            f"Altitude: {gps_data.get('altitude', 'N/A')} {gps_data.get('altitude_units', '')}",
             f"Speed: {gps_data.get('speed', 'N/A')} km/h",
             f"Status: {gps_data.get('status', 'N/A')}",
             # f"Timestamp: {gps_data.get('timestamp').isoformat() if gps_data.get('timestamp') else 'N/A'}",

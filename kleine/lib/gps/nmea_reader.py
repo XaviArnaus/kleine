@@ -190,7 +190,7 @@ class NMEAReader(PyXavi):
                                 "direction_longitude": msg.lon_dir if hasattr(msg, "lon_dir") else None,
                                 "interval": interval,
                                 "altitude": msg.altitude if hasattr(msg, "altitude") else None,
-                                "altitude_units": msg.altitude_units if hasattr(msg, "altitude_units") else None,
+                                "altitude_units": msg.altitude_units.lower() if hasattr(msg, "altitude_units") else None,
                                 "timestamp": msg.timestamp if hasattr(msg, "timestamp") else None,
                                 "status": "A" if fix_status > 0 else "V",
                             }
