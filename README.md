@@ -171,6 +171,8 @@ console=tty1 root=PARTUUID=a5f01904-02 rootfstype=ext4 fsck.repair=yes rootwait 
 
 4. Reboot
 
+⚠️ Didn't work. Abandoning the approach to set up Wifi connections from HotSpots.
+
 ## Python
 
 ## Poetry

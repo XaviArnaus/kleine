@@ -26,11 +26,21 @@ class Ups(PyXavi):
 
     def get_battery_percentage(self) -> float:
         bus_voltage = self.driver.getBusVoltage_V()
+        # The range goes from 3V to 4.2V, so we have from 3 to 3*1.2
+        # This way we have the percentage from 0 to 100%
+        # This relies on the assumed linear discharge curve of LiPo batteries.
+        # Take a look at the datasheet of the battery and adjust range values if needed.
         p = (bus_voltage - 3)/1.2*100
         if(p > 100):p = 100
         if(p < 0):p = 0
         return p
     
+    def get_load_voltage(self) -> float:
+        bus_voltage = self.driver.getBusVoltage_V()             # voltage on V- (load side)
+        shunt_voltage = self.driver.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
+        # INA219 PSU voltage = bus_voltage - shunt_voltage
+        return bus_voltage - shunt_voltage
+
     def is_charging(self) -> bool:
         current = self.driver.getCurrent_mA()
         return current > 0
