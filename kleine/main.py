@@ -317,6 +317,7 @@ class Main(PyXavi):
         # Prepare the statusbar info common to all modules
         shared_data = Dictionary({
             # Data for the status bar
+            "current_module": self.application_modules[selected_module],
             "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
             "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
             "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,

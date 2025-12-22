@@ -47,5 +47,6 @@ class DisplayPower(DisplayModule):
 
         # Show modal message if any
         self._shared_modal_message(draw, parameters)
+        self._shared_status_footer(draw, parameters)
 
         self._flush_canvas_to_device()

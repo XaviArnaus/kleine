@@ -48,6 +48,15 @@ class DisplayModule(PyXavi):
             "screen_size": self.screen_size
         })))
     
+    def _shared_status_footer(self, draw: ImageDraw.ImageDraw, parameters: Dictionary, module_icon: str = ""):
+        ScreenSections.shared_status_footer(draw, parameters.merge(Dictionary({
+            "statusbar_nav_icon": module_icon,
+            "statusbar_font": self.canvas.FONT_SMALL,
+            "statusbar_font_emoji": self.canvas.FONT_SMALL_EMOJI,
+            "statusbar_font_color": self.canvas.COLOR_WHITE,
+            "screen_size": self.screen_size
+        })))
+    
     def _shared_modal_message(self, draw: ImageDraw.ImageDraw, parameters: Dictionary):
         """
         Draw a shared modal message box for all modules

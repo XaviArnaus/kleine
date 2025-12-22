@@ -1,4 +1,6 @@
-from pyxavi import Dictionary, dd
+from pyxavi import Dictionary
+
+from kleine.lib.objects.module_definitions import ModuleDefinitions
 
 from kleine.lib.objects.point import Point
 from kleine.lib.objects.rectangle import Rectangle
@@ -20,14 +22,16 @@ class ScreenSections:
         # Take in account that aligning right makes the text box to start from max_with downwards.
         # This means that we define the start drawing position from the corner up-right.
 
+        screen_size: Point = parameters.get("screen_size")
+
         # Define where to begin from the right.
-        next_right_slot_x = parameters.get("screen_size").x - 5
+        next_right_slot_x = screen_size.x - 5
 
         # Draw current time
         if parameters.get("statusbar_show_time", True):
             now = datetime.now()
             time_str = now.strftime("%H:%M")
-            draw.text(Point(next_right_slot_x, 5).to_image_point(),
+            draw.text((next_right_slot_x, 5),
                        text=time_str,
                        font=parameters.get("statusbar_font"),
                        fill=parameters.get("statusbar_font_color"),
@@ -35,7 +39,7 @@ class ScreenSections:
                        align="right")
             # Update next right slot position
             bounding_box_time = draw.textbbox(
-                Point(next_right_slot_x, 5).to_image_point(),
+                (next_right_slot_x, 5),
                 text=f"{parameters.get('battery_percentage', 0)}%",
                 font=parameters.get("statusbar_font"),
                 anchor="rt",
@@ -47,7 +51,7 @@ class ScreenSections:
         if parameters.get("statusbar_show_battery", True):
 
             # Next in the list is the battery percentage
-            draw.text(Point(next_right_slot_x, 5).to_image_point(),
+            draw.text((next_right_slot_x, 5),
                        text=f"{parameters.get('battery_percentage', 0)}%",
                        font=parameters.get("statusbar_font"),
                        fill=parameters.get("statusbar_font_color"),
@@ -55,7 +59,7 @@ class ScreenSections:
                        align="right")
             # Update next right slot position
             bounding_box_battery = draw.textbbox(
-                Point(next_right_slot_x, 5).to_image_point(),
+                (next_right_slot_x, 5),
                 text=f"{parameters.get('battery_percentage', 0)}%",
                 font=parameters.get("statusbar_font"),
                 anchor="rt",
@@ -68,7 +72,7 @@ class ScreenSections:
             battery_icon = "🔋" if int(parameters.get('battery_percentage', 0)) > 30 else "🪫"
             battery_icon = "⚡" if parameters.get('battery_is_charging', False) else battery_icon
  
-            draw.text(Point(next_right_slot_x, 4).to_image_point(),
+            draw.text((next_right_slot_x, 4),
                        text=battery_icon,
                        font=parameters.get("statusbar_font_emoji"),
                        fill=parameters.get("statusbar_font_color"),
@@ -76,7 +80,7 @@ class ScreenSections:
                        align="right")
             # Update next right slot position
             bounding_emoji_battery = draw.textbbox(
-                Point(next_right_slot_x, 4).to_image_point(),
+                (next_right_slot_x, 4),
                 text=battery_icon,
                 font=parameters.get("statusbar_font_emoji"),
                 anchor="rt",
@@ -86,7 +90,7 @@ class ScreenSections:
 
         if parameters.get("statusbar_show_temperature", True):
             temperature = parameters.get("temperature", 0)
-            draw.text(Point(next_right_slot_x, 5).to_image_point(),
+            draw.text((next_right_slot_x, 5),
                        text=f"{temperature}°C",
                        font=parameters.get("statusbar_font"),
                        fill=parameters.get("statusbar_font_color"),
@@ -94,7 +98,7 @@ class ScreenSections:
                        align="right")
         
         # The left side is reserved for navigation icons: we show current module displayed.
-        draw.text(Point(5, 5).to_image_point(),
+        draw.text((5, 5),
                     text=f"{parameters.get('statusbar_nav_icon', '')}",
                     font=parameters.get("statusbar_font_emoji"),
                     fill=parameters.get("statusbar_font_color"),
@@ -102,9 +106,109 @@ class ScreenSections:
                     align="left")
         
         # Draw a line between the title and the subtitle
-        draw.line(Rectangle(Point(5, 26), Point(parameters.get("screen_size").x - 5, 26)).to_image_rectangle(),
+        draw.line(Rectangle(Point(5, 26), Point(screen_size.x - 5, 26)).to_image_rectangle(),
                   fill=parameters.get("statusbar_font_color"),
                   width=1)
+    
+    @staticmethod
+    def shared_status_footer(draw: ImageDraw.ImageDraw, parameters: Dictionary):
+        """
+        Draw a shared status footer for all modules
+        """
+
+        screen_size: Point = parameters.get("screen_size")
+        line_y = screen_size.y - 26
+        icon_y = screen_size.y - 4
+        text_y = screen_size.y - 1
+
+        # What is the module we're in?
+        module_name = parameters.get("current_module", None)
+
+        # We first present the crossing line
+        draw.line(Rectangle(Point(5, line_y), Point(screen_size.x - 5, line_y)).to_image_rectangle(),
+                  fill=parameters.get("statusbar_font_color"),
+                  width=1)
+        
+        # We always show the yellow button on the left
+        bounding_yellow_dot = draw.textbbox(
+                (5, icon_y),
+                   text="🟡",
+                   font=parameters.get("statusbar_font_emoji"),
+                   anchor="lb",
+                   align="left")
+        draw.text((5, icon_y),
+                   text="🟡",
+                   font=parameters.get("statusbar_font_emoji"),
+                   fill="yellow",
+                   anchor="lb",
+                   align="left")
+        yellow_text_x = 5 + (bounding_yellow_dot[2] - bounding_yellow_dot[0]) + ScreenSections.STATUS_BAR_PICES_SPACING
+        draw.text((yellow_text_x, text_y),
+                   text="App",
+                   font=parameters.get("statusbar_font"),
+                   fill=parameters.get("statusbar_font_color"),
+                   anchor="lb",
+                   align="left")
+        
+        if module_name is not None and module_name == ModuleDefinitions.POWER:
+            # Show the blue button on the center
+            bounding_blue_button = draw.textbbox(
+                (screen_size.x / 2, icon_y),
+                text="🔵",
+                font=parameters.get("statusbar_font_emoji"),
+                anchor="mb",
+                align="center")
+            bounding_blue_text = draw.textbbox(
+                (screen_size.x / 2, text_y - 4),
+                text="Select",
+                font=parameters.get("statusbar_font"),
+                anchor="mb",
+                align="center")
+            blue_button_x = screen_size.x / 2 - \
+                            ( \
+                                (bounding_blue_button[2] - bounding_blue_button[0]) + \
+                                ScreenSections.STATUS_BAR_PICES_SPACING + \
+                                (bounding_blue_text[2] - bounding_blue_text[0]) \
+                            ) / 2
+            blue_text_x = blue_button_x + \
+                            ( \
+                                (bounding_blue_button[2] - bounding_blue_button[0]) + \
+                                ScreenSections.STATUS_BAR_PICES_SPACING * 2 + \
+                                (bounding_blue_text[2] - bounding_blue_text[0]) \
+                            ) / 2
+            draw.text((blue_button_x, icon_y),
+                text="🔵",
+                font=parameters.get("statusbar_font_emoji"),
+                fill="blue",
+                anchor="mb",
+                align="center")
+            draw.text((blue_text_x, text_y - 4),
+                text="Select",
+                font=parameters.get("statusbar_font"),
+                fill=parameters.get("statusbar_font_color"),
+                anchor="mb",
+                align="center")
+            
+            # Show the green button on the right
+            bounding_green_text = draw.textbbox(
+                (screen_size.x - 5, text_y - 4),
+                text="Enter",
+                font=parameters.get("statusbar_font"),
+                anchor="rb",
+                align="right")
+            draw.text((screen_size.x - 5, text_y - 4),
+                text="Enter",
+                font=parameters.get("statusbar_font"),
+                fill=parameters.get("statusbar_font_color"),
+                anchor="rb",
+                align="right")
+            green_button_x = screen_size.x - 5 - (bounding_green_text[2] - bounding_green_text[0]) - ScreenSections.STATUS_BAR_PICES_SPACING
+            draw.text((green_button_x, icon_y),
+                text="🟢",
+                font=parameters.get("statusbar_font_emoji"),
+                fill="green",
+                anchor="rb",
+                align="right")
 
 class Helpers:
     """

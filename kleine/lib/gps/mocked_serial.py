@@ -1,6 +1,8 @@
 from pyxavi import Config, Dictionary
 from kleine.lib.abstract.pyxavi import PyXavi
 
+from datetime import time
+
 class MockedSerial(PyXavi):
 
     def __init__(self, config: Config = None, params: Dictionary = None):
@@ -11,7 +13,7 @@ class MockedSerial(PyXavi):
         return {
             "latitude": 37.7749,
             "longitude": -122.4194,
-            "timestamp": "12:34:56",
+            "timestamp": time(12, 34, 56),
             "status": "A"
         }
     

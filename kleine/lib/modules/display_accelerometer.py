@@ -40,6 +40,7 @@ class DisplayAccelerometer(DisplayModule):
         # All modules should share a similar status header
         if parameters.get("statusbar_active", True):
             self._shared_status_header(draw, parameters, "🛩️")
+            self._shared_status_footer(draw, parameters)
 
         # Show modal message if any
         self._shared_modal_message(draw, parameters)

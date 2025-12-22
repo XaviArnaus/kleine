@@ -38,5 +38,6 @@ class DisplayGPS(DisplayModule):
         # All modules should share a similar status header
         if parameters.get("statusbar_active", True):
             self._shared_status_header(draw, parameters, "🛰️")
+            self._shared_status_footer(draw, parameters)
 
         self._flush_canvas_to_device()

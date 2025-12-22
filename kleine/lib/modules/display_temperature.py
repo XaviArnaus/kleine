@@ -13,6 +13,7 @@ class DisplayTemperature(DisplayModule):
 
         # All modules should share a similar status header
         self._shared_status_header(draw, parameters, "🌡")
+        self._shared_status_footer(draw, parameters)
 
         # Print the temperature in the middle of the screen
         draw.text(Point((self.screen_size.x / 2) - 5, self.screen_size.y / 2).to_image_point(),
