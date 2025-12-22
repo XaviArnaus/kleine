@@ -5,7 +5,7 @@ from .mocked_SHTC3 import MockedSHTC3
 
 class Temperature(PyXavi):
 
-    CORRECTION_FACTOR = 0  # Adjust this value based on calibration
+    CORRECTION_FACTOR = -7.5  # Adjust this value based on calibration
 
     driver: MockedSHTC3 = None
 
