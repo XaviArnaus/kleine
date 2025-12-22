@@ -352,7 +352,8 @@ class Main(PyXavi):
             "statusbar_show_gps_signal_quality": self.STATUSBAR_SHOW_GPS_SIGNAL_QUALITY,
             "battery_percentage": self.gathered_values.get("battery_percentage"),
             "battery_is_charging": self.gathered_values.get("battery_is_charging"),
-            "gps_signal_quality": self.gathered_values.get("gps", {}).get("signal_quality", 0),
+            "gps_signal_quality": self.gathered_values.get("gps", {}).get("signal_quality", GPSSignalQuality.SIGNAL_UNKNOWN),
+            "temperature": self.gathered_values.get("temperature"),
             # Any message that we want to show in a modal window
             "modal_message": modal_message,
         })
