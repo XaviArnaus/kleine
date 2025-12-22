@@ -168,7 +168,7 @@ class NMEAReader(PyXavi):
 
                     if isinstance(msg, pynmea2.types.talker.GGA):
                         self.cumulative_data["signal_quality"] = self.get_signal_quality(int(msg.gps_qual), int(msg.num_sats))
-                        self.cumulative_data["num_sats"] = int(msg.num_sats))
+                        self.cumulative_data["num_sats"] = int(msg.num_sats)
                         # GPS Fix status codes, 0 is invalid, bigger is more accuracy
                         # 0: Fix not valid
                         # 1: GPS fix
