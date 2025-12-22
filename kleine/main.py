@@ -472,6 +472,8 @@ class Main(PyXavi):
 
         Will not do too much logging here, as it pollutes the logs a lot.
         """
+        return_value = False
+
         if seconds is None:
             seconds = self.SECONDS_TO_REACT_FOR_TASKS
 
@@ -481,52 +483,14 @@ class Main(PyXavi):
             self._last_processed_second = current_second
             self._xlog.debug("🕐 New second detected: " + str(time.localtime(current_second).tm_sec) + f". Running every-second {self.SECONDS_TO_REACT_FOR_TASKS}s tasks.")
 
-            # ---- Get GPS position ----
-            gps_info = self.gps.get_position()
+            # Obtain the UPS battery status
+            if self.STATUSBAR_SHOW_BATTERY:
+                return_value = self.refresh_ups_data() or return_value
 
-            if gps_info is None or isinstance(gps_info, dict) is False:
-                return False
-            
-            # We're supposed to have always the signal quality
-            self.gathered_values.get("gps")["signal_quality"] = gps_info.get("signal_quality", 0)
+            # Obtain the GPS data
+            return_value = self.refresh_gps_data() or return_value
 
-            if gps_info.get("latitude", None) is None or gps_info.get("longitude", None) is None:
-                return False
-
-            # Calculate speed based on previous position
-            previous_time = self.gathered_values.get("gps", {}).get("timestamp", None)
-            current_time = gps_info.get("timestamp", None)
-            previous_point = {
-                "latitude": self.gathered_values.get("gps", {}).get("latitude", 0.0),
-                "longitude": self.gathered_values.get("gps", {}).get("longitude", 0.0),
-            }
-            current_point = {
-                "latitude": gps_info.get("latitude", 0.0),
-                "longitude": gps_info.get("longitude", 0.0),
-            }
-            if previous_time is None or current_time is None:
-                speed = None
-            else:
-                speed = round(Calculations.calculate_speed_between_points(
-                    previous_point, current_point, previous_time, current_time), 1)
-
-            # Now update gathered values
-            self.gathered_values.set("gps", {
-                "latitude": gps_info.get("latitude", 0.0),
-                "longitude": gps_info.get("longitude", 0.0),
-                "direction_latitude": gps_info.get("direction_latitude", None),
-                "direction_longitude": gps_info.get("direction_longitude", None),
-                "altitude": gps_info.get("altitude", None),
-                "altitude_units": gps_info.get("altitude_units", None),
-                "timestamp": gps_info.get("timestamp", None),
-                "status": gps_info.get("status", None),
-                "speed": speed,
-                "heading": gps_info.get("heading", None),
-                "signal_quality": gps_info.get("signal_quality", None),
-            })
-            return True
-
-        return False
+        return return_value
 
     def do_every_minute_tasks(self) -> bool:
         """
@@ -564,24 +528,73 @@ class Main(PyXavi):
             if self.STATUSBAR_SHOW_TIME:
                 self._xlog.debug("Time change requires screen refresh.")
                 return_value = True
-            
-            if self.STATUSBAR_SHOW_BATTERY:
-                current_battery_percentage = math.ceil(self.ups.get_battery_percentage())
-                if current_battery_percentage != self.gathered_values.get("battery_percentage", 0):
-                    self.gathered_values.set("battery_percentage", current_battery_percentage)
-                    return_value = True
-
-                current_battery_is_charging = self.ups.is_charging()
-                if current_battery_is_charging != self.gathered_values.get("battery_is_charging", False):
-                    self.gathered_values.set("battery_is_charging", current_battery_is_charging)
-                    return_value = True
 
             # We have a status change
             return return_value
         
         # No change in minute, no tasks to do
         return False
+
+    def refresh_ups_data(self) -> bool:
+        return_value = False
+
+        current_battery_percentage = math.ceil(self.ups.get_battery_percentage())
+        if current_battery_percentage != self.gathered_values.get("battery_percentage", 0):
+            self.gathered_values.set("battery_percentage", current_battery_percentage)
+            return_value = True
+
+        current_battery_is_charging = self.ups.is_charging()
+        if current_battery_is_charging != self.gathered_values.get("battery_is_charging", False):
+            self.gathered_values.set("battery_is_charging", current_battery_is_charging)
+            return_value = True
+
+        return return_value
     
+    def refresh_gps_data(self) -> bool:
+        gps_info = self.gps.get_position()
+
+        if gps_info is None or isinstance(gps_info, dict) is False:
+            return False
+        
+        # We're supposed to have always the signal quality
+        self.gathered_values.get("gps")["signal_quality"] = gps_info.get("signal_quality", 0)
+
+        if gps_info.get("latitude", None) is None or gps_info.get("longitude", None) is None:
+            return False
+
+        # Calculate speed based on previous position
+        previous_time = self.gathered_values.get("gps", {}).get("timestamp", None)
+        current_time = gps_info.get("timestamp", None)
+        previous_point = {
+            "latitude": self.gathered_values.get("gps", {}).get("latitude", 0.0),
+            "longitude": self.gathered_values.get("gps", {}).get("longitude", 0.0),
+        }
+        current_point = {
+            "latitude": gps_info.get("latitude", 0.0),
+            "longitude": gps_info.get("longitude", 0.0),
+        }
+        if previous_time is None or current_time is None:
+            speed = None
+        else:
+            speed = round(Calculations.calculate_speed_between_points(
+                previous_point, current_point, previous_time, current_time), 1)
+
+        # Now update gathered values
+        self.gathered_values.set("gps", {
+            "latitude": gps_info.get("latitude", 0.0),
+            "longitude": gps_info.get("longitude", 0.0),
+            "direction_latitude": gps_info.get("direction_latitude", None),
+            "direction_longitude": gps_info.get("direction_longitude", None),
+            "altitude": gps_info.get("altitude", None),
+            "altitude_units": gps_info.get("altitude_units", None),
+            "timestamp": gps_info.get("timestamp", None),
+            "status": gps_info.get("status", None),
+            "speed": speed,
+            "heading": gps_info.get("heading", None),
+            "signal_quality": gps_info.get("signal_quality", None),
+        })
+        return True
+
     def trigger_selected_option_action(self, module_name: str, option_key: str) -> str:
         self._xlog.info(f"Triggering action for {module_name}, option: {option_key}")
         returning_value = ""
