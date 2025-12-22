@@ -16,14 +16,14 @@ class DisplayTemperature(DisplayModule):
         self._shared_status_footer(draw, parameters)
 
         # Print the temperature in the middle of the screen
-        draw.text(Point((self.screen_size.x / 2) - 5, self.screen_size.y / 2).to_image_point(),
+        draw.text(Point((self.screen_size.x / 2), (self.screen_size.y / 2) - 15).to_image_point(),
                    text=f"{parameters.get('temperature', 0)}°C",
                    font=self.canvas.FONT_ULTRA,
                    fill=self.canvas.COLOR_WHITE,
                    anchor="mm",
                    align="center")
 
-        draw.text(Point((self.screen_size.x / 2) - 5, (self.screen_size.y / 4) * 3).to_image_point(),
+        draw.text(Point((self.screen_size.x / 2), ((self.screen_size.y / 4) * 3) - 15).to_image_point(),
                    text=f"💧 {parameters.get('humidity', 0)}%  🌦️ {parameters.get('air_pressure', 0)} hPa",
                    font=self.canvas.FONT_MEDIUM,
                    fill=self.canvas.COLOR_WHITE,
