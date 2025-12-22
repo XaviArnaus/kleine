@@ -18,6 +18,7 @@ from kleine.lib.modules.display_temperature import DisplayTemperature
 from kleine.lib.modules.display_info import DisplayInfo
 from kleine.lib.modules.display_accelerometer import DisplayAccelerometer
 from kleine.lib.modules.display_gps import DisplayGPS
+from kleine.lib.modules.display_cockpit import DisplayCockpit
 
 from kleine.lib.utils.maintenance import Maintenance
 from kleine.lib.utils.system import System
@@ -52,6 +53,8 @@ class Main(PyXavi):
     display_info: DisplayInfo = None
     display_power: DisplayPower = None
     display_accelerometer: DisplayAccelerometer = None
+    display_gps: DisplayGPS = None
+    display_cockpit: DisplayCockpit = None
 
     _last_processed_minute: int = -1
     _last_processed_second: int = -1
@@ -78,11 +81,11 @@ class Main(PyXavi):
 
     # The index of the application modules is the order to cycle through them
     application_modules = [
-        ModuleDefinitions.GPS,
+        ModuleDefinitions.COCKPIT,
         ModuleDefinitions.TEMPERATURE,
         ModuleDefinitions.ACCELEROMETER,
-        # ModuleDefinitions.GPS,
         ModuleDefinitions.INFO,
+        ModuleDefinitions.GPS,
         # ModuleDefinitions.SETTINGS,
         ModuleDefinitions.POWER,
     ]
@@ -146,6 +149,10 @@ class Main(PyXavi):
             "device": self.lcd
         }))
         self.display_gps = DisplayGPS(config=self._xconfig, params=Dictionary({
+            "canvas": self.canvas,
+            "device": self.lcd
+        }))
+        self.display_cockpit = DisplayCockpit(config=self._xconfig, params=Dictionary({
             "canvas": self.canvas,
             "device": self.lcd
         }))
@@ -321,7 +328,8 @@ class Main(PyXavi):
 
         # Interfere in the drawing of the screen in case we need to say something
         NO_SIGNAL = "No GPS signal detected"
-        if self.application_modules[selected_module] == ModuleDefinitions.GPS:
+        if self.application_modules[selected_module] == ModuleDefinitions.GPS or \
+            self.application_modules[selected_module] == ModuleDefinitions.COCKPIT:
             if self.gathered_values.get("gps", {}).get("signal_quality", 0) == 0:
                 if modal_message != "" and modal_message != NO_SIGNAL:
                     self._xlog.warning(f"Overwritting the previous message: [{modal_message}] with [{NO_SIGNAL}]" )
@@ -370,9 +378,16 @@ class Main(PyXavi):
                 "pitch_roll_yaw": self.gathered_values.get("pitch_roll_yaw"),
             })))
         
+        # Cockpit module
+        elif self.application_modules[selected_module] == ModuleDefinitions.COCKPIT:
+            self._xlog.debug(f"Running {self.application_modules[selected_module].upper()} module")
+            self.display_cockpit.module(parameters=shared_data.merge(Dictionary({
+                "gps_info": self.gathered_values.get("gps")
+            })))
+        
         # GPS module
         elif self.application_modules[selected_module] == ModuleDefinitions.GPS:
-            self._xlog.debug("Running GPS module")
+            self._xlog.debug(f"Running {self.application_modules[selected_module].upper()} module")
             self.display_gps.module(parameters=shared_data.merge(Dictionary({
                 "gps_info": self.gathered_values.get("gps")
             })))
