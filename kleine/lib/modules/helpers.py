@@ -99,7 +99,39 @@ class ScreenSections:
                        fill=parameters.get("statusbar_font_color"),
                        anchor="rt",
                        align="right")
-        
+            # Update next right slot position
+            bounding_emoji_temperature = draw.textbbox(
+                (next_right_slot_x, 4),
+                text=f"{temperature}°C",
+                font=parameters.get("statusbar_font_emoji"),
+                anchor="rt",
+                align="right"
+            )
+            next_right_slot_x -= (bounding_emoji_temperature[2] - bounding_emoji_temperature[0]) + (ScreenSections.STATUS_BAR_PICES_SPACING  * 3)
+
+        if parameters.get("statusbar_show_gps_signal_quality", True):
+
+            signal_quality = parameters.get("gps_signal_quality", 0)
+
+            gps_icon_color = parameters.get("color.red") if signal_quality == 0 else \
+                parameters.get("color.orange") if signal_quality == 1 else parameters.get("color.green")
+
+            draw.text((next_right_slot_x, 4),
+                       text=f"📶",
+                       font=parameters.get("statusbar_font_emoji"),
+                       fill=gps_icon_color,
+                       anchor="rt",
+                       align="right")
+            # # Update next right slot position
+            # bounding_emoji_signal = draw.textbbox(
+            #     (next_right_slot_x, 4),
+            #     text=f"📶 {signal_quality}",
+            #     font=parameters.get("statusbar_font_emoji"),
+            #     anchor="rt",
+            #     align="right"
+            # )
+            # next_right_slot_x -= (bounding_emoji_signal[2] - bounding_emoji_signal[0]) + ScreenSections.STATUS_BAR_PICES_SPACING
+
         # The left side is reserved for navigation icons: we show current module displayed.
         draw.text((5, 5),
                     text=f"{parameters.get('statusbar_nav_icon', '')}",

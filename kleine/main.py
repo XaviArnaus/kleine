@@ -31,6 +31,7 @@ class Main(PyXavi):
     STATUSBAR_SHOW_TIME: bool = True
     STATUSBAR_SHOW_TEMPERATURE: bool = True # Will be skipped in the temperature module
     STATUSBAR_SHOW_BATTERY: bool = True
+    STATUSBAR_SHOW_GPS_SIGNAL_QUALITY: bool = True
 
     SECONDS_TO_REACT_FOR_TASKS: int = 2
     SECONDS_TO_REACT_FOR_REALTIME_TASKS: float = 0.25
@@ -324,9 +325,11 @@ class Main(PyXavi):
             "statusbar_show_time": self.STATUSBAR_SHOW_TIME,
             "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
             "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
+            "statusbar_show_gps_signal_quality": self.STATUSBAR_SHOW_GPS_SIGNAL_QUALITY,
             "battery_percentage": self.gathered_values.get("battery_percentage"),
             "battery_is_charging": self.gathered_values.get("battery_is_charging"),
             "temperature": self.gathered_values.get("temperature"),
+            "gps_signal_quality": self.gathered_values.get("gps", {}).get("signal_quality", 0),
             # Any message that we want to show in a modal window
             "modal_message": modal_message,
         })
@@ -446,10 +449,6 @@ class Main(PyXavi):
         if seconds is None:
             seconds = self.SECONDS_TO_REACT_FOR_TASKS
 
-        # current_second = time.localtime().tm_sec
-        # triggering_second = self._last_processed_second + seconds
-        # if current_second >= triggering_second or (current_second == 0 and triggering_second >= 60):
-        #     self._last_processed_second = current_second
         current_second = int(time.time())
         triggering_second = self._last_processed_second + seconds
         if current_second >= triggering_second:
@@ -461,6 +460,9 @@ class Main(PyXavi):
 
             if gps_info is None or isinstance(gps_info, dict) is False:
                 return False
+            
+            # We're supposed to have always the signal quality
+            self.gathered_values.get("gps")["signal_quality"] = gps_info.get("signal_quality", 0)
 
             if gps_info.get("latitude", None) is None or gps_info.get("longitude", None) is None:
                 return False
@@ -494,6 +496,7 @@ class Main(PyXavi):
                 "status": gps_info.get("status", None),
                 "speed": speed,
                 "heading": gps_info.get("heading", None),
+                "signal_quality": gps_info.get("signal_quality", None),
             })
             return True
 
