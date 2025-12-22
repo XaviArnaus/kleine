@@ -1,8 +1,7 @@
-from pyxavi import Config, Dictionary, dd
+from pyxavi import Config, Dictionary
 from kleine.lib.abstract.pyxavi import PyXavi
 
 from kleine.lib.gps.mocked_serial import MockedSerial
-from kleine.lib.utils.calculations import Calculations
 
 class GPS(PyXavi):
 

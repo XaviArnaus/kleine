@@ -2,6 +2,7 @@ from pyxavi import Config, Dictionary, full_stack
 from kleine.lib.abstract.pyxavi import PyXavi
 
 from kleine.lib.objects.module_definitions import ModuleDefinitions, PowerActions
+from kleine.lib.objects.gps_signal_quality import GPSSignalQuality
 
 from kleine.lib.accelerometer.accelerometer import Accelerometer
 from kleine.lib.air_pressure.air_pressure import AirPressure
@@ -76,6 +77,10 @@ class Main(PyXavi):
             "altitude_units": None,
             "timestamp": None,
             "status": None,
+            "speed": None,
+            "heading": None,
+            "signal_quality": 0,
+            "num_sats": 0
         }
     })
 
@@ -347,7 +352,6 @@ class Main(PyXavi):
             "statusbar_show_gps_signal_quality": self.STATUSBAR_SHOW_GPS_SIGNAL_QUALITY,
             "battery_percentage": self.gathered_values.get("battery_percentage"),
             "battery_is_charging": self.gathered_values.get("battery_is_charging"),
-            "temperature": self.gathered_values.get("temperature"),
             "gps_signal_quality": self.gathered_values.get("gps", {}).get("signal_quality", 0),
             # Any message that we want to show in a modal window
             "modal_message": modal_message,
@@ -591,7 +595,8 @@ class Main(PyXavi):
             "status": gps_info.get("status", None),
             "speed": speed,
             "heading": gps_info.get("heading", None),
-            "signal_quality": gps_info.get("signal_quality", None),
+            "signal_quality": gps_info.get("signal_quality", GPSSignalQuality.SIGNAL_UNKNOWN),
+            "num_sats": gps_info.get("num_sats", 0),
         })
         return True
 

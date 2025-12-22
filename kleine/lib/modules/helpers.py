@@ -1,6 +1,7 @@
 from pyxavi import Dictionary, dd
 
 from kleine.lib.objects.module_definitions import ModuleDefinitions
+from kleine.lib.objects.gps_signal_quality import GPSSignalQuality
 
 from kleine.lib.objects.point import Point
 from kleine.lib.objects.rectangle import Rectangle
@@ -111,10 +112,17 @@ class ScreenSections:
 
         if parameters.get("statusbar_show_gps_signal_quality", True):
 
-            signal_quality = parameters.get("gps_signal_quality", 0)
+            signal_quality = parameters.get("gps_signal_quality", GPSSignalQuality.SIGNAL_UNKNOWN)
 
-            gps_icon_color = parameters.get("color.red") if signal_quality == 0 else \
-                parameters.get("color.orange") if signal_quality == 1 else parameters.get("color.green")
+            match signal_quality:
+                case GPSSignalQuality.SIGNAL_GOOD:
+                    gps_icon_color = parameters.get("color.green")
+                case GPSSignalQuality.SIGNAL_WEAK:
+                    gps_icon_color = parameters.get("color.orange")
+                case GPSSignalQuality.SIGNAL_POOR:
+                    gps_icon_color = parameters.get("color.red")
+                case GPSSignalQuality.SIGNAL_UNKNOWN:
+                    gps_icon_color = parameters.get("color.white")
 
             draw.text((next_right_slot_x, 4),
                        text=f"📶",
