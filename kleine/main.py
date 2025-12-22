@@ -318,6 +318,16 @@ class Main(PyXavi):
         """
         Refresh the screen based on the selected module and option.
         """
+
+        # Interfere in the drawing of the screen in case we need to say something
+        if self.application_modules[selected_module] == ModuleDefinitions.GPS:
+            if self.gathered_values.get("gps", {}).get("signal_quality", 0) == 0:
+                if modal_message != "" and modal_message != "No GPS signal detected yet":
+                    self._xlog.warning(f"Overwritting the previous message: [{modal_message}] with [No GPS signal detected yet]" )
+                modal_message = "No GPS signal detected yet"
+            else:
+                modal_message = ""
+
         # Prepare the statusbar info common to all modules
         shared_data = Dictionary({
             # Data for the status bar
