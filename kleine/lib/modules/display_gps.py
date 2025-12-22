@@ -41,7 +41,7 @@ class DisplayGPS(DisplayModule):
         ]
         gps_text_str = "\n".join(gps_text)
 
-        draw.text(Point(10, 50).to_image_point(),
+        draw.text(Point(10, 40).to_image_point(),
                    text=gps_text_str,
                    font=self.canvas.FONT_SMALL,
                    fill=self.canvas.COLOR_WHITE,
