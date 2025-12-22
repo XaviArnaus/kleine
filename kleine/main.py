@@ -24,6 +24,7 @@ from kleine.lib.utils.system import System
 from kleine.lib.utils.calculations import Calculations
 
 import time, math
+from datetime import datetime
 
 class Main(PyXavi):
 
@@ -32,6 +33,7 @@ class Main(PyXavi):
     STATUSBAR_SHOW_BATTERY: bool = True
 
     SECONDS_TO_REACT_FOR_TASKS: int = 2
+    SECONDS_TO_REACT_FOR_REALTIME_TASKS: float = 0.25
 
     # accelerometer: Accelerometer = None
     air_pressure: AirPressure = None
@@ -52,6 +54,7 @@ class Main(PyXavi):
 
     _last_processed_minute: int = -1
     _last_processed_second: int = -1
+    _last_processed_millisecond: int = -1
     gathered_values: Dictionary = Dictionary({
         "temperature": 0,
         "humidity": 0,
@@ -403,45 +406,33 @@ class Main(PyXavi):
         Tasks that need to be done in real-time.
         Returns True if refreshing the screen is needed, False otherwise.
 
+        We really can't do trully realtime, as it monopolises the main thread.
+        We'll do a fraction of a second to allow other processes to run.
+
         Will not do too much logging here, as it pollutes the logs a lot.
         """
-        
-        # We avoid doing a lot of stuff here, as it is called for every loop iteration.
-        # So, we only work on the given sensors if we're in the corresponding module.
-        if self.application_modules[selected_module] == ModuleDefinitions.ACCELEROMETER:
 
-            # Get accelerometer values
-            accel_x, accel_y, accel_z = self.accelerometer.get_accelerometer_values()
-            gyro_x, gyro_y, gyro_z = self.accelerometer.get_gyroscope_values()
-            mag_x, mag_y, mag_z = self.accelerometer.get_magnetometer_values()
-            # temp = self.accelerometer.get_temperature()
-            pitch, roll, yaw = self.accelerometer.get_pitch_roll_yaw()
+        current_millisecond = int(time.time() * 1000)
+        triggering_millisecond = self._last_processed_millisecond + self.SECONDS_TO_REACT_FOR_REALTIME_TASKS * 1000
+        if current_millisecond >= triggering_millisecond:
+            self._last_processed_millisecond = current_millisecond
 
-            self.gathered_values.set("acceleration", (accel_x, accel_y, accel_z))
-            self.gathered_values.set("gyroscope", (gyro_x, gyro_y, gyro_z))
-            self.gathered_values.set("magnetometer", (mag_x, mag_y, mag_z))
-            self.gathered_values.set("pitch_roll_yaw", (pitch, roll, yaw))
+            if self.application_modules[selected_module] == ModuleDefinitions.ACCELEROMETER:
+                self._xlog.debug("🕐 Realtime: Running accelerometer module")
 
-            return True
-        
-        # if self.application_modules[selected_module] == ModuleDefinitions.GPS:
-        #         # Get GPS position
-        #         gps_info = self.gps.get_position()
+                # Get accelerometer values
+                accel_x, accel_y, accel_z = self.accelerometer.get_accelerometer_values()
+                gyro_x, gyro_y, gyro_z = self.accelerometer.get_gyroscope_values()
+                mag_x, mag_y, mag_z = self.accelerometer.get_magnetometer_values()
+                # temp = self.accelerometer.get_temperature()
+                pitch, roll, yaw = self.accelerometer.get_pitch_roll_yaw()
 
-        #         if gps_info is None:
-        #             return False
-                
-        #         self.gathered_values.set("gps", {
-        #             "latitude": gps_info.get("latitude", 0.0),
-        #             "longitude": gps_info.get("longitude", 0.0),
-        #             "direction_latitude": gps_info.get("direction_latitude", None),
-        #             "direction_longitude": gps_info.get("direction_longitude", None),
-        #             "altitude": gps_info.get("altitude", None),
-        #             "altitude_units": gps_info.get("altitude_units", None),
-        #             "timestamp": gps_info.get("timestamp", None),
-        #             "status": gps_info.get("status", None),
-        #         })
-        #         return True
+                self.gathered_values.set("acceleration", (accel_x, accel_y, accel_z))
+                self.gathered_values.set("gyroscope", (gyro_x, gyro_y, gyro_z))
+                self.gathered_values.set("magnetometer", (mag_x, mag_y, mag_z))
+                self.gathered_values.set("pitch_roll_yaw", (pitch, roll, yaw))
+
+                return True
 
         return False
     
@@ -455,11 +446,15 @@ class Main(PyXavi):
         if seconds is None:
             seconds = self.SECONDS_TO_REACT_FOR_TASKS
 
-        current_second = time.localtime().tm_sec
+        # current_second = time.localtime().tm_sec
+        # triggering_second = self._last_processed_second + seconds
+        # if current_second >= triggering_second or (current_second == 0 and triggering_second >= 60):
+        #     self._last_processed_second = current_second
+        current_second = int(time.time())
         triggering_second = self._last_processed_second + seconds
-        if current_second >= triggering_second or (current_second == 0 and triggering_second >= 60):
+        if current_second >= triggering_second:
             self._last_processed_second = current_second
-            self._xlog.debug("🕐 New second detected: " + str(current_second) + f". Running every-second {self.SECONDS_TO_REACT_FOR_TASKS}s tasks.")
+            self._xlog.debug("🕐 New second detected: " + str(time.localtime(current_second).tm_sec) + f". Running every-second {self.SECONDS_TO_REACT_FOR_TASKS}s tasks.")
 
             # ---- Get GPS position ----
             gps_info = self.gps.get_position()

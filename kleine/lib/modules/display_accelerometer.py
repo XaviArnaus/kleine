@@ -9,7 +9,7 @@ class DisplayAccelerometer(DisplayModule):
         """
         Show the accelerometer module on the display
         """
-        self._xlog.debug("Showing accelerometer module, selected option: " + parameters.get("selected_option", "none"))
+        self._xlog.debug("Showing accelerometer module")
         draw = self.canvas.get_canvas()
 
         # Draw a rectangle over the entire screen

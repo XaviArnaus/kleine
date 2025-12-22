@@ -9,7 +9,7 @@ class DisplayGPS(DisplayModule):
         """
         Show the GPS module on the display
         """
-        self._xlog.debug("Showing GPS module...")
+        self._xlog.debug("Showing GPS module")
         draw = self.canvas.get_canvas()
 
         # Draw a rectangle over the entire screen
