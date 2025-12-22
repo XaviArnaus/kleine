@@ -155,7 +155,7 @@ class NMEAReader(PyXavi):
                     # Now, pick the next sentence
                     line = ser.readline().decode('ascii', errors='replace').strip()
                     if self.ACTIVATE_LOGGING:
-                        xlog.debug(f"New NMEA sentence: {line}")
+                        xlog.debug(line)
 
                     # Ignore what does not contain data
                     if not line.startswith("$"):
@@ -166,7 +166,7 @@ class NMEAReader(PyXavi):
                     # Parse the sentence
                     msg = pynmea2.parse(line)
                     if self.ACTIVATE_LOGGING:
-                        xlog.debug(f"Parsed NMEA sentence: {msg}")
+                        xlog.debug(msg)
 
                     if isinstance(msg, pynmea2.types.talker.GGA):
                         self.cumulative_data["signal_quality"] = self.get_signal_quality(int(msg.gps_qual), int(msg.num_sats))
@@ -182,7 +182,7 @@ class NMEAReader(PyXavi):
                         fix_status = int(msg.gps_qual)
                         if self.ACTIVATE_LOGGING:
                             icon = "🟢" if fix_status > 0 else "🔴"
-                            xlog.debug(f"{icon} GGA sentence with fix status is: {fix_status} ( > 0 is valid )")
+                            xlog.debug(f"{icon} GGA with fix: {fix_status} ( > 0 is valid )")
                         if fix_status > 0:  # Only show if there's a fix
                             current_time = time.time()
                             interval = (current_time - last_fix_time) if last_fix_time else 0
@@ -210,7 +210,7 @@ class NMEAReader(PyXavi):
                     elif isinstance(msg, pynmea2.types.talker.RMC):
                         if self.ACTIVATE_LOGGING:
                             icon = "🟢" if msg.status == 'A' else "🔴"
-                            xlog.debug(f"{icon} RMC sentence with status is: {msg.status} ( A=valid, V=invalid )")
+                            xlog.debug(f"{icon} RMC with status: {msg.status} ( A=valid, V=invalid )")
                         if msg.status == 'A':  # A = Valid fix
                             current_time = time.time()
                             interval = (current_time - last_fix_time) if last_fix_time else 0
@@ -236,7 +236,7 @@ class NMEAReader(PyXavi):
                     elif isinstance(msg, pynmea2.types.talker.GLL):
                         if self.ACTIVATE_LOGGING:
                             icon = "🟢" if msg.status == 'A' else "🔴"
-                            xlog.debug(f"{icon} GLL sentence with status is: {msg.status} ( A=valid, V=invalid )")
+                            xlog.debug(f"{icon} GLL with status: {msg.status} ( A=valid, V=invalid )")
                         if msg.status == 'A':  # A = Valid fix
                             interval = (current_time - last_fix_time) if last_fix_time else 0
                             last_fix_time = current_time
@@ -260,7 +260,7 @@ class NMEAReader(PyXavi):
 
                     else:
                         if self.ACTIVATE_LOGGING:
-                            xlog.debug("🟠 NMEA sentence is not GGA or RMC, ignoring.")
+                            xlog.debug("🟠 Not GGA, GLL or RMC, ignoring.")
 
                 except pynmea2.ParseError as e:
                     xlog.error(f"Failed to parse NMEA sentence: {e}")
