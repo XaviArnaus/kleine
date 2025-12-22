@@ -26,6 +26,7 @@ class DisplayGPS(DisplayModule):
             f"Status: {gps_data.get('status', 'N/A')}",
             # f"Timestamp: {gps_data.get('timestamp').isoformat() if gps_data.get('timestamp') else 'N/A'}",
             f"Signal Quality: {gps_data.get('signal_quality', 'N/A')}",
+            f"Num. Satellites: {gps_data.get('num_sats', 'N/A')}",
         ]
         gps_text_str = "\n".join(gps_text)
 
