@@ -192,3 +192,15 @@ https://elinux.org/RPi_SPI#Hardware
 
 ## Overlays for Waveshare stuff
 https://github.com/swkim01/waveshare-dtoverlays
+
+## GPS Beitian BN-880
+https://store.beitian.com/blogs/news/instructions-and-correct-use-of-gps-module
+
+Datasheet downloaded [here](./vendor/gps/91u96ycpw9L.pdf) from [what the seller uploaded on Amazon](https://m.media-amazon.com/images/I/91u96ycpw9L.pdf)
+
+### NMEA messages
+https://swairlearn.bluecover.pt/nmea_analyser
+https://www.rfwireless-world.com/terminology/gps-nmea-sentences
+https://receiverhelp.trimble.com/alloy-gnss/en-us/NMEA-0183messages_GGA.html
+
+https://www.aeanet.org/how-many-gps-satellites-do-you-need/
