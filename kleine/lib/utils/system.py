@@ -51,7 +51,7 @@ class System(PyXavi):
         }
 
     @staticmethod
-    def get_connected_wifi_info():
+    def get_connected_wifi_info() -> list[dict]:
         """
         Get the list of available WiFi networks
         """
