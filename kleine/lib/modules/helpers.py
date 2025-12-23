@@ -141,11 +141,11 @@ class ScreenSections:
             )
             next_right_slot_x -= (bounding_emoji_signal[2] - bounding_emoji_signal[0]) + ScreenSections.STATUS_BAR_PICES_SPACING
 
-        if parameters.get("statusbar_show_wifi_signal_quality", True):
+        if parameters.get("statusbar_show_wifi_signal_strength", True):
 
-            signal_quality = parameters.get("wifi_signal_quality", WifiSignalQuality.SIGNAL_UNKNOWN)
+            signal_strength = parameters.get("wifi_signal_strength", WifiSignalQuality.SIGNAL_UNKNOWN)
 
-            match signal_quality:
+            match signal_strength:
                 case WifiSignalQuality.SIGNAL_GOOD:
                     wifi_icon_color = parameters.get("color.green")
                 case WifiSignalQuality.SIGNAL_WEAK:

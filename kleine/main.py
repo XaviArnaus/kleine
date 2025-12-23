@@ -35,7 +35,7 @@ class Main(PyXavi):
     STATUSBAR_SHOW_TEMPERATURE: bool = True # Will be skipped in the temperature module
     STATUSBAR_SHOW_BATTERY: bool = True
     STATUSBAR_SHOW_GPS_SIGNAL_QUALITY: bool = True
-    STATUSBAR_SHOW_WIFI_SIGNAL_QUALITY: bool = True
+    STATUSBAR_SHOW_WIFI_SIGNAL_STRENGTH: bool = True
 
     SECONDS_TO_REACT_FOR_TASKS: int = 2
     SECONDS_TO_REACT_FOR_REALTIME_TASKS: float = 0.25
@@ -357,11 +357,11 @@ class Main(PyXavi):
             "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
             "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
             "statusbar_show_gps_signal_quality": self.STATUSBAR_SHOW_GPS_SIGNAL_QUALITY,
-            "statusbar_show_wifi_signal_quality": self.STATUSBAR_SHOW_WIFI_SIGNAL_QUALITY,
+            "statusbar_show_wifi_signal_strength": self.STATUSBAR_SHOW_WIFI_SIGNAL_STRENGTH,
             "battery_percentage": self.gathered_values.get("battery_percentage"),
             "battery_is_charging": self.gathered_values.get("battery_is_charging"),
             "gps_signal_quality": self.gathered_values.get("gps", {}).get("signal_quality", GPSSignalQuality.SIGNAL_UNKNOWN),
-            "wifi_signal_quality": self.gathered_values.get("wifi", {}).get("signal_quality", WifiSignalQuality.SIGNAL_UNKNOWN),
+            "wifi_signal_strength": self.gathered_values.get("wifi", {}).get("signal_strength", WifiSignalQuality.SIGNAL_UNKNOWN),
             "temperature": self.gathered_values.get("temperature"),
             # Any message that we want to show in a modal window
             "modal_message": modal_message,
