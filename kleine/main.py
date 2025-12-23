@@ -3,6 +3,7 @@ from kleine.lib.abstract.pyxavi import PyXavi
 
 from kleine.lib.objects.module_definitions import ModuleDefinitions, PowerActions
 from kleine.lib.objects.gps_signal_quality import GPSSignalQuality
+from kleine.lib.objects.wifi_signal_quality import WifiSignalQuality
 
 from kleine.lib.accelerometer.accelerometer import Accelerometer
 from kleine.lib.air_pressure.air_pressure import AirPressure
@@ -360,6 +361,7 @@ class Main(PyXavi):
             "battery_percentage": self.gathered_values.get("battery_percentage"),
             "battery_is_charging": self.gathered_values.get("battery_is_charging"),
             "gps_signal_quality": self.gathered_values.get("gps", {}).get("signal_quality", GPSSignalQuality.SIGNAL_UNKNOWN),
+            "wifi_signal_quality": self.gathered_values.get("wifi", {}).get("signal_quality", WifiSignalQuality.SIGNAL_UNKNOWN),
             "temperature": self.gathered_values.get("temperature"),
             # Any message that we want to show in a modal window
             "modal_message": modal_message,
