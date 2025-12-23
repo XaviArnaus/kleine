@@ -319,4 +319,3 @@ class Helpers:
                 logger.debug(text)
 
                 return text
-    

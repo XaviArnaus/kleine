@@ -246,6 +246,7 @@ class NMEAReader(PyXavi):
                             icon = "🟢" if msg.status == 'A' else "🔴"
                             self._xlog.debug(f"{icon} GLL with status: {msg.status} ( A=valid, V=invalid )")
                         if msg.status == 'A':  # A = Valid fix
+                            current_time = time.time()
                             interval = (current_time - last_fix_time) if last_fix_time else 0
                             last_fix_time = current_time
                             if self.ACTIVATE_LOGGING:
