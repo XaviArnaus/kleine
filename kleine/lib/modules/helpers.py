@@ -144,6 +144,7 @@ class ScreenSections:
         if parameters.get("statusbar_show_wifi_signal_strength", True):
 
             signal_strength = parameters.get("wifi_signal_strength", WifiSignalQuality.SIGNAL_UNKNOWN)
+            dd(signal_strength)
 
             match signal_strength:
                 case WifiSignalQuality.SIGNAL_GOOD:

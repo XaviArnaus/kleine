@@ -1,4 +1,4 @@
-from pyxavi import Config, Dictionary, full_stack
+from pyxavi import Config, Dictionary, full_stack, dd
 from kleine.lib.abstract.pyxavi import PyXavi
 
 from kleine.lib.objects.module_definitions import ModuleDefinitions, PowerActions
@@ -583,6 +583,7 @@ class Main(PyXavi):
             "signal_strength": wifi_info.get("signal_strength", -1),
             "security": wifi_info.get("security", "Unknown"),
         })
+        dd(signal_strength)
         return True
     
     def refresh_gps_data(self) -> bool:
