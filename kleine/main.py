@@ -1,4 +1,4 @@
-from pyxavi import Config, Dictionary, full_stack
+from pyxavi import Config, Dictionary, full_stack, dd
 from kleine.lib.abstract.pyxavi import PyXavi
 
 from kleine.lib.objects.module_definitions import ModuleDefinitions, PowerActions
@@ -34,6 +34,7 @@ class Main(PyXavi):
     STATUSBAR_SHOW_TEMPERATURE: bool = True # Will be skipped in the temperature module
     STATUSBAR_SHOW_BATTERY: bool = True
     STATUSBAR_SHOW_GPS_SIGNAL_QUALITY: bool = True
+    STATUSBAR_SHOW_WIFI_SIGNAL_STRENGTH: bool = True
 
     SECONDS_TO_REACT_FOR_TASKS: int = 2
     SECONDS_TO_REACT_FOR_REALTIME_TASKS: float = 0.25
@@ -81,7 +82,12 @@ class Main(PyXavi):
             "heading": None,
             "signal_quality": 0,
             "num_sats": 0
-        }
+        },
+        "wifi": {
+            "ssid": None,
+            "signal_strength": None,
+            "security": None
+        },
     })
 
     # The index of the application modules is the order to cycle through them
@@ -350,9 +356,11 @@ class Main(PyXavi):
             "statusbar_show_temperature": self.STATUSBAR_SHOW_TEMPERATURE,
             "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
             "statusbar_show_gps_signal_quality": self.STATUSBAR_SHOW_GPS_SIGNAL_QUALITY,
+            "statusbar_show_wifi_signal_strength": self.STATUSBAR_SHOW_WIFI_SIGNAL_STRENGTH,
             "battery_percentage": self.gathered_values.get("battery_percentage"),
             "battery_is_charging": self.gathered_values.get("battery_is_charging"),
             "gps_signal_quality": self.gathered_values.get("gps", {}).get("signal_quality", GPSSignalQuality.SIGNAL_UNKNOWN),
+            "wifi_signal_strength": self.gathered_values.get("wifi", {}).get("signal_strength", -1),
             "temperature": self.gathered_values.get("temperature"),
             # Any message that we want to show in a modal window
             "modal_message": modal_message,
@@ -410,7 +418,7 @@ class Main(PyXavi):
             self.display_info.module(parameters=shared_data.merge(Dictionary({
                 "os_info": System.get_os_info(),
                 "network_interface": System.get_default_network_interface(),
-                "wifi_network": System.get_connected_wifi_info()
+                "wifi_network": self.gathered_values.get("wifi", {})
             })))
 
         # Settings module
@@ -495,6 +503,9 @@ class Main(PyXavi):
             # Obtain the GPS data
             return_value = self.refresh_gps_data() or return_value
 
+            # Obtain the WiFi data
+            return_value = self.refresh_wifi_data() or return_value
+
         return return_value
 
     def do_every_minute_tasks(self) -> bool:
@@ -554,6 +565,24 @@ class Main(PyXavi):
             return_value = True
 
         return return_value
+    
+    def refresh_wifi_data(self) -> bool:
+        wifi_info = System.get_connected_wifi_info()
+
+        if wifi_info is None or \
+            isinstance(wifi_info, list) is False or \
+            len(wifi_info) == 0 or \
+            isinstance(wifi_info[0], dict) is False:
+            return False
+        
+        # Assuming the first network is the connected one
+        wifi_info = wifi_info[0]
+        self.gathered_values.set("wifi", {
+            "ssid": wifi_info.get("ssid", "Unknown"),
+            "signal_strength": int(wifi_info.get("signal", -1)),
+            "security": wifi_info.get("security", "Unknown"),
+        })
+        return True
     
     def refresh_gps_data(self) -> bool:
         gps_info = self.gps.get_position()

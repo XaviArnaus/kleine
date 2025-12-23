@@ -25,6 +25,10 @@ class ScreenSections:
 
         screen_size: Point = parameters.get("screen_size")
 
+        # Initial definitions
+        gps_icon_color = parameters.get("statusbar_font_color")
+        wifi_icon_color = parameters.get("statusbar_font_color")
+
         # Define where to begin from the right.
         next_right_slot_x = screen_size.x - 5
 
@@ -130,10 +134,39 @@ class ScreenSections:
                        fill=gps_icon_color,
                        anchor="rt",
                        align="right")
+            # Update next right slot position
+            bounding_emoji_signal = draw.textbbox(
+                (next_right_slot_x, 4),
+                text=f"📶",
+                font=parameters.get("statusbar_font_emoji"),
+                anchor="rt",
+                align="right"
+            )
+            next_right_slot_x -= (bounding_emoji_signal[2] - bounding_emoji_signal[0]) + ScreenSections.STATUS_BAR_PICES_SPACING
+
+        if parameters.get("statusbar_show_wifi_signal_strength", True):
+
+            signal_strength = parameters.get("wifi_signal_strength", -1)
+
+            if signal_strength < 0:
+                wifi_icon_color = parameters.get("color.white")
+            elif signal_strength < 20:
+                wifi_icon_color = parameters.get("color.red")
+            elif signal_strength <= 50:
+                wifi_icon_color = parameters.get("color.orange")
+            elif signal_strength > 50:
+                wifi_icon_color = parameters.get("color.green")
+
+            draw.text((next_right_slot_x, 4),
+                       text=f"🛜",
+                       font=parameters.get("statusbar_font_emoji"),
+                       fill=wifi_icon_color,
+                       anchor="rt",
+                       align="right")
             # # Update next right slot position
             # bounding_emoji_signal = draw.textbbox(
             #     (next_right_slot_x, 4),
-            #     text=f"📶 {signal_quality}",
+            #     text=f"🛜",
             #     font=parameters.get("statusbar_font_emoji"),
             #     anchor="rt",
             #     align="right"
@@ -288,4 +321,3 @@ class Helpers:
                 logger.debug(text)
 
                 return text
-    

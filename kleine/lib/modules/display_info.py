@@ -19,14 +19,14 @@ class DisplayInfo(DisplayModule):
         # Prepare the info text
         os_data: dict = parameters.get("os_info", {})
         network_interface: dict = parameters.get("network_interface", {})
-        wifi_network: list[dict] = parameters.get("wifi_network", [])
+        wifi_network: dict = parameters.get("wifi_network", {})
         info_text = [
             f"OS & arch: {os_data.get('system', 'N/A')} / {os_data.get('machine', 'N/A')}",
             f"IP address: {network_interface.get('ip', 'N/A')}",
             f"MAC address: {network_interface.get('mac', 'N/A')}",
-            f"Wifi SSID: {wifi_network[0].get('ssid', 'N/A')}" if wifi_network else "Wifi SSID: N/A",
-            f"Wifi Sec: {wifi_network[0].get('security', 'N/A')}" if wifi_network else "Wifi Sec: N/A",
-            f"Wifi Signal: {wifi_network[0].get('signal', 'N/A')}" if wifi_network else "Wifi Signal: N/A",
+            f"Wifi SSID: {wifi_network.get('ssid', 'N/A')}",
+            f"Wifi Sec: {wifi_network.get('security', 'N/A')}",
+            f"Wifi Signal: {wifi_network.get('signal_strength', 'N/A')}",
         ]
         info_text_str = "\n".join(info_text)
 
