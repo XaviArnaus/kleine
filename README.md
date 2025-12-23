@@ -173,6 +173,20 @@ console=tty1 root=PARTUUID=a5f01904-02 rootfstype=ext4 fsck.repair=yes rootwait 
 
 ⚠️ Didn't work. Abandoning the approach to set up Wifi connections from HotSpots.
 
+## Make the GPS to use the real UART instead of the mini-UART
+from https://gist.github.com/EEParker/d91fab4227c5ce4d88ce8a0e4c2df75e
+
+> By default, the Raspberry Pi 3 Model B (and Zero 2 W) assigns ttyS0 to GPIO14:15 while ttyAMA0 serves the Bluetooth module. As the mini UART is not a full featured UART, you may want to use ttyAMA0 on GPIO14:15 instead as it is a full featured UART. Fortunately, there are a couple of device tree overlays that will accomplish this.
+>
+>pi3-miniuart-bt: This overlay flip flops the UARTs by assigning ttyAMA0 to GPIO14:15 while assigning ttyS0 to the Bluetooth module.
+>pi3-disable-bt: This overlay assigns ttyAMA0 to GPIO14:15 while disabling Bluetooth altogether.
+>In general, the Mini-UART has one big pitfall. It doesn't have its own clock source, so the UART bitrate depends on the CPU clock. Which means you have to set a fixed CPU clock for reliable communication.
+
+1. Added the `pi3-disable-bt` into `/boot/firmware/config.txt
+2. Reboot
+
+Worked out of the box, don't know if it really did anything. I don't see an extra port in `/dev/tty*`
+
 ## Python
 
 ## Poetry
