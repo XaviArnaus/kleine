@@ -1,19 +1,34 @@
-# Configuration fo the eInk Display
-display:
-  # [Bool] Generates a PNG instead of outcoming through the eInk Display
-  mock: False
-  # [Bool] Do a full clear while initializing
-  # KEEP AS TRUE. Seems like the eInk needs a full Clear on init to be able to show afterwards.
-  initial_clear: True
+
+# Configuration for the LCD Display
+lcd:
+  # [Bool] Generates a PNG instead of outcoming through the LCD Display
+  mock: True
   # Size of the display
   size:
-    x: 250
-    y: 122
-  # [bool] Rotate the display 180 degrees or not. This only affects the eInk, not mocked.
+    x: 320
+    y: 240
+  # [bool] Rotate the display 180 degrees or not. This only affects the LCD, not mocked.
   rotate: True
+  # Hardware configuration for the LCD
+  hardware:
+    # [int] GPIO pin for Reset
+    RST: 27
+    # [int] GPIO pin for Data/Command
+    DC: 25
+    # [int] GPIO pin for Backlight
+    BL: 12
+    # [int] SPI bus
+    bus: 0
+    # [int] SPI device
+    device: 0
+    # [int] Brightness (0-100)
+    brightness: 50
   # Configuration regarding the fonts
   fonts:
-    big: 22
-    medium: 14
-    small: 10
-    huge: 40
+    ultra: 85
+    huge: 45
+    big: 28
+    medium: 24
+    small: 20
+    small-emoji: 16
+    tiny: 16

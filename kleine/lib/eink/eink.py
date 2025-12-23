@@ -9,6 +9,8 @@ from kleine.lib.abstract.pyxavi import PyXavi
 from kleine.lib.eink.canvas import EinkCanvas
 from kleine.lib.objects.point import Point
 
+from definitions import ROOT_DIR
+
 class Eink(PyXavi):
 
     _epd = None
@@ -88,7 +90,7 @@ class Eink(PyXavi):
             self.flush_to_device(image, partial=partial)
     
     def flush_to_device(self, image: Image.Image, partial: bool = True):
-        if self._xconfig.get("display.rotate", False):
+        if self._xconfig.get("eink.rotate", False):
                 image = image.rotate(180)
         if partial:
             self._epd.displayPartial(self._epd.getbuffer(image))
@@ -117,7 +119,7 @@ class Eink(PyXavi):
         if (os.lower() != "linux"):
             self._xlog.warning("OS is not Linux, auto mocking eInk")
             return False
-        if (self._xconfig.get("display.mock", True)):
+        if (self._xconfig.get("eink.mock", True)):
             self._xlog.warning("Mocking eInk by Config")
             return False
         return True
@@ -132,14 +134,13 @@ class Eink(PyXavi):
         here locally if we expose the instance afterwards.
         """
 
-        # Initialise the paths
-        self._pic_dir = os.path.join(self._xparams.get("base_path", ""), 'kleine', 'pic')
+        # Initialise the path
         libdir = os.path.join(self._xparams.get("base_path", ""), 'kleine', 'lib')
 
         # Don't initialise if not allowed
         if (not self._is_gpio_allowed()):
             # Setup base data
-            self._screen_size = Point(self._xconfig.get("display.size.x"), self._xconfig.get("display.size.y"))
+            self._screen_size = Point(self._xconfig.get("eink.size.x"), self._xconfig.get("eink.size.y"))
             self._xlog.warning("GPIO is not allowed, avoiding initializing eInk")
         else:
             # Lib should be in the sys path
@@ -158,7 +159,7 @@ class Eink(PyXavi):
             # Initialise the display itself
             self._xlog.debug("Initialising eInk display")
             self._epd.init()
-            if self._xconfig.get("display.initial_clear"):
+            if self._xconfig.get("eink.initial_clear"):
                 self._xlog.debug("Cleaning for the first time")
                 self._epd.Clear(0xFF)
 

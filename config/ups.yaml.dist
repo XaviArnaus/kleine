@@ -1,0 +1,10 @@
+# Configuration for the UPS support
+ups:
+  # [Bool] Simply ignores UPS hardware and returns mock values
+  mock: True
+  # Hardware configuration for the UPS
+  hardware:
+    # [String] I2C Bus
+    bus: 1
+    # [Int] I2C Address
+    address: 0x43

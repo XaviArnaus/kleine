@@ -195,6 +195,7 @@ class IMU(object):
       self.Gyro[2]=self.Gyro[2]-65535
     elif self.Gyro[2]<=-32767:
       self.Gyro[2]=self.Gyro[2]+65535
+    return (self.Gyro[0],self.Gyro[1],self.Gyro[2]),(self.Accel[0],self.Accel[1],self.Accel[2])
 
   def AK09918_MagRead(self):
     counter = 20
@@ -226,6 +227,7 @@ class IMU(object):
       self.Mag[2]=self.Mag[2]-65535
     elif self.Mag[2]<=-32767:
       self.Mag[2]=self.Mag[2]+65535
+    return (self.Mag[0],self.Mag[1],self.Mag[2])
 
   def QMI8658_readTemp(self):
       temp = self._read_block(I2C_ADD_IMU_QMI8658,QMI8658Register_Tempearture_L, 2)

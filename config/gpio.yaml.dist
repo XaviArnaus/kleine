@@ -1,0 +1,53 @@
+# Configuration for the GPIO support
+gpio:
+  # [Bool] Simply ignores GPIO hardware and returns mock values
+  mock: True
+  # Defined buttons
+  buttons:
+    - name: yellow
+      pin: 16
+      mocked_as: "tab"
+    - name: green
+      pin: 26
+      mocked_as: "enter"
+    - name: blue
+      pin: 5
+      mocked_as: "space"
+
+temperature:
+  # [Bool] Simply ignores temperature sensor hardware and returns mock values
+  mock: True
+
+humidity:
+  # [Bool] Simply ignores humidity sensor hardware and returns mock values
+  mock: True
+
+air_pressure:
+  # [Bool] Simply ignores air pressure sensor hardware and returns mock values
+  mock: True
+
+accelerometer:
+  # [Bool] Simply ignores accelerometer hardware and returns mock values
+  mock: True
+
+gps:
+  # [Bool] Simply ignores GPS hardware and returns mock values
+  mock: True
+  # [Bool] Activate detailed logging for GPS NMEA parsing
+  activate_logging: True
+  # Hardware configuration
+  hardware:
+    # [String] Serial port where the GPS module is connected (e.g., "/dev/ttyS0". Check `ls /dev/tty*` to find yours)
+    serial_port: "/dev/ttyS0"
+    # [Int] Baud rate for the serial communication
+    baud_rate: 9600
+    # [Int] Update interval in milliseconds (This defines how often to read data from the GPS module: e.g., 200ms = 5Hz)
+    update_interval_ms: 1000
+    # [Bool] Use GNSS Systems
+    use_gps: true
+    # [Bool] Use GLONASS System
+    use_glonass: true
+    # [Bool] Use Galileo System
+    use_galileo: true
+    # [Bool] Use BeiDou System
+    use_beidou: true

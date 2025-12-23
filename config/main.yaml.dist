@@ -7,9 +7,20 @@ app:
   # Application name
   name: "Kleine"
 
+scheduler:
+  # [Integer] Update interval in seconds for the per-seconds scheduler.
+  # A value from 1 to 60, otherwise is discarded and assumed 2.
+  update_interval: 2
+
 
 # Filesystem definition
 storage:
   # [String] Where, from the root of the project
   path: "storage/"
+  # Mock files
+  mocked_files:
+    # [String] Path for mocked LCD output files
+    lcd: "mocked/lcd/"
+    # [list<String>] Exclude the following files from cleaning
+    exclude_from_cleaning: ["_latest.png", ".keep"]
   

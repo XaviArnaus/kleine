@@ -2,10 +2,12 @@
 import time
 from . import lcdconfig
 
-class LCD_2inch(lcdconfig.RaspberryPi):
+class ST7789(lcdconfig.RaspberryPi):
 
+    # Apparently these should never change.
+    # TODO: If so, remove the ability to change the size from outside: remove set_size().
     width = 240
-    height = 320 
+    height = 320
     def command(self, cmd):
         self.digital_write(self.DC_PIN, False)
         self.spi_writebyte([cmd])

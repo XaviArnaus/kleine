@@ -36,7 +36,7 @@ import numpy as np
 from gpiozero import *
 
 class RaspberryPi:
-    def __init__(self,spi=spidev.SpiDev(0,0),spi_freq=40000000,rst = 27,dc = 25,bl = 18,bl_freq=1000,i2c=None,i2c_freq=100000):
+    def __init__(self,spi_bus=0, spi_device=0,spi_freq=40000000,rst = 27,dc = 25,bl = 18,bl_freq=1000,i2c=None,i2c_freq=100000):
         self.np=np
         self.INPUT = False
         self.OUTPUT = True
@@ -50,7 +50,7 @@ class RaspberryPi:
         self.bl_DutyCycle(0)
         
         #Initialize SPI
-        self.SPI = spi
+        self.SPI = spidev.SpiDev(spi_bus, spi_device)
         if self.SPI!=None :
             self.SPI.max_speed_hz = spi_freq
             self.SPI.mode = 0b00

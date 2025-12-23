@@ -58,7 +58,7 @@ class Mode:
 
 class INA219:
     def __init__(self, i2c_bus=1, addr=0x40):
-        self.bus = smbus.SMBus(i2c_bus);
+        self.bus = smbus.SMBus(i2c_bus)
         self.addr = addr
 
         # Set chip to known config values to start
@@ -66,6 +66,9 @@ class INA219:
         self._current_lsb = 0
         self._power_lsb = 0
         self.set_calibration_16V_5A()
+    
+    def close(self):
+        self.bus.close()
 
     def read(self,address):
         data = self.bus.read_i2c_block_data(self.addr, address, 2)

@@ -194,6 +194,18 @@ files = [
 dev = ["coverage", "pytest (>=7.4.4)"]
 
 [[package]]
+name = "evdev"
+version = "1.9.2"
+description = "Bindings to the Linux input handling subsystem"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+markers = "\"linux\" in sys_platform"
+files = [
+    {file = "evdev-1.9.2.tar.gz", hash = "sha256:5d3278892ce1f92a74d6bf888cc8525d9f68af85dbe336c95d1c87fb8f423069"},
+]
+
+[[package]]
 name = "feedparser"
 version = "6.0.12"
 description = "Universal feed parser, handles RSS 0.9x, RSS 1.0, RSS 2.0, CDF, Atom 0.3, and Atom 1.0 feeds"
@@ -244,6 +256,18 @@ files = [
 all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2)"]
 
 [[package]]
+name = "ifcfg"
+version = "0.24"
+description = "Python ifconfig wrapper for Unix/Linux/MacOSX + ipconfig for Windows"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "ifcfg-0.24-py2.py3-none-any.whl", hash = "sha256:950f31ddc3fdd877724fb4154b744434471106088ecf10170b96063c24b3c0b7"},
+    {file = "ifcfg-0.24.tar.gz", hash = "sha256:64f60f7a0d15c85876b76b5f79246ed8c27bf5f79e5753ec88287145884661ab"},
+]
+
+[[package]]
 name = "lgpio"
 version = "0.2.2.0"
 description = "Linux SBC GPIO module"
@@ -265,6 +289,19 @@ files = [
     {file = "lgpio-0.2.2.0-cp39-cp39-manylinux_2_34_aarch64.whl", hash = "sha256:9ed135824c717901457dcf2462bb1af9f5445aa6e56bb7a9263fc064620ef586"},
     {file = "lgpio-0.2.2.0-cp39-cp39-manylinux_2_34_x86_64.whl", hash = "sha256:f95d6a6db23f99e745e0aee36cd49a515dd6846a5ddb49474c73a390bb2048e2"},
     {file = "lgpio-0.2.2.0.tar.gz", hash = "sha256:11372e653b200f76a0b3ef8a23a0735c85ec678a9f8550b9893151ed0f863fff"},
+]
+
+[[package]]
+name = "macwifi"
+version = "0.0.5"
+description = "Macwifi is a Python module that helps you to manage the WiFi on macOS."
+optional = false
+python-versions = ">=3.6"
+groups = ["main"]
+markers = "sys_platform == \"darwin\""
+files = [
+    {file = "macwifi-0.0.5-py3-none-any.whl", hash = "sha256:d448bbccae337df43d4482cdae15192de3469751fc312de18ce8184c137f5b8e"},
+    {file = "macwifi-0.0.5.tar.gz", hash = "sha256:10256a1b602dfca993da957d837a062c727755f1c96c013ff550c7682e02609c"},
 ]
 
 [[package]]
@@ -488,6 +525,202 @@ typing = ["typing-extensions ; python_version < \"3.10\""]
 xmp = ["defusedxml"]
 
 [[package]]
+name = "psutil"
+version = "7.1.3"
+description = "Cross-platform lib for process and system monitoring."
+optional = false
+python-versions = ">=3.6"
+groups = ["main"]
+files = [
+    {file = "psutil-7.1.3-cp313-cp313t-macosx_10_13_x86_64.whl", hash = "sha256:0005da714eee687b4b8decd3d6cc7c6db36215c9e74e5ad2264b90c3df7d92dc"},
+    {file = "psutil-7.1.3-cp313-cp313t-macosx_11_0_arm64.whl", hash = "sha256:19644c85dcb987e35eeeaefdc3915d059dac7bd1167cdcdbf27e0ce2df0c08c0"},
+    {file = "psutil-7.1.3-cp313-cp313t-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:95ef04cf2e5ba0ab9eaafc4a11eaae91b44f4ef5541acd2ee91d9108d00d59a7"},
+    {file = "psutil-7.1.3-cp313-cp313t-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:1068c303be3a72f8e18e412c5b2a8f6d31750fb152f9cb106b54090296c9d251"},
+    {file = "psutil-7.1.3-cp313-cp313t-win_amd64.whl", hash = "sha256:18349c5c24b06ac5612c0428ec2a0331c26443d259e2a0144a9b24b4395b58fa"},
+    {file = "psutil-7.1.3-cp313-cp313t-win_arm64.whl", hash = "sha256:c525ffa774fe4496282fb0b1187725793de3e7c6b29e41562733cae9ada151ee"},
+    {file = "psutil-7.1.3-cp314-cp314t-macosx_10_15_x86_64.whl", hash = "sha256:b403da1df4d6d43973dc004d19cee3b848e998ae3154cc8097d139b77156c353"},
+    {file = "psutil-7.1.3-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:ad81425efc5e75da3f39b3e636293360ad8d0b49bed7df824c79764fb4ba9b8b"},
+    {file = "psutil-7.1.3-cp314-cp314t-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:8f33a3702e167783a9213db10ad29650ebf383946e91bc77f28a5eb083496bc9"},
+    {file = "psutil-7.1.3-cp314-cp314t-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:fac9cd332c67f4422504297889da5ab7e05fd11e3c4392140f7370f4208ded1f"},
+    {file = "psutil-7.1.3-cp314-cp314t-win_amd64.whl", hash = "sha256:3792983e23b69843aea49c8f5b8f115572c5ab64c153bada5270086a2123c7e7"},
+    {file = "psutil-7.1.3-cp314-cp314t-win_arm64.whl", hash = "sha256:31d77fcedb7529f27bb3a0472bea9334349f9a04160e8e6e5020f22c59893264"},
+    {file = "psutil-7.1.3-cp36-abi3-macosx_10_9_x86_64.whl", hash = "sha256:2bdbcd0e58ca14996a42adf3621a6244f1bb2e2e528886959c72cf1e326677ab"},
+    {file = "psutil-7.1.3-cp36-abi3-macosx_11_0_arm64.whl", hash = "sha256:bc31fa00f1fbc3c3802141eede66f3a2d51d89716a194bf2cd6fc68310a19880"},
+    {file = "psutil-7.1.3-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:3bb428f9f05c1225a558f53e30ccbad9930b11c3fc206836242de1091d3e7dd3"},
+    {file = "psutil-7.1.3-cp36-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:56d974e02ca2c8eb4812c3f76c30e28836fffc311d55d979f1465c1feeb2b68b"},
+    {file = "psutil-7.1.3-cp37-abi3-win_amd64.whl", hash = "sha256:f39c2c19fe824b47484b96f9692932248a54c43799a84282cfe58d05a6449efd"},
+    {file = "psutil-7.1.3-cp37-abi3-win_arm64.whl", hash = "sha256:bd0d69cee829226a761e92f28140bec9a5ee9d5b4fb4b0cc589068dbfff559b1"},
+    {file = "psutil-7.1.3.tar.gz", hash = "sha256:6c86281738d77335af7aec228328e944b30930899ea760ecf33a4dba66be5e74"},
+]
+
+[package.extras]
+dev = ["abi3audit", "black", "check-manifest", "colorama ; os_name == \"nt\"", "coverage", "packaging", "pylint", "pyperf", "pypinfo", "pyreadline ; os_name == \"nt\"", "pytest", "pytest-cov", "pytest-instafail", "pytest-subtests", "pytest-xdist", "pywin32 ; os_name == \"nt\" and platform_python_implementation != \"PyPy\"", "requests", "rstcheck", "ruff", "setuptools", "sphinx", "sphinx_rtd_theme", "toml-sort", "twine", "validate-pyproject[all]", "virtualenv", "vulture", "wheel", "wheel ; os_name == \"nt\" and platform_python_implementation != \"PyPy\"", "wmi ; os_name == \"nt\" and platform_python_implementation != \"PyPy\""]
+test = ["pytest", "pytest-instafail", "pytest-subtests", "pytest-xdist", "pywin32 ; os_name == \"nt\" and platform_python_implementation != \"PyPy\"", "setuptools", "wheel ; os_name == \"nt\" and platform_python_implementation != \"PyPy\"", "wmi ; os_name == \"nt\" and platform_python_implementation != \"PyPy\""]
+
+[[package]]
+name = "pynmea2"
+version = "1.19.0"
+description = "Python library for the NMEA 0183 protcol"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "pynmea2-1.19.0-py3-none-any.whl", hash = "sha256:5138558b4fb5daa587b2c17de99eb43df0297039de1c98010c996624abfb00eb"},
+    {file = "pynmea2-1.19.0.tar.gz", hash = "sha256:1daa79b93279f887d1c235e5cc5c79e32644564138ce46989ab0f4a2fc970d7c"},
+]
+
+[[package]]
+name = "pynput"
+version = "1.8.1"
+description = "Monitor and control user input devices"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = []
+develop = false
+
+[package.dependencies]
+evdev = {version = ">=1.3", markers = "\"linux\" in sys_platform"}
+pyobjc-framework-ApplicationServices = {version = ">=8.0", markers = "sys_platform == \"darwin\""}
+pyobjc-framework-Quartz = {version = ">=8.0", markers = "sys_platform == \"darwin\""}
+python-xlib = {version = ">=0.17", markers = "\"linux\" in sys_platform"}
+six = "*"
+
+[package.source]
+type = "git"
+url = "https://github.com/moses-palmer/pynput.git"
+reference = "fixup/macos"
+resolved_reference = "d5ec7da12364905b472c2c9a02b6121ba2e741f1"
+
+[[package]]
+name = "pyobjc-core"
+version = "12.1"
+description = "Python<->ObjC Interoperability Module"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+markers = "sys_platform == \"darwin\""
+files = [
+    {file = "pyobjc_core-12.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:93418e79c1655f66b4352168f8c85c942707cb1d3ea13a1da3e6f6a143bacda7"},
+    {file = "pyobjc_core-12.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:c918ebca280925e7fcb14c5c43ce12dcb9574a33cccb889be7c8c17f3bcce8b6"},
+    {file = "pyobjc_core-12.1-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:818bcc6723561f207e5b5453efe9703f34bc8781d11ce9b8be286bb415eb4962"},
+    {file = "pyobjc_core-12.1-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:01c0cf500596f03e21c23aef9b5f326b9fb1f8f118cf0d8b66749b6cf4cbb37a"},
+    {file = "pyobjc_core-12.1-cp313-cp313t-macosx_10_13_universal2.whl", hash = "sha256:177aaca84bb369a483e4961186704f64b2697708046745f8167e818d968c88fc"},
+    {file = "pyobjc_core-12.1-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:844515f5d86395b979d02152576e7dee9cc679acc0b32dc626ef5bda315eaa43"},
+    {file = "pyobjc_core-12.1-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:453b191df1a4b80e756445b935491b974714456ae2cbae816840bd96f86db882"},
+    {file = "pyobjc_core-12.1.tar.gz", hash = "sha256:2bb3903f5387f72422145e1466b3ac3f7f0ef2e9960afa9bcd8961c5cbf8bd21"},
+]
+
+[[package]]
+name = "pyobjc-framework-applicationservices"
+version = "12.1"
+description = "Wrappers for the framework ApplicationServices on macOS"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+markers = "sys_platform == \"darwin\""
+files = [
+    {file = "pyobjc_framework_applicationservices-12.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:c4fd1b008757182b9e2603a63c6ffa930cc412fab47294ec64260ab3f8ec695d"},
+    {file = "pyobjc_framework_applicationservices-12.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:bdddd492eeac6d14ff2f5bd342aba29e30dffa72a2d358c08444da22129890e2"},
+    {file = "pyobjc_framework_applicationservices-12.1-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:c8f6e2fb3b3e9214ab4864ef04eee18f592b46a986c86ea0113448b310520532"},
+    {file = "pyobjc_framework_applicationservices-12.1-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:bd1f4dbb38234a24ae6819f5e22485cf7dd3dd4074ff3bf9a9fdb4c01a3b4a38"},
+    {file = "pyobjc_framework_applicationservices-12.1-cp313-cp313t-macosx_10_13_universal2.whl", hash = "sha256:8a5d2845249b6a85ba9e320a9848468c3f8cd6f59605a9a43f406a7810eaa830"},
+    {file = "pyobjc_framework_applicationservices-12.1-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:f43c9a24ad97a9121276d4d571aa04a924282c80d7291cfb3b29839c3e2013a8"},
+    {file = "pyobjc_framework_applicationservices-12.1-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:1f72e20009a4ebfd5ed5b23dc11c1528ad6b55cc63ee71952ddb2a5e5f1cb7da"},
+    {file = "pyobjc_framework_applicationservices-12.1.tar.gz", hash = "sha256:c06abb74f119bc27aeb41bf1aef8102c0ae1288aec1ac8665ea186a067a8945b"},
+]
+
+[package.dependencies]
+pyobjc-core = ">=12.1"
+pyobjc-framework-Cocoa = ">=12.1"
+pyobjc-framework-CoreText = ">=12.1"
+pyobjc-framework-Quartz = ">=12.1"
+
+[[package]]
+name = "pyobjc-framework-cocoa"
+version = "12.1"
+description = "Wrappers for the Cocoa frameworks on macOS"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+markers = "sys_platform == \"darwin\""
+files = [
+    {file = "pyobjc_framework_cocoa-12.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:9b880d3bdcd102809d704b6d8e14e31611443aa892d9f60e8491e457182fdd48"},
+    {file = "pyobjc_framework_cocoa-12.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:f52228bcf38da64b77328787967d464e28b981492b33a7675585141e1b0a01e6"},
+    {file = "pyobjc_framework_cocoa-12.1-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:547c182837214b7ec4796dac5aee3aa25abc665757b75d7f44f83c994bcb0858"},
+    {file = "pyobjc_framework_cocoa-12.1-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:5a3dcd491cacc2f5a197142b3c556d8aafa3963011110102a093349017705118"},
+    {file = "pyobjc_framework_cocoa-12.1-cp313-cp313t-macosx_10_13_universal2.whl", hash = "sha256:914b74328c22d8ca261d78c23ef2befc29776e0b85555973927b338c5734ca44"},
+    {file = "pyobjc_framework_cocoa-12.1-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:03342a60fc0015bcdf9b93ac0b4f457d3938e9ef761b28df9564c91a14f0129a"},
+    {file = "pyobjc_framework_cocoa-12.1-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:6ba1dc1bfa4da42d04e93d2363491275fb2e2be5c20790e561c8a9e09b8cf2cc"},
+    {file = "pyobjc_framework_cocoa-12.1.tar.gz", hash = "sha256:5556c87db95711b985d5efdaaf01c917ddd41d148b1e52a0c66b1a2e2c5c1640"},
+]
+
+[package.dependencies]
+pyobjc-core = ">=12.1"
+
+[[package]]
+name = "pyobjc-framework-coretext"
+version = "12.1"
+description = "Wrappers for the framework CoreText on macOS"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+markers = "sys_platform == \"darwin\""
+files = [
+    {file = "pyobjc_framework_coretext-12.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:1c8315dcef6699c2953461d97117fe81402f7c29cff36d2950dacce028a362fd"},
+    {file = "pyobjc_framework_coretext-12.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:4f6742ba5b0bb7629c345e99eff928fbfd9e9d3d667421ac1a2a43bdb7ba9833"},
+    {file = "pyobjc_framework_coretext-12.1-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:d246fa654bdbf43bae3969887d58f0b336c29b795ad55a54eb76397d0e62b93c"},
+    {file = "pyobjc_framework_coretext-12.1-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:7cbb2c28580e6704ce10b9a991ccd9563a22b3a75f67c36cf612544bd8b21b5f"},
+    {file = "pyobjc_framework_coretext-12.1-cp313-cp313t-macosx_10_13_universal2.whl", hash = "sha256:14100d1e39efb30f57869671fb6fce8d668f80c82e25e7930fb364866e5c0dab"},
+    {file = "pyobjc_framework_coretext-12.1-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:782a1a9617ea267c05226e9cd81a8dec529969a607fe1e037541ee1feb9524e9"},
+    {file = "pyobjc_framework_coretext-12.1-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:7afe379c5a870fa3e66e6f65231c3c1732d9ccd2cd2a4904b2cd5178c9e3c562"},
+    {file = "pyobjc_framework_coretext-12.1.tar.gz", hash = "sha256:e0adb717738fae395dc645c9e8a10bb5f6a4277e73cba8fa2a57f3b518e71da5"},
+]
+
+[package.dependencies]
+pyobjc-core = ">=12.1"
+pyobjc-framework-Cocoa = ">=12.1"
+pyobjc-framework-Quartz = ">=12.1"
+
+[[package]]
+name = "pyobjc-framework-quartz"
+version = "12.1"
+description = "Wrappers for the Quartz frameworks on macOS"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+markers = "sys_platform == \"darwin\""
+files = [
+    {file = "pyobjc_framework_quartz-12.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:c6f312ae79ef8b3019dcf4b3374c52035c7c7bc4a09a1748b61b041bb685a0ed"},
+    {file = "pyobjc_framework_quartz-12.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:19f99ac49a0b15dd892e155644fe80242d741411a9ed9c119b18b7466048625a"},
+    {file = "pyobjc_framework_quartz-12.1-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:7730cdce46c7e985535b5a42c31381af4aa6556e5642dc55b5e6597595e57a16"},
+    {file = "pyobjc_framework_quartz-12.1-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:629b7971b1b43a11617f1460cd218bd308dfea247cd4ee3842eb40ca6f588860"},
+    {file = "pyobjc_framework_quartz-12.1-cp313-cp313t-macosx_10_13_universal2.whl", hash = "sha256:53b84e880c358ba1ddcd7e8d5ea0407d760eca58b96f0d344829162cda5f37b3"},
+    {file = "pyobjc_framework_quartz-12.1-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:42d306b07f05ae7d155984503e0fb1b701fecd31dcc5c79fe8ab9790ff7e0de0"},
+    {file = "pyobjc_framework_quartz-12.1-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:0cc08fddb339b2760df60dea1057453557588908e42bdc62184b6396ce2d6e9a"},
+    {file = "pyobjc_framework_quartz-12.1.tar.gz", hash = "sha256:27f782f3513ac88ec9b6c82d9767eef95a5cf4175ce88a1e5a65875fee799608"},
+]
+
+[package.dependencies]
+pyobjc-core = ">=12.1"
+pyobjc-framework-Cocoa = ">=12.1"
+
+[[package]]
+name = "pyserial"
+version = "3.5"
+description = "Python Serial Port Extension"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "pyserial-3.5-py2.py3-none-any.whl", hash = "sha256:c4451db6ba391ca6ca299fb3ec7bae67a5c55dde170964c7a14ceefec02f2cf0"},
+    {file = "pyserial-3.5.tar.gz", hash = "sha256:3c77e014170dfffbd816e6ffc205e9842efb10be9f58ec16d3e8675b4925cddb"},
+]
+
+[package.extras]
+cp2110 = ["hidapi"]
+
+[[package]]
 name = "python-dotenv"
 version = "1.2.1"
 description = "Read key-value pairs from a .env file and set them as environment variables"
@@ -521,15 +754,31 @@ text-unidecode = ">=1.3"
 unidecode = ["Unidecode (>=1.1.1)"]
 
 [[package]]
+name = "python-xlib"
+version = "0.33"
+description = "Python X Library"
+optional = false
+python-versions = "*"
+groups = ["main"]
+markers = "\"linux\" in sys_platform"
+files = [
+    {file = "python-xlib-0.33.tar.gz", hash = "sha256:55af7906a2c75ce6cb280a584776080602444f75815a7aff4d287bb2d7018b32"},
+    {file = "python_xlib-0.33-py2.py3-none-any.whl", hash = "sha256:c3534038d42e0df2f1392a1b30a15a4ff5fdc2b86cfa94f072bf11b10a164398"},
+]
+
+[package.dependencies]
+six = ">=1.10.0"
+
+[[package]]
 name = "pyxavi"
-version = "1.3.0"
+version = "1.3.1"
 description = "Set of utilities to assist on simple Python projects"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "pyxavi-1.3.0-py3-none-any.whl", hash = "sha256:0dd30d459dabf509362d635a9f174b8976c7df6d9f331480d39e76d7dba9a6e5"},
-    {file = "pyxavi-1.3.0.tar.gz", hash = "sha256:fa2e6944eb19144b3c5184499ee674a50030882c1678ea8d43da50f0c3bcc89c"},
+    {file = "pyxavi-1.3.1-py3-none-any.whl", hash = "sha256:8b25335925ad85187c40b2c55c531f46e012589991029e3c9ec1f97e9c9b6f2b"},
+    {file = "pyxavi-1.3.1.tar.gz", hash = "sha256:646ac4ab60c5faaf39874dbe1a075b2d93e38b9728e401581db3ccd146c9a65d"},
 ]
 
 [package.dependencies]
@@ -701,6 +950,18 @@ files = [
 ]
 
 [[package]]
+name = "six"
+version = "1.17.0"
+description = "Python 2 and 3 compatibility utilities"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+groups = ["main"]
+files = [
+    {file = "six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"},
+    {file = "six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81"},
+]
+
+[[package]]
 name = "smbus2"
 version = "0.5.0"
 description = "smbus2 is a drop-in replacement for smbus-cffi/smbus-python in pure Python"
@@ -767,14 +1028,14 @@ files = [
 
 [[package]]
 name = "urllib3"
-version = "2.6.0"
+version = "2.6.2"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "urllib3-2.6.0-py3-none-any.whl", hash = "sha256:c90f7a39f716c572c4e3e58509581ebd83f9b59cced005b7db7ad2d22b0db99f"},
-    {file = "urllib3-2.6.0.tar.gz", hash = "sha256:cb9bcef5a4b345d5da5d145dc3e30834f58e8018828cbc724d30b4cb7d4d49f1"},
+    {file = "urllib3-2.6.2-py3-none-any.whl", hash = "sha256:ec21cddfe7724fc7cb4ba4bea7aa8e2ef36f607a4bab81aa6ce42a13dc3f03dd"},
+    {file = "urllib3-2.6.2.tar.gz", hash = "sha256:016f9c98bb7e98085cb2b4b17b87d2c702975664e4f060c6532e64d1c1a5e797"},
 ]
 
 [package.extras]
@@ -809,4 +1070,4 @@ tooling-extras = ["pyaml (>=23.7.0)", "pypandoc-binary (>=1.11)", "pytest (>=7.4
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "488637f89618dd79eedf5b628c74516ce99f4d66d81fca6ab1bda0f774a78f32"
+content-hash = "9cbafd08d666d38826d19ecb6bec4b680487f56a53840792dac9d47b155ac0fd"
