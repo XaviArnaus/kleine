@@ -583,7 +583,7 @@ class Main(PyXavi):
             "signal_strength": wifi_info.get("signal_strength", -1),
             "security": wifi_info.get("security", "Unknown"),
         })
-        dd(signal_strength)
+        dd(self.gathered_values.get("wifi"))
         return True
     
     def refresh_gps_data(self) -> bool:
