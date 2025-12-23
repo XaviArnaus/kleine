@@ -475,6 +475,11 @@ class Main(PyXavi):
                 self.gathered_values.set("pitch_roll_yaw", (pitch, roll, yaw))
 
                 return True
+            
+            if self.application_modules[selected_module] == ModuleDefinitions.COCKPIT:
+                self._xlog.debug("🕐 Realtime: Running cockpit module")
+
+                return self.refresh_gps_data()
 
         return False
     
