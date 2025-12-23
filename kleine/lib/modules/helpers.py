@@ -26,6 +26,10 @@ class ScreenSections:
 
         screen_size: Point = parameters.get("screen_size")
 
+        # Initial definitions
+        gps_icon_color = parameters.get("statusbar_font_color")
+        wifi_icon_color = parameters.get("statusbar_font_color")
+
         # Define where to begin from the right.
         next_right_slot_x = screen_size.x - 5
 
@@ -144,7 +148,6 @@ class ScreenSections:
         if parameters.get("statusbar_show_wifi_signal_strength", True):
 
             signal_strength = parameters.get("wifi_signal_strength", WifiSignalQuality.SIGNAL_UNKNOWN)
-            dd(signal_strength)
 
             match signal_strength:
                 case WifiSignalQuality.SIGNAL_GOOD:
