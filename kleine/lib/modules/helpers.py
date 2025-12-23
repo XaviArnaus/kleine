@@ -2,7 +2,6 @@ from pyxavi import Dictionary, dd
 
 from kleine.lib.objects.module_definitions import ModuleDefinitions
 from kleine.lib.objects.gps_signal_quality import GPSSignalQuality
-from kleine.lib.objects.wifi_signal_quality import WifiSignalQuality
 
 from kleine.lib.objects.point import Point
 from kleine.lib.objects.rectangle import Rectangle
@@ -147,17 +146,16 @@ class ScreenSections:
 
         if parameters.get("statusbar_show_wifi_signal_strength", True):
 
-            signal_strength = parameters.get("wifi_signal_strength", WifiSignalQuality.SIGNAL_UNKNOWN)
+            signal_strength = parameters.get("wifi_signal_strength", -1)
 
-            match signal_strength:
-                case WifiSignalQuality.SIGNAL_GOOD:
-                    wifi_icon_color = parameters.get("color.green")
-                case WifiSignalQuality.SIGNAL_WEAK:
-                    wifi_icon_color = parameters.get("color.orange")
-                case WifiSignalQuality.SIGNAL_POOR:
-                    wifi_icon_color = parameters.get("color.red")
-                case WifiSignalQuality.SIGNAL_UNKNOWN:
-                    wifi_icon_color = parameters.get("color.white")
+            if signal_strength < 0:
+                wifi_icon_color = parameters.get("color.white")
+            elif signal_strength < 20:
+                wifi_icon_color = parameters.get("color.red")
+            elif signal_strength <= 50:
+                wifi_icon_color = parameters.get("color.orange")
+            elif signal_strength > 50:
+                wifi_icon_color = parameters.get("color.green")
 
             draw.text((next_right_slot_x, 4),
                        text=f"🛜",
