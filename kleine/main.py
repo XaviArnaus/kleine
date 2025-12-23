@@ -94,8 +94,8 @@ class Main(PyXavi):
         ModuleDefinitions.COCKPIT,
         ModuleDefinitions.TEMPERATURE,
         ModuleDefinitions.ACCELEROMETER,
-        ModuleDefinitions.INFO,
         ModuleDefinitions.GPS,
+        ModuleDefinitions.INFO,
         # ModuleDefinitions.SETTINGS,
         ModuleDefinitions.POWER,
     ]
