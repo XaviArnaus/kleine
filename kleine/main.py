@@ -579,7 +579,7 @@ class Main(PyXavi):
         wifi_info = wifi_info[0]
         self.gathered_values.set("wifi", {
             "ssid": wifi_info.get("ssid", "Unknown"),
-            "signal_strength": wifi_info.get("signal", -1),
+            "signal_strength": int(wifi_info.get("signal", -1)),
             "security": wifi_info.get("security", "Unknown"),
         })
         return True
