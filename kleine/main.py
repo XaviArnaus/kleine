@@ -257,7 +257,7 @@ class Main(PyXavi):
                                     self.application_modules[selected_module])
                     # Reset option selection when changing module
                     selected_option_in_module = -1
-                    time.sleep(0.2) # Debounce delay
+                    time.sleep(0.3) # Debounce delay
                     should_refresh = True
                 
                 # Handle option selection in the current module by pressing the Blue button
@@ -271,7 +271,7 @@ class Main(PyXavi):
                         self._xlog.info("Blue button pressed - moving to next option in module " + 
                                         self.application_modules[selected_module] + 
                                         ": " + options_in_current_module[selected_option_in_module])
-                        time.sleep(0.2) # Debounce delay
+                        time.sleep(0.3) # Debounce delay
                         should_refresh = True
                 
                 # Handle action in the current module by pressing the Green button
@@ -327,7 +327,7 @@ class Main(PyXavi):
                                 refresh_again=refresh_again
                             )
 
-                    time.sleep(0.2) # Debounce delay
+                    time.sleep(0.3) # Debounce delay
 
                 # Run the selected module.
                 # Must happen after the button press handling to avoid skipping modules.
