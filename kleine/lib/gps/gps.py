@@ -71,6 +71,7 @@ class GPS(PyXavi):
             altitudemode=simplekml.AltitudeMode.clamptoground)
         self.track_handler.style.linestyle.width = 3
         self.track_handler.style.linestyle.color = simplekml.Color.red
+        self._xlog.info(f"📍 Start recording a track: {self.track_name}")
 
     def record_track_steppoint(self, latitude: float, longitude: float, altitude: float = 0.0, timestamp: str = ""):
         if self.kml_handler is None:
@@ -80,11 +81,11 @@ class GPS(PyXavi):
         self.track_handler.newgxcoord(coord=[(longitude, latitude, altitude)])
         self.track_handler.newwhen(when=[timestamp])
         self.current_track_point_counter += 1
-        self._xlog.debug(f"Recorded KML point {self.current_track_point_counter}: lat={latitude}, lon={longitude}, alt={altitude}, timestamp={timestamp}")
+        self._xlog.debug(f"📍 Recorded KML point {self.current_track_point_counter}: lat={latitude}, lon={longitude}, alt={altitude}, timestamp={timestamp}")
 
     def split_recording_track_if_too_many_points(self) -> bool:
         if self.current_track_point_counter >= self.MAX_TRACK_POINTS:
-            self._xlog.info("Maximum track points reached, splitting track.")
+            self._xlog.info("📍 Maximum track points reached, splitting track.")
 
             track_name = self._generate_split_track_name(base_track_name=self.track_name,
                                                              suffix_counter=self.track_split_suffix_counter)
@@ -112,7 +113,7 @@ class GPS(PyXavi):
         self.kml_handler.save(filepath)
         self.kml_handler = None
         self.track_handler = None
-        self._xlog.info(f"KML track saved to {filepath}")
+        self._xlog.info(f"📍 KML track saved to {filepath}")
         return True
     
     def _generate_new_track_name(self) -> str:
