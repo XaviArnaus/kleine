@@ -319,9 +319,13 @@ class Main(PyXavi):
                             self._xlog.info("Cockpit: Stop recording track")
                             self._recording_track = False
                             self.gps.stop_recording_track()
-                            modal_message = "Saved recorded track."
-                            should_refresh = True
-                            modal_wait = True
+                            self.refresh_screen(
+                                selected_module=selected_module,
+                                selected_option_in_module=selected_option_in_module,
+                                modal_message="Saved recorded track.",
+                                modal_wait=True,
+                                refresh_again=refresh_again
+                            )
 
                     time.sleep(0.2) # Debounce delay
 
@@ -336,9 +340,6 @@ class Main(PyXavi):
                         modal_wait=modal_wait,
                         refresh_again=refresh_again
                     )
-                    # After refreshing, reset the modal wait flag and message
-                    modal_wait = False
-                    modal_message = ""
 
         except Exception as e:
             self._xlog.error(f"Exception in main run: {e}")
