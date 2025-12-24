@@ -69,6 +69,8 @@ class GPS(PyXavi):
         self.track_handler = self.kml_handler.newgxtrack(
             name=self.track_name,
             altitudemode=simplekml.AltitudeMode.clamptoground)
+        self.track_handler.style.linestyle.width = 3
+        self.track_handler.style.linestyle.color = simplekml.Color.red
 
     def record_track_steppoint(self, latitude: float, longitude: float, altitude: float = 0.0, timestamp: str = ""):
         if self.kml_handler is None:

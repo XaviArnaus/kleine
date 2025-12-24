@@ -336,6 +336,9 @@ class Main(PyXavi):
                         modal_wait=modal_wait,
                         refresh_again=refresh_again
                     )
+                    # After refreshing, reset the modal wait flag and message
+                    modal_wait = False
+                    modal_message = ""
 
         except Exception as e:
             self._xlog.error(f"Exception in main run: {e}")
