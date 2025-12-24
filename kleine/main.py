@@ -323,8 +323,7 @@ class Main(PyXavi):
                                 selected_module=selected_module,
                                 selected_option_in_module=selected_option_in_module,
                                 modal_message="Saved recorded track.",
-                                modal_wait=True,
-                                refresh_again=refresh_again
+                                modal_wait=True
                             )
 
                     time.sleep(0.3) # Debounce delay
@@ -368,8 +367,8 @@ class Main(PyXavi):
                 if modal_message != "" and modal_message != NO_SIGNAL:
                     self._xlog.warning(f"Overwritting the previous message: [{modal_message}] with [{NO_SIGNAL}]" )
                 modal_message = NO_SIGNAL
-            else:
-                modal_message = ""
+                # ⚠️ Edge case: We are writting the track, so we show "Saved recorded track.",
+                # but in that moment we lose GPS signal, so the message will be overwritten.
 
         # Prepare the statusbar info common to all modules
         shared_data = Dictionary({

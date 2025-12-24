@@ -75,6 +75,7 @@ class DisplayModule(PyXavi):
         modal_message = parameters.get("modal_message", None)
         if modal_message is not None and modal_message == "":
             return
+        self._xlog.debug("Modal message to show: " + str(modal_message))
         
         # Define the modal box size
         box_width = self.screen_size.x - 40
