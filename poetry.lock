@@ -950,6 +950,17 @@ files = [
 ]
 
 [[package]]
+name = "simplekml"
+version = "1.3.6"
+description = "A Simple KML creator"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "simplekml-1.3.6.tar.gz", hash = "sha256:cda687be2754395fcab664e908ebf589facd41e8436d233d2be37a69efb1c536"},
+]
+
+[[package]]
 name = "six"
 version = "1.17.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -1070,4 +1081,4 @@ tooling-extras = ["pyaml (>=23.7.0)", "pypandoc-binary (>=1.11)", "pytest (>=7.4
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "9cbafd08d666d38826d19ecb6bec4b680487f56a53840792dac9d47b155ac0fd"
+content-hash = "1db9d31d30739332b5154656859e6ea4e9b7084e72818cd310c7d016c742594d"

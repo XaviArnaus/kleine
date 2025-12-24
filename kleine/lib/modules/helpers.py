@@ -163,15 +163,33 @@ class ScreenSections:
                        fill=wifi_icon_color,
                        anchor="rt",
                        align="right")
+            # Update next right slot position
+            bounding_emoji_signal = draw.textbbox(
+                (next_right_slot_x, 4),
+                text=f"🛜",
+                font=parameters.get("statusbar_font_emoji"),
+                anchor="rt",
+                align="right"
+            )
+            next_right_slot_x -= (bounding_emoji_signal[2] - bounding_emoji_signal[0]) + ScreenSections.STATUS_BAR_PICES_SPACING
+        
+        if parameters.get("recording_track", False):
+            # Show a red dot if we're recording a track
+            draw.text((next_right_slot_x, 4),
+                       text=f"🔴",
+                       font=parameters.get("statusbar_font_emoji"),
+                       fill=parameters.get("color.red"),
+                       anchor="rt",
+                       align="right")
             # # Update next right slot position
-            # bounding_emoji_signal = draw.textbbox(
+            # bounding_emoji_recording = draw.textbbox(
             #     (next_right_slot_x, 4),
-            #     text=f"🛜",
+            #     text=f"🔴",
             #     font=parameters.get("statusbar_font_emoji"),
             #     anchor="rt",
             #     align="right"
             # )
-            # next_right_slot_x -= (bounding_emoji_signal[2] - bounding_emoji_signal[0]) + ScreenSections.STATUS_BAR_PICES_SPACING
+            # next_right_slot_x -= (bounding_emoji_recording[2] - bounding_emoji_recording[0]) + ScreenSections.STATUS_BAR_PICES_SPACING
 
         # The left side is reserved for navigation icons: we show current module displayed.
         draw.text((5, 5),
@@ -225,6 +243,30 @@ class ScreenSections:
             fill=parameters.get("statusbar_font_color"),
             anchor="lb",
             align="left")
+        
+        if module_name is not None and module_name == ModuleDefinitions.COCKPIT:
+            we_are_recording = parameters.get("recording_track", False)
+
+            # Show the green button on the right
+            bounding_green_text = draw.textbbox(
+                (screen_size.x - 5, text_y - 4),
+                text="Record" if not we_are_recording else "Stop Recording",
+                font=parameters.get("statusbar_font"),
+                anchor="rb",
+                align="right")
+            draw.text((screen_size.x - 5, text_y - 4),
+                text="Record" if not we_are_recording else "Stop Recording",
+                font=parameters.get("statusbar_font"),
+                fill=parameters.get("statusbar_font_color"),
+                anchor="rb",
+                align="right")
+            green_button_x = screen_size.x - 5 - (bounding_green_text[2] - bounding_green_text[0]) - ScreenSections.STATUS_BAR_PICES_SPACING
+            draw.text((green_button_x, icon_y),
+                text="🟢",
+                font=parameters.get("statusbar_font_emoji"),
+                fill=parameters.get("color.green"),
+                anchor="rb",
+                align="right")
         
         if module_name is not None and module_name == ModuleDefinitions.POWER:
             # Show the blue button on the center

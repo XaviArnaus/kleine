@@ -15,6 +15,7 @@ log/*
 storage/*.yaml
 storage/mocked/lcd/*
 !**/.keep
+storage/**.kml
 
 # No user config files
 config.yaml

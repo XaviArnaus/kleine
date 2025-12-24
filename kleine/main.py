@@ -26,6 +26,7 @@ from kleine.lib.utils.system import System
 from kleine.lib.utils.calculations import Calculations
 
 import time, math
+from datetime import datetime, date, timezone
 
 class Main(PyXavi):
 
@@ -60,6 +61,9 @@ class Main(PyXavi):
     _last_processed_minute: int = -1
     _last_processed_second: int = -1
     _last_processed_millisecond: int = -1
+
+    _recording_track: bool = False
+
     gathered_values: Dictionary = Dictionary({
         "temperature": 0,
         "humidity": 0,
@@ -304,6 +308,21 @@ class Main(PyXavi):
                             # Wait for the modal message to be acknowledged
                             modal_wait = True
 
+                    # For the Cockpit module, start/stop recording track
+                    if self.application_modules[selected_module] == ModuleDefinitions.COCKPIT:
+
+                        if not self._recording_track:
+                            self._xlog.info("Cockpit: Start recording track")
+                            self._recording_track = True
+                            self.gps.start_recording_track()
+                        else:
+                            self._xlog.info("Cockpit: Stop recording track")
+                            self._recording_track = False
+                            self.gps.stop_recording_track()
+                            modal_message = "Saved recorded track."
+                            should_refresh = True
+                            modal_wait = True
+
                     time.sleep(0.2) # Debounce delay
 
                 # Run the selected module.
@@ -357,11 +376,13 @@ class Main(PyXavi):
             "statusbar_show_battery": self.STATUSBAR_SHOW_BATTERY,
             "statusbar_show_gps_signal_quality": self.STATUSBAR_SHOW_GPS_SIGNAL_QUALITY,
             "statusbar_show_wifi_signal_strength": self.STATUSBAR_SHOW_WIFI_SIGNAL_STRENGTH,
+
             "battery_percentage": self.gathered_values.get("battery_percentage"),
             "battery_is_charging": self.gathered_values.get("battery_is_charging"),
             "gps_signal_quality": self.gathered_values.get("gps", {}).get("signal_quality", GPSSignalQuality.SIGNAL_UNKNOWN),
             "wifi_signal_strength": self.gathered_values.get("wifi", {}).get("signal_strength", -1),
             "temperature": self.gathered_values.get("temperature"),
+            "recording_track": self._recording_track,
             # Any message that we want to show in a modal window
             "modal_message": modal_message,
         })
@@ -511,6 +532,11 @@ class Main(PyXavi):
             # Obtain the WiFi data
             return_value = self.refresh_wifi_data() or return_value
 
+            # If we're recording a track, it's the moment to register a new point
+            if self._recording_track:
+                return_value = self.record_gps_track_point() or return_value
+                
+
         return return_value
 
     def do_every_minute_tasks(self) -> bool:
@@ -554,6 +580,37 @@ class Main(PyXavi):
             return return_value
         
         # No change in minute, no tasks to do
+        return False
+    
+    def record_gps_track_point(self) -> bool:
+
+        gps_data = self.gathered_values.get("gps", {})
+
+        if gps_data.get("signal_quality", 0) == 0:
+            self._xlog.warning("Cannot record GPS track point: No GPS signal.")
+            return False
+
+        if gps_data.get("latitude") is None or \
+            gps_data.get("longitude") is None or \
+            gps_data.get("altitude") is None or \
+            gps_data.get("timestamp") is None:
+            self._xlog.warning("Cannot record GPS track point: Incomplete GPS data.")
+            return False
+
+        self._xlog.debug("📍 Recording GPS track point")
+        current_date = date.today()
+        utc_timestamp = datetime.combine(
+            current_date,
+            gps_data.get("timestamp", datetime.now(tz=timezone.utc).time())).replace(tzinfo=timezone.utc)
+
+        self.gps.record_track_steppoint(
+            latitude=gps_data.get("latitude", 0.0),
+            longitude=gps_data.get("longitude", 0.0),
+            altitude=gps_data.get("altitude", 0.0),
+            timestamp=utc_timestamp
+        )
+
+        # We don't need to refresh the screen because of that.
         return False
 
     def refresh_ups_data(self) -> bool:
