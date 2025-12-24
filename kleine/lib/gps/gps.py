@@ -10,7 +10,7 @@ class GPS(PyXavi):
 
     DEFAULT_MAIN_STORAGE = "storage"
     DEFAULT_TRACK_LOCATION = "tracks"
-    MAX_TRACK_POINTS = 2000
+    MAX_TRACK_POINTS = 2
 
     driver: MockedSerial = None
     track_storage = None
