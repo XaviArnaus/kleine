@@ -81,6 +81,7 @@ class GPS(PyXavi):
         self.track_handler.newgxcoord(coord=[(longitude, latitude, altitude)])
         self.track_handler.newwhen(when=[timestamp])
         self.current_track_point_counter += 1
+        self.split_recording_track_if_too_many_points()
         self._xlog.debug(f"📍 Recorded KML point {self.current_track_point_counter}: lat={latitude}, lon={longitude}, alt={altitude}, timestamp={timestamp}")
 
     def split_recording_track_if_too_many_points(self) -> bool:
