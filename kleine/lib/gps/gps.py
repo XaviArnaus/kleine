@@ -17,8 +17,8 @@ class GPS(PyXavi):
     kml_handler: simplekml.Kml = None
     track_handler: simplekml.GxTrack = None
     track_name: str = None
-    current_track_point_counter: int = 1
-    track_split_suffix_counter: int = 1
+    current_track_point_counter: int = 0
+    track_split_suffix_counter: int = 0
 
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(GPS, self).init_pyxavi(config=config, params=params)
@@ -84,7 +84,7 @@ class GPS(PyXavi):
         split_was_done = self.split_recording_track_if_too_many_points()
         real_point_counter = self.get_real_track_point_counter()
         if split_was_done:
-            self.current_track_point_counter = 1  # Reset counter for new track
+            self.current_track_point_counter = 0  # Reset counter for new track
         self._xlog.debug(f"📍 Recorded KML point {self.current_track_point_counter} / {real_point_counter}: lat={latitude}, lon={longitude}, alt={altitude}, timestamp={timestamp}")
 
     def split_recording_track_if_too_many_points(self) -> bool:
@@ -108,7 +108,7 @@ class GPS(PyXavi):
             return False
 
         track_name = track_name if track_name is not None else self.track_name
-        if self.track_split_suffix_counter > 1:
+        if self.track_split_suffix_counter > 0:
             track_name = self._generate_split_track_name(
                 base_track_name=self.track_name,
                 suffix_counter=self.track_split_suffix_counter)
@@ -118,8 +118,8 @@ class GPS(PyXavi):
         self.kml_handler = None
         self.track_handler = None
         if not avoid_reset_counters:
-            self.current_track_point_counter = 1
-            self.track_split_suffix_counter = 1
+            self.current_track_point_counter = 0
+            self.track_split_suffix_counter = 0
         self._xlog.info(f"📍 KML track saved to {filepath}")
         return True
     
