@@ -10,7 +10,7 @@ class GPS(PyXavi):
 
     DEFAULT_MAIN_STORAGE = "storage"
     DEFAULT_TRACK_LOCATION = "tracks"
-    MAX_TRACK_POINTS = 2
+    MAX_TRACK_POINTS = 5
 
     driver: MockedSerial = None
     track_storage = None
@@ -82,10 +82,10 @@ class GPS(PyXavi):
         self.track_handler.newwhen(when=[timestamp])
         self.current_track_point_counter += 1
         split_was_done = self.split_recording_track_if_too_many_points()
+        real_point_counter = self.get_real_track_point_counter()
         if split_was_done:
             self.current_track_point_counter = 1  # Reset counter for new track
-        real_point_counter = self.get_real_track_point_counter()
-        self._xlog.debug(f"📍 Recorded KML point {real_point_counter}: lat={latitude}, lon={longitude}, alt={altitude}, timestamp={timestamp}")
+        self._xlog.debug(f"📍 Recorded KML point {self.current_track_point_counter} / {real_point_counter}: lat={latitude}, lon={longitude}, alt={altitude}, timestamp={timestamp}")
 
     def split_recording_track_if_too_many_points(self) -> bool:
         if self.current_track_point_counter >= self.MAX_TRACK_POINTS:
@@ -138,4 +138,4 @@ class GPS(PyXavi):
     
     def get_real_track_point_counter(self) -> int:
         # Be careful, call this before stopping the recording otherwise counters will be reset
-        return (self.track_split_suffix_counter) * self.MAX_TRACK_POINTS + self.current_track_point_counter
+        return (self.track_split_suffix_counter * self.MAX_TRACK_POINTS) + self.current_track_point_counter
