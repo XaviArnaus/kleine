@@ -249,12 +249,12 @@ class ScreenSections:
 
             # Show the green button on the right
             bounding_green_text = draw.textbbox(
-                (screen_size.x - 5, text_y - 4),
+                (screen_size.x - 5, text_y - 4 if not we_are_recording else text_y - 2),
                 text="Record" if not we_are_recording else "Stop Recording",
                 font=parameters.get("statusbar_font"),
                 anchor="rb",
                 align="right")
-            draw.text((screen_size.x - 5, text_y - 4),
+            draw.text((screen_size.x - 5, text_y - 4 if not we_are_recording else text_y - 2),
                 text="Record" if not we_are_recording else "Stop Recording",
                 font=parameters.get("statusbar_font"),
                 fill=parameters.get("statusbar_font_color"),
