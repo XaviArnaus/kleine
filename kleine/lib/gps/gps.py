@@ -75,7 +75,7 @@ class GPS(PyXavi):
             self._xlog.warning("KML recording was not started, cannot record point.")
             return
 
-        self.track_handler.newgxcoord(coords=[(longitude, latitude, altitude)])
+        self.track_handler.newgxcoord(coord=[(longitude, latitude, altitude)])
         self.track_handler.newwhen(when=[timestamp])
         self.current_track_point_counter += 1
         self._xlog.debug(f"Recorded KML point {self.current_track_point_counter}: lat={latitude}, lon={longitude}, alt={altitude}, timestamp={timestamp}")
