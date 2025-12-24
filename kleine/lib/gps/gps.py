@@ -82,10 +82,10 @@ class GPS(PyXavi):
         self.track_handler.newwhen(when=[timestamp])
         self.current_track_point_counter += 1
         split_was_done = self.split_recording_track_if_too_many_points()
-        real_point_counter = self.get_real_track_point_counter()
         if split_was_done:
             self.current_track_point_counter = 0  # Reset counter for new track
-        self._xlog.debug(f"📍 Recorded KML point {self.current_track_point_counter} / {real_point_counter}: lat={latitude}, lon={longitude}, alt={altitude}, timestamp={timestamp}")
+        real_point_counter = self.get_real_track_point_counter()
+        self._xlog.debug(f"📍 Recorded KML point {self.current_track_point_counter}/{real_point_counter}: lat={latitude}, lon={longitude}, alt={altitude}, timestamp={timestamp}")
 
     def split_recording_track_if_too_many_points(self) -> bool:
         if self.current_track_point_counter >= self.MAX_TRACK_POINTS:
