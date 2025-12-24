@@ -7,6 +7,7 @@ from kleine.lib.objects.module_definitions import PowerActions
 class DisplayPower(DisplayModule):
 
     options = {
+        PowerActions.POWER_SLEEP: "🌙 Sleep",
         PowerActions.POWER_SHUTDOWN: "⛔️ Shut down",
         PowerActions.POWER_REBOOT: "♻️ Reboot",
         PowerActions.POWER_UPDATE_RESTART: "🆙 Update and restart"

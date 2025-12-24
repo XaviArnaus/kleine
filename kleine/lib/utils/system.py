@@ -181,7 +181,9 @@ class System(PyXavi):
                     return False
             
             # Now we run the possible update of the python packages
-            completed_process = subprocess.run(['make', 'update'], capture_output=True)
+            completed_process = subprocess.run(['/home/xavier/.local/bin/poetry', 'lock'], capture_output=True)
+            self._xlog.debug(f"Poetry lock completed with exit code: {completed_process.returncode}")
+            completed_process = subprocess.run(['/home/xavier/.local/bin/poetry', 'install'], capture_output=True)
 
             if completed_process.returncode == 0:
                 self._xlog.info("Python packages updated successfully.")

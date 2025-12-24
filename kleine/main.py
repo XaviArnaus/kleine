@@ -26,7 +26,6 @@ from kleine.lib.utils.system import System
 from kleine.lib.utils.calculations import Calculations
 
 import time, math
-from datetime import datetime
 
 class Main(PyXavi):
 
@@ -95,16 +94,17 @@ class Main(PyXavi):
         ModuleDefinitions.COCKPIT,
         ModuleDefinitions.TEMPERATURE,
         ModuleDefinitions.ACCELEROMETER,
-        ModuleDefinitions.INFO,
         ModuleDefinitions.GPS,
+        ModuleDefinitions.INFO,
         # ModuleDefinitions.SETTINGS,
         ModuleDefinitions.POWER,
     ]
 
     # Options tree for each module.
-    # The index is the order of the options in the module.
+    # Important!! The index is the order of the options in the module.
     options_tree = {
         ModuleDefinitions.POWER: [
+            PowerActions.POWER_SLEEP,
             PowerActions.POWER_SHUTDOWN,
             PowerActions.POWER_REBOOT,
             PowerActions.POWER_UPDATE_RESTART,
@@ -475,6 +475,11 @@ class Main(PyXavi):
                 self.gathered_values.set("pitch_roll_yaw", (pitch, roll, yaw))
 
                 return True
+            
+            if self.application_modules[selected_module] == ModuleDefinitions.COCKPIT:
+                self._xlog.debug("🕐 Realtime: Running cockpit module")
+
+                return self.refresh_gps_data()
 
         return False
     
@@ -636,7 +641,15 @@ class Main(PyXavi):
 
         if module_name == ModuleDefinitions.POWER:
 
-            if option_key == PowerActions.POWER_SHUTDOWN:
+            if option_key == PowerActions.POWER_SLEEP:
+                if self._xconfig.get("ups.mock", False):
+                    self._xlog.info("UPS is in mock mode, not sleeping.")
+                else:
+                    self._xlog.info("Sleeping")
+                    self._xlog.warning("Not implemented yet: sleeping the system.")
+                    
+
+            elif option_key == PowerActions.POWER_SHUTDOWN:
                 if self._xconfig.get("ups.mock", False):
                     self._xlog.info("UPS is in mock mode, not shutting down.")
                 else:
