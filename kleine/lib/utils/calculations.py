@@ -11,7 +11,7 @@ class Calculations:
         return kmh / 1.852
 
     @staticmethod
-    def calculate_speed_between_points(previous_point: dict, current_point: dict, previous_time: time, current_time: time) -> float:
+    def calculate_speed_between_points(previous_point: dict, current_point: dict, time_diff_milisecs: float) -> float:
         """
         Calculate speed between two GPS points given the time difference in seconds.
         Haversine formula is used to calculate the distance between two latitude/longitude points.
@@ -39,16 +39,5 @@ class Calculations:
         distance_km = R * c
         distance_nm = distance_km * 0.539957  # Convert km to nautical miles
 
-        current_date = date.today()
-        previous_time_mili = datetime.combine(current_date, previous_time).timestamp() * 1000
-        current_time_mili = datetime.combine(current_date, current_time).timestamp() * 1000
-
-        time_diff_milisecs = current_time_mili - previous_time_mili
-
-        speed = False
-        if time_diff_milisecs > 0:
-            speed_knots = distance_nm / (time_diff_milisecs / 3600000)  # Convert milisec to hours
-            speed = Calculations.knots_to_kmh(speed_knots)
-        
-        print(speed)
-        return speed
+        speed_knots = distance_nm / (time_diff_milisecs / (3600 * 1000))  # Convert milisec to hours
+        return Calculations.knots_to_kmh(speed_knots)

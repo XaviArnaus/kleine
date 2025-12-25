@@ -667,20 +667,27 @@ class Main(PyXavi):
         # Calculate speed based on previous position
         previous_time = self.gathered_values.get("gps", {}).get("timestamp", None)
         current_time = gps_info.get("timestamp", None)
-        previous_point = {
-            "latitude": self.gathered_values.get("gps", {}).get("latitude", 0.0),
-            "longitude": self.gathered_values.get("gps", {}).get("longitude", 0.0),
-        }
-        current_point = {
-            "latitude": gps_info.get("latitude", 0.0),
-            "longitude": gps_info.get("longitude", 0.0),
-        }
-        speed = self.gathered_values.get("gps", {}).get("speed")
-        if previous_time is not None and current_time is not None:
-            calculated_spped = round(Calculations.calculate_speed_between_points(
-                previous_point, current_point, previous_time, current_time), 1)
-            if speed is not False:
-                speed = calculated_spped
+        current_date = date.today()
+        previous_time_mili = datetime.combine(current_date, previous_time).timestamp() * 1000
+        current_time_mili = datetime.combine(current_date, current_time).timestamp() * 1000
+        time_diff_milisecs = current_time_mili - previous_time_mili
+
+        if time_diff_milisecs > 0:
+            previous_point = {
+                "latitude": self.gathered_values.get("gps", {}).get("latitude", 0.0),
+                "longitude": self.gathered_values.get("gps", {}).get("longitude", 0.0),
+            }
+            current_point = {
+                "latitude": gps_info.get("latitude", 0.0),
+                "longitude": gps_info.get("longitude", 0.0),
+            }
+            if previous_time is not None and current_time is not None:
+                speed = round(Calculations.calculate_speed_between_points(
+                    previous_point, current_point, time_diff_milisecs), 1)
+        
+        if speed is None:
+            speed = self.gathered_values.get("gps", {}).get("speed")
+                
         dd(speed)
 
         # Now update gathered values
