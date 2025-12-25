@@ -691,8 +691,6 @@ class Main(PyXavi):
         
         if speed is None:
             speed = self.gathered_values.get("gps", {}).get("speed")
-                
-        dd(speed)
 
         # Now update gathered values
         self.gathered_values.set("gps", {
