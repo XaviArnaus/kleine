@@ -667,10 +667,13 @@ class Main(PyXavi):
         # Calculate speed based on previous position
         previous_time = self.gathered_values.get("gps", {}).get("timestamp", None)
         current_time = gps_info.get("timestamp", None)
-        current_date = date.today()
-        previous_time_mili = datetime.combine(current_date, previous_time).timestamp() * 1000
-        current_time_mili = datetime.combine(current_date, current_time).timestamp() * 1000
-        time_diff_milisecs = current_time_mili - previous_time_mili
+        if previous_time is None or current_time is None:
+            time_diff_milisecs = 0
+        else:
+            current_date = date.today()
+            previous_time_mili = datetime.combine(current_date, previous_time).timestamp() * 1000
+            current_time_mili = datetime.combine(current_date, current_time).timestamp() * 1000
+            time_diff_milisecs = current_time_mili - previous_time_mili
 
         if time_diff_milisecs > 0:
             previous_point = {
