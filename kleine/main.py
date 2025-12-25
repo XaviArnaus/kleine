@@ -651,6 +651,7 @@ class Main(PyXavi):
     
     def refresh_gps_data(self) -> bool:
         gps_info = self.gps.get_position()
+        speed = None
 
         if gps_info is None or isinstance(gps_info, dict) is False:
             return False
