@@ -40,14 +40,15 @@ class Calculations:
         distance_nm = distance_km * 0.539957  # Convert km to nautical miles
 
         current_date = date.today()
-        previous_time = datetime.combine(current_date, previous_time).timestamp()
-        current_time = datetime.combine(current_date, current_time).timestamp()
+        previous_time_mili = datetime.combine(current_date, previous_time).timestamp() * 1000
+        current_time_mili = datetime.combine(current_date, current_time).timestamp() * 1000
 
-        time_diff_secs = current_time - previous_time
+        time_diff_milisecs = current_time_mili - previous_time_mili
 
-        if time_diff_secs > 0:
-            speed_knots = distance_nm / (time_diff_secs / 3600)  # Convert seconds to hours
-        else:
-            speed_knots = 0.0
-
-        return Calculations.knots_to_kmh(speed_knots)
+        speed = False
+        if time_diff_milisecs > 0:
+            speed_knots = distance_nm / (time_diff_milisecs / 3600000)  # Convert milisec to hours
+            speed = Calculations.knots_to_kmh(speed_knots)
+        
+        print(speed)
+        return speed
