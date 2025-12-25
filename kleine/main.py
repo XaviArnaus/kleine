@@ -657,8 +657,11 @@ class Main(PyXavi):
         
         # We're supposed to have always the signal quality
         self.gathered_values.get("gps")["signal_quality"] = gps_info.get("signal_quality", 0)
+        self.gathered_values.get("gps")["signal_quality"] = gps_info.get("num_sats", 0)
 
         if gps_info.get("latitude", None) is None or gps_info.get("longitude", None) is None:
+            return False
+        if gps_info.get("latitude", 0.0) == 0.0 and  gps_info.get("longitude", 0.0) == 0.0:
             return False
 
         # Calculate speed based on previous position
@@ -672,11 +675,13 @@ class Main(PyXavi):
             "latitude": gps_info.get("latitude", 0.0),
             "longitude": gps_info.get("longitude", 0.0),
         }
-        if previous_time is None or current_time is None:
-            speed = None
-        else:
-            speed = round(Calculations.calculate_speed_between_points(
+        speed = self.gathered_values.get("gps", {}).get("speed")
+        if previous_time is not None and current_time is not None:
+            calculated_spped = round(Calculations.calculate_speed_between_points(
                 previous_point, current_point, previous_time, current_time), 1)
+            if speed is not False:
+                speed = calculated_spped
+        dd(speed)
 
         # Now update gathered values
         self.gathered_values.set("gps", {
