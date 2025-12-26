@@ -42,6 +42,8 @@ class System(PyXavi):
     @staticmethod
     def get_default_network_interface():
         data = ifcfg.default_interface()
+        if data is None:
+            return None
         return {
             "name": data.get("name"),
             "ip": data.get("inet"),
