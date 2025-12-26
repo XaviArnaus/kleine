@@ -91,6 +91,10 @@ class Main(PyXavi):
             "signal_strength": None,
             "security": None
         },
+        "network": {
+            "ip": None,
+            "mac": None
+        }
     })
 
     # The index of the application modules is the order to cycle through them
@@ -383,7 +387,7 @@ class Main(PyXavi):
             "battery_percentage": self.gathered_values.get("battery_percentage"),
             "battery_is_charging": self.gathered_values.get("battery_is_charging"),
             "gps_signal_quality": self.gathered_values.get("gps", {}).get("signal_quality", GPSSignalQuality.SIGNAL_UNKNOWN),
-            "wifi_signal_strength": self.gathered_values.get("wifi", {}).get("signal_strength", -1),
+            "wifi_signal_strength": self.get_wifi_connected_and_strength(),
             "temperature": self.gathered_values.get("temperature"),
             "recording_track": self._recording_track,
             # Any message that we want to show in a modal window
@@ -441,7 +445,7 @@ class Main(PyXavi):
             self._xlog.debug("Running Info module")
             self.display_info.module(parameters=shared_data.merge(Dictionary({
                 "os_info": System.get_os_info(),
-                "network_interface": System.get_default_network_interface(),
+                "network_interface": self.gathered_values.get("network", {}),
                 "wifi_network": self.gathered_values.get("wifi", {})
             })))
 
@@ -534,6 +538,9 @@ class Main(PyXavi):
 
             # Obtain the WiFi data
             return_value = self.refresh_wifi_data() or return_value
+
+            # Obtain Network data
+            return_value = self.refresh_network_data() or return_value
 
             # If we're recording a track, it's the moment to register a new point
             if self._recording_track:
@@ -649,6 +656,24 @@ class Main(PyXavi):
         })
         return True
     
+    def refresh_network_data(self) -> bool:
+        network_data = System.get_default_network_interface()
+
+        if network_data is None:
+            return False
+        
+        previous_data = self.gathered_values.get("network", {})
+
+        if network_data.get("ip", None) != previous_data.get("ip", None) or \
+            network_data.get("mac", None) != previous_data.get("mac", None):
+            self.gathered_values.set("network", {
+                "ip": network_data.get("ip", None),
+                "mac": network_data.get("mac", None),
+            })
+            return True
+
+        return False
+
     def refresh_gps_data(self) -> bool:
         gps_info = self.gps.get_position()
         speed = None
@@ -752,7 +777,16 @@ class Main(PyXavi):
                     returning_value = "Update failed"
                     
         return returning_value
+    
+    def _are_we_connected_to_network(self) -> bool:
+        ip = self.gathered_values.get("network", {}).get("ip", None)
+        return ip is not None
 
+    def get_wifi_connected_and_strength(self) -> dict:
+        if not self._are_we_connected_to_network():
+            return -1
+        else:
+            return self.gathered_values.get("wifi", {}).get("signal_strength", -1)
 
     def close_nicely(self):
         self._xlog.debug("Closing nicely")

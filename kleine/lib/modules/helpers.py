@@ -149,12 +149,10 @@ class ScreenSections:
             signal_strength = parameters.get("wifi_signal_strength", -1)
 
             if signal_strength < 0:
-                wifi_icon_color = parameters.get("color.white")
-            elif signal_strength < 20:
                 wifi_icon_color = parameters.get("color.red")
-            elif signal_strength <= 50:
+            elif signal_strength < 50:
                 wifi_icon_color = parameters.get("color.orange")
-            elif signal_strength > 50:
+            elif signal_strength >= 50:
                 wifi_icon_color = parameters.get("color.green")
 
             draw.text((next_right_slot_x, 4),
