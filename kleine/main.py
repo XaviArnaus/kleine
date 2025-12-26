@@ -701,6 +701,9 @@ class Main(PyXavi):
             current_time_mili = datetime.combine(current_date, current_time).timestamp() * 1000
             time_diff_milisecs = current_time_mili - previous_time_mili
 
+        # The current GPS setup gathers data once per second. TODO: Improve that!!!
+        # Even we run this speed calculation in every fraction of a second, the position values will not change
+        # that often. So we only calculate speed if time difference is positive.
         if time_diff_milisecs > 0:
             previous_point = {
                 "latitude": self.gathered_values.get("gps", {}).get("latitude", 0.0),
