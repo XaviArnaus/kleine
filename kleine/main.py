@@ -309,7 +309,9 @@ class Main(PyXavi):
                     selected_module += 1
                     if selected_module >= len(self.application_modules):
                         selected_module = 0
-                    if self.application_modules[selected_module] not in self.enabled_modules or not self.enabled_modules[self.application_modules[selected_module]]:
+                    while self.application_modules[selected_module] not in self.enabled_modules \
+                        or not self.enabled_modules[self.application_modules[selected_module]]:
+                        
                         self._xlog.info("Module " + self.application_modules[selected_module] + " is disabled, skipping it.")
                         selected_module += 1
                         if selected_module >= len(self.application_modules):
