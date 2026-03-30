@@ -183,7 +183,7 @@ class Main(PyXavi):
 
         # Update the status bar flags based on the enabled modules and features
         self.STATUSBAR_SHOW_TEMPERATURE = self.enabled_features["temperature"]
-        self.STATUSBAR_SHOW_BATTERY = self.enabled_features["ups"]
+        self.STATUSBAR_SHOW_BATTERY = self.enabled_features["ups"] and not self._xconfig.get("ups.unmanaged", False)
         self.STATUSBAR_SHOW_GPS_SIGNAL_QUALITY = self.enabled_features["gps"]
         self.STATUSBAR_SHOW_WIFI_SIGNAL_STRENGTH = True
 
@@ -311,7 +311,7 @@ class Main(PyXavi):
                         selected_module = 0
                     while self.application_modules[selected_module] not in self.enabled_modules \
                         or not self.enabled_modules[self.application_modules[selected_module]]:
-                        
+
                         self._xlog.info("Module " + self.application_modules[selected_module] + " is disabled, skipping it.")
                         selected_module += 1
                         if selected_module >= len(self.application_modules):
@@ -812,17 +812,29 @@ class Main(PyXavi):
                     
 
             elif option_key == PowerActions.POWER_SHUTDOWN:
-                if self._xconfig.get("ups.mock", False):
-                    self._xlog.info("UPS is in mock mode, not shutting down.")
-                else:
+                allowed = False
+                if self._xconfig.get("ups.enabled", False):
+                    if self._xconfig.get("ups.unmanaged", False):
+                        self._xlog.warning("UPS is unmanaged, we can power off the system but we can't know the battery state. Proceeding with shutdown.")
+                        allowed = True
+                    if self._xconfig.get("ups.mock", False):
+                        self._xlog.info("UPS is in mock mode, not shutting down.")
+
+                if allowed:
                     self._xlog.info("Shutting down")
                     self.close_nicely()
                     System.power_off_system()
 
             elif option_key == PowerActions.POWER_REBOOT:
-                if self._xconfig.get("ups.mock", False):
-                    self._xlog.info("UPS is in mock mode, not rebooting.")
-                else:
+                allowed = False
+                if self._xconfig.get("ups.enabled", False):
+                    if self._xconfig.get("ups.unmanaged", False):
+                        self._xlog.warning("UPS is unmanaged, we can power off the system but we can't know the battery state. Proceeding with reboot.")
+                        allowed = True
+                    if self._xconfig.get("ups.mock", False):
+                        self._xlog.info("UPS is in mock mode, not rebooting.")
+
+                if allowed:
                     self._xlog.info("Rebooting")
                     self.close_nicely()
                     System.reboot_system()

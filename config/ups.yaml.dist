@@ -2,6 +2,9 @@
 ups:
   # [Bool] Enable the feature
   enable: False 
+  # [Bool] Defines if the UPS is not manageable through i2c.
+  # This means that we can't know the battery state, but we should be able to power off and reboot manually.
+  unmanaged: False
   # [Bool] Simply ignores UPS hardware and returns mock values
   mock: True
   # Hardware configuration for the UPS
