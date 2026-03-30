@@ -424,7 +424,7 @@ class Main(PyXavi):
         """
 
         # Interfere in the drawing of the screen in case we need to say something
-        NO_SIGNAL = "No GPS signal detected"
+        NO_SIGNAL = "No GPS signal"
         if self.application_modules[selected_module] == ModuleDefinitions.GPS or \
             self.application_modules[selected_module] == ModuleDefinitions.COCKPIT:
             if self.gathered_values.get("gps", {}).get("signal_quality", 0) == 0:
