@@ -45,6 +45,51 @@ sounddevices() {
      cd "$DIR/.." && poetry run sounddevices
 }
 
+# Commandline to create the system links for system service and shutdown/reboot scripts
+link_service() {
+    echo "Installing system service and shutdown/reboot scripts for Kleine"
+
+    read -p "Link Kleine service to /etc/systemd/system/kleine.service? (y)Yes/(n)No/(c)Cancel:- " choice
+    case $choice in
+        [yY]* ) sudo ln -s ~/kleine/config/system/kleine.service /etc/systemd/system/kleine.service ;;
+        [nN]* ) echo "Skipping." ;;
+        [cC]* ) exit ;;
+        *) exit ;;
+    esac
+
+    read -p "Link Shutdown script to /etc/rc0.d/k99_cleanup_kleine? (y)Yes/(n)No/(c)Cancel:- " choice
+    case $choice in
+        [yY]* ) sudo ln -s ~/kleine/config/system/k99_cleanup_kleine /etc/rc0.d/k99_cleanup_kleine ;;
+        [nN]* ) echo "Skipping." ;;
+        [cC]* ) exit ;;
+        *) exit ;;
+    esac
+
+    read -p "Link Reboot script to /etc/rc6.d/k99_cleanup_kleine? (y)Yes/(n)No/(c)Cancel:- " choice
+    case $choice in
+        [yY]* ) sudo ln -s ~/kleine/config/system/k99_cleanup_kleine /etc/rc6.d/k99_cleanup_kleine ;;
+        [nN]* ) echo "Skipping." ;;
+        [cC]* ) exit ;;
+        *) exit ;;
+    esac
+
+    read -p "Reload systemctl daemon? (y)Yes/(n)No/(c)Cancel:- " choice
+    case $choice in
+        [yY]* ) sudo systemctl daemon-reload ;;
+        [nN]* ) echo "Skipping." ;;
+        [cC]* ) exit ;;
+        *) exit ;;
+    esac
+
+    read -p "Enable the Kleine service? (y)Yes/(n)No/(c)Cancel:- " choice
+    case $choice in
+        [yY]* ) sudo systemctl enable kleine ;;
+        [nN]* ) echo "Skipping." ;;
+        [cC]* ) exit ;;
+        *) exit ;;
+    esac
+}
+
 
 if [[ $# -eq 0 ]] ; then
     # No arguments provided, we start in foreground
@@ -59,7 +104,8 @@ case "$1" in
     "restart") restart_background ;;
     "status") status_background ;;
     "logs") logs_journalctl_background ;;
-    "help") echo "Usage: kleine [start|stop|restart|status|help]" ;;
+    "link_service") link_service ;;
+    "help") echo "Usage: kleine [start|stop|restart|status|logs|link_service|help]" ;;
     *) echo "Command unknown" ;;
 esac
 

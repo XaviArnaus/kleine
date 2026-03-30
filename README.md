@@ -298,6 +298,15 @@ for file in config/*.yaml.dist; do cp "$file" "${file%.dist}"; done
 
 ... and edit it at your wish (review the hardware notes at the top of this file)
 
+## Setup Kleine as a service of the system
+
+Adding Kleine as a service allows the RPi to automatically start Kleine on start by itself.
+Use the Kleine binary to create the necessary links from the Kleine service definition to the actual Systemd services location.
+It will also place links for the shutdown and reboot that clean properly the system when closing it.
+```
+kleine link_service
+```
+
 
 # Resources
 
