@@ -15,22 +15,32 @@ gpio:
       mocked_as: "space"
 
 temperature:
+  # [Bool] Enable the feature
+  enable: False 
   # [Bool] Simply ignores temperature sensor hardware and returns mock values
   mock: True
 
 humidity:
+  # [Bool] Enable the feature
+  enable: False 
   # [Bool] Simply ignores humidity sensor hardware and returns mock values
   mock: True
 
 air_pressure:
+  # [Bool] Enable the feature
+  enable: False 
   # [Bool] Simply ignores air pressure sensor hardware and returns mock values
   mock: True
 
 accelerometer:
+  # [Bool] Enable the feature
+  enable: False 
   # [Bool] Simply ignores accelerometer hardware and returns mock values
   mock: True
 
 gps:
+  # [Bool] Enable the feature
+  enable: False 
   # [Bool] Simply ignores GPS hardware and returns mock values
   mock: True
   # [Bool] Activate detailed logging for GPS NMEA parsing

@@ -203,6 +203,19 @@ The second setup uses the buttons embedded in the HAT. It also have defined the 
       mocked_as: "shift"
 ```
 
+## UPS
+
+The first setup had a PiSugar UPS that has a i2c interface to interact with battery info. Be sure to set up the right address so it can communicate:
+```
+  hardware:
+    # [String] I2C Bus
+    bus: 1
+    # [Int] I2C Address
+    address: 0x43
+```
+
+The second setup had a Geekworm UPS that does not have any interface with the battery info, so be sure to disable the feature.
+
 ## Install system depencencies
 
 Here we setup the application and its dependencies. These can be also at Linux level to support the interaction with the hardware. Most of the times it comes dictates by the code approach and which libraries it uses, so if you feel more confortable with other backend, go to the code and make it happen, and send me a Pull Request to include the support!

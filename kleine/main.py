@@ -119,6 +119,17 @@ class Main(PyXavi):
         ],
     }
 
+    # Enabled modules. Check the related config.
+    enabled_modules = {
+        ModuleDefinitions.COCKPIT: True,
+        ModuleDefinitions.TEMPERATURE: True,
+        ModuleDefinitions.ACCELEROMETER: True,
+        ModuleDefinitions.GPS: True,
+        ModuleDefinitions.INFO: True,
+        # ModuleDefinitions.SETTINGS: True,
+        ModuleDefinitions.POWER: True,
+    }
+
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(Main, self).init_pyxavi(config=config, params=params)
 
@@ -175,6 +186,14 @@ class Main(PyXavi):
             "canvas": self.canvas,
             "device": self.lcd
         }))
+
+        # Get the module enabling flags from the config
+        self.enabled_modules[ModuleDefinitions.COCKPIT] = self._xconfig.get("gps.enable", False)
+        self.enabled_modules[ModuleDefinitions.TEMPERATURE] = self._xconfig.get("temperature.enable", False)
+        self.enabled_modules[ModuleDefinitions.ACCELEROMETER] = self._xconfig.get("accelerometer.enable", False)
+        self.enabled_modules[ModuleDefinitions.GPS] = self._xconfig.get("gps.enable", False)
+        self.enabled_modules[ModuleDefinitions.INFO] = True # Info module is always enabled, as it shows system info
+        self.enabled_modules[ModuleDefinitions.POWER] = True # Power module is always enabled, as it shows battery info and allows power actions
 
         # Initialise the GPIO
         self._xlog.info("Initialising GPIO")
@@ -254,6 +273,9 @@ class Main(PyXavi):
                 # Handle module selection by pressing the Yellow button or at startup
                 if self.gpio.is_button_pressed("yellow") or selected_module == -1:
                     selected_module += 1
+                    if self.application_modules[selected_module] not in self.enabled_modules or not self.enabled_modules[self.application_modules[selected_module]]:
+                        self._xlog.info("Module " + self.application_modules[selected_module] + " is disabled, skipping it.")
+                        selected_module += 1
                     if selected_module >= len(self.application_modules):
                         selected_module = 0
                     
