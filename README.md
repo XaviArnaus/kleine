@@ -141,18 +141,162 @@ With this, we should be able to see the GPS messages flowing throught the GPS wi
 cat /dev/ttyAMA0
 ```
 
+Once we can see the messages in the tty file, we need to ensure that the Kleine configuration (`config/gpio.yml`) is reading the right file:
+
+```
+serial_port: "/dev/ttyAMA0"
+```
+
 ## Display
 
 This project relies on having a ST7789 display driver, so both 2" LCD display and the Waveshare 1.33 display and buttons HAT works out of the box.
 
 Just ensure that you defined the right display pixel size and the right rotation that fits your device and setup, by editing the `config/displays.yml`
 
-## Python
+- First setup: 2" LCD: 320x240, rotate 180 degrees
+- Second setip 1,33" LCD: 240x240, rotate 90 degrees
+
+## Buttons
+
+This project relies on having 3 buttons to navigate and behave with the app. 
+
+The first setup had these buttons physically added as GPIO sensors
+```
+  buttons:
+    - name: yellow
+      pin: 16
+      mocked_as: "tab"
+    - name: green
+      pin: 26
+      mocked_as: "enter"
+    - name: blue
+      pin: 5
+      mocked_as: "space"
+```
+
+The second setup uses the buttons embedded in the HAT. It also have defined the joystick buttons, hoping to evolve the app to use them instead of the ones in the first setup:
+```
+  buttons:
+    - name: yellow
+      pin: 21
+      mocked_as: "tab"
+    - name: green
+      pin: 16
+      mocked_as: "enter"
+    - name: blue
+      pin: 20
+      mocked_as: "space"
+    - name: up
+      pin: 6
+      mocked_as: "up"
+    - name: down
+      pin: 19
+      mocked_as: "down"
+    - name: left
+      pin: 5
+      mocked_as: "left"
+    - name: right
+      pin: 26
+      mocked_as: "right"
+    - name: center
+      pin: 13
+      mocked_as: "shift"
+```
+
+## Install system depencencies
+
+Here we setup the application and its dependencies. These can be also at Linux level to support the interaction with the hardware. Most of the times it comes dictates by the code approach and which libraries it uses, so if you feel more confortable with other backend, go to the code and make it happen, and send me a Pull Request to include the support!
+
+### Initial Linux basic setup
+
+The following is initially required:
+
+#### Install Git
+
+```
+sudo apt install git
+```
+
+### Debian packages to support the Python application
+
+The following are the system dependencies that are needed at OS level so that the Python application works.
+
+#### ❗️ All Linux/Debian code dependencies in one line
+
+Debian packages can be installed all at once. Just make sure that I did not forget to add in this line anything from the below sections, I'm just putting them all together here.
+
+```
+sudo apt install python3-dev libjpeg-dev zlib1g-dev libfreetype6-dev swig liblgpio-dev i2c-tools
+```
+
+#### Ability to build other dependencies: `python3-dev`
+
+Some dependencies are built at installing time. Please have the `python3-dev` pachage installed beforehand:
+
+```
+sudo apt install python3-dev
+```
+
+#### Related to `Pillow`
+
+This is needed for the internal Pillow support, we interact with the displays by drawing images.
+
+```
+sudo apt install libjpeg-dev zlib1g-dev libfreetype6-dev
+```
+
+#### Related to `lgpio`
+
+This is needed for the internal GPIO support
+
+```
+sudo apt install swig liblgpio-dev
+```
+
+#### Related to `i2c`
+
+This is not needed for the Python / Poetry application to work, but it's useful to debug and identify the own hardware.
+
+```
+sudo apt install i2c-tools
+```
+
+## Clone the repository
+
+Taking `/home/user/` as a target for the project.
+
+```
+git clone git@github.com:XaviArnaus/kleine.git
+```
 
 ## Poetry
 ```
 curl -sSL https://install.python-poetry.org | python3 -
 ```
+
+Remember to add the `poetry` path into PATH, inside `.bashrc`:
+```
+export PATH="/home/user/.local/bin:$PATH"
+```
+
+## Ininitalize the project
+
+This creates the Python Virtual Environment and installs / builds all the Python packages required by the application.
+
+```
+make init
+```
+
+If it complains about the `python.lock`, use `make update` instead.
+
+
+## Generate all the config files out of the `dist` example ones
+
+```
+for file in config/*.yaml.dist; do cp "$file" "${file%.dist}"; done
+```
+
+... and edit it at your wish (review the hardware notes at the top of this file)
 
 
 # Resources
@@ -178,3 +322,6 @@ https://www.rfwireless-world.com/terminology/gps-nmea-sentences
 https://receiverhelp.trimble.com/alloy-gnss/en-us/NMEA-0183messages_GGA.html
 
 https://www.aeanet.org/how-many-gps-satellites-do-you-need/
+
+## Waveshare 1.3 inch LCD HAT
+https://www.waveshare.com/wiki/1.3inch_LCD_HAT
