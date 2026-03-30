@@ -1,78 +1,95 @@
 # Kleine
 
-bla
+Raspbeery PI Zero 2W as a GPS tracker and something more, related to sensors and so on.
+
+First version had a Waveshare Sensor HAT, a Beitian BN-880, a PiSugar UPS and a 2" LCD display, plus 3 physical buttons.
+Second version had the Beitian BN-880, a Geekworkm X306 UPS and a Waveshare 1.33" LCD HAT that contained a joystic style input and 3 buttons (So, no Waveshare Sensor HAT, mainly)
+
+The idea is to have a small device that does some sensor logging
 
 # Install
+Reviewed working on April 2026 for Second version.
 
 ## System
+
+### First start
+
+Most of these steps are optional, and depend on what are the features that you want **Kleine** to support. Sensors, Displays, UPSs and so on usually need to have activated the SPI, I2C and xxx interfaces, and maybe to add some overlays or extra config in `/boot/firmware/config.txt`. I mention all here, and you simply jump whatever does not fit in your setup.
+
+#### Ensure Network connectivity and access (optional)
+
+Once we know what is the IP of the host (check your router, or use tools like `arpscan` to find it out).
+
+1. Add your development SSH Key into the RPi host, to avoid having to type your password every time. More info [here](https://xavier.arnaus.net/blog/set-up-the-ssh-key-authentication-between-hosts)
+2. Add the RPi host's SSH Key into GitHub SSH Keys if needed, to be able to clone the repo later on.
+3. Add a new Wifi connection relating to your phone's hotspot, so that you can use Pitxu on the go. Use `nmtui` for it.
+
+#### Update the system to the latest version
+
+This is important as some of the hardware - software interconnections are quite edgy and improvements and bugfixes appear often.
+
+```
+sudo apt update
+sudo apt full-upgrade
+sudo rpi-eeprom-update -a
+sudo reboot
+```
+
+#### Post-installation in `raspi-config`
+
+We need to do some post installation setup through the RPi configuration tool:
+```
+sudo raspi-config
+```
+
+Skip whatever that does not fit to the hardware that you may have connected.
+
+1. Activate the SPI interface under `3 Interface Options > I4 SPI`
+2. Activate the I2C interface under `3 Interface Options > I5 I2C`
+3. Configure the system Locale under `5 Localisation Options > L1 Locale`
+
+And reboot again.
 
 ```
 sudo apt install python3-dev swig liblgpio-dev i2c-tools
 ```
 
-## Sense drivers
-
-### BCM2835
-```
-sudo apt-get install binutils make csh g++ sed gawk autoconf automake autotools-dev
-```
-
-```
-#Open the Raspberry Pi terminal and run the following commands:
-sudo wget http://www.airspayce.com/mikem/bcm2835/bcm2835-1.71.tar.gz
-sudo tar zxvf bcm2835-1.71.tar.gz 
-cd bcm2835-1.71/
-sudo ./configure && sudo make && sudo make check && sudo make install
-# For more information, please refer to the official website: http://www.airspayce.com/mikem/bcm2835/
-```
-
-### WiringPi
-
-```
-sudo apt-get install libc6
-```
-
-May need the following:
-```
-sudo apt --fix-broken install
-```
-
-```
-#Open the Raspberry Pi terminal and run the following commands:
-cd
-sudo apt-get install wiringpi
-#For Raspberry Pi systems after May 2019 (those earlier may not require execution), an upgrade may be necessary:
-wget https://github.com/WiringPi/WiringPi/releases/download/3.16/wiringpi_3.16_arm64.deb
-sudo dpkg -i wiringpi_3.16_arm64.deb
-gpio -v
-# Run gpio -v and version 2.52 will appear. If it does not appear, there is an installation error
-```
-
-### lgpio
-```
-sudo apt-get install python3-setuptools
-```
-
-```
-sudo su
-wget https://github.com/joan2937/lg/archive/master.zip
-unzip master.zip
-cd lg-master
-sudo make install 
-# For more information, please refer to the official website: https://github.com/gpiozero/lg
-```
-
 ## GPS
-The GPS is a Beitian BN-880. The magnetometer is not connected (SDA SCL) because we already have one up and working in the Sense Hat. Therefore, only the VCC, GND, RX and TX are connected.
+The GPS is a Beitian BN-880. 
+In the first setup the magnetometer was not connected (SDA SCL) because we already had one up and working in the Sense HAT. Therefore, only the VCC, GND, RX and TX are connected.
+In the second setup the magnetometer is connected because we don't have the Sense HAT, so all cables are connected:
 
-The RPi has already activated the uart in the `/boot/firmware/config.txt`, so with the following
+Please remember that the TX and RX cables from the GPS must be connected to the opposite RX and TX GPIO pins in the Raspberry Pi:
+
+- GPS RX -> GPIO TX
+- GPS TX -> GPIO RX
+
+### Software setup
+
+Set it up through `sudo raspi-config` > Interfaces > Serial and answer:
+- "No" to the first question
+- "Yes" to the second question
+
+so that the summary is presented like:
 ```
-sudo cat /dev/serial0
+The serial login shell is disabled
+The serial interface is enabled
 ```
 
-...we already see that the GPS is transmitting
+Next thing is to deactivate bluetooth so that the full UART is available. 
+By default, the Raspberry Pi 3 Model B (and Zero 2 W) assigns ttyS0 to GPIO14:15 while ttyAMA0 serves the Bluetooth module. As the mini UART is not a full featured UART, you may want to use ttyAMA0 on GPIO14:15 instead as it is a full featured UART
+the Mini-UART has one big pitfall. It doesn't have its own clock source, so the UART bitrate depends on the CPU clock. Which means you have to set a fixed CPU clock for reliable communication.
 
-The Serial0 service appears to be already disabled:
+Edit the `/boot/firmware/config.txt` and add the following line at the top of the file:
+
+```
+dtoverlay=pi3-disable-bt
+```
+
+This frees the `/dev/ttyAMA0` device.
+
+Next, ensure that there is no service enabled nor started relating to the serial ports:
+
 ```
 $ sudo systemctl status serial-getty@ttys0.service
 ○ serial-getty@ttys0.service - Serial Getty on ttys0
@@ -94,98 +111,41 @@ $ sudo systemctl status serial-getty@ttyAMA0.service
              https://0pointer.de/blog/projects/serial-console.html
 ```
 
-We need to have the first one enabled:
+They both need to be disabled and stopped, otherwise it continues to revert all permission changes to "only root and no other group is allowed"
+
+Then add your user into the `tty` and `dialout` groups:
+
 ```
-sudo systemctl enable serial-getty@ttys0.service
+sudo usermod -a -G dialout user
+sudo usermod -a -G tty user
 ```
 
-So next is to install the Serial monitor to be able to read the NMEA messages
+Then make the `/dev/ttyAMA0` available for the current user to be read without sudo, by changing its group and the file permissions:
+
+```
+sudo chown root:dialout /dev/ttyAMA0
+sudo chmod 660 /dev/ttyAMA0
+```
+
+The last step is to install the UART monitoring:
+
 ```
 sudo apt-get install minicom
 ```
 
-We can see messages incoming by peeking into the file handler
-```
-sudo cat /dev/ttyS0
-```
+And finally reboot.
 
-I had problems with the permissions of the serial port:
+With this, we should be able to see the GPS messages flowing throught the GPS without `sudo` required:
+
 ```
-$ ll /dev/ttyS0
-crw------- 1 root root 4, 64 Dec 19 15:21 /dev/ttyS0
+cat /dev/ttyAMA0
 ```
 
-Be sure that the Serial is setup properly. The Serial Shell needs to be deactivated but the hardware needs to be activated.
+## Display
 
-Set it up through `sudo raspi-config` > Interfaces > Serial and answer:
-- "No" to the first question
-- "Yes" to the second question
+This project relies on having a ST7789 display driver, so both 2" LCD display and the Waveshare 1.33 display and buttons HAT works out of the box.
 
-so that the summary is presented like:
-```
-The serial login shell is disabled
-The serial interface is enabled
-```
-
-Then:
-```
-$ ll /dev/ttyS0
-crw-rw---- 1 root dialout 4, 64 Dec 19 15:22 /dev/ttyS0
-xavier@kleine:~/kleine $ kleine
-```
-
-## Enable SSH via USB
-
-This is only to be able to connect a USB to a host and accept incoming SSH connections.
-
-https://raspberrypi.stackexchange.com/questions/66431/headless-pi-zero-ssh-access-over-usb
-
-1. Add the overlay in the config
-```
-sudo nano /boot/firmware/config.txt
-```
-
-and add `dtoverlay=dwc2`.
-
-In my case the line was already present at the bottom under the section `[cm5]`. I've moveid it under the `[all]` section
-
-2. Create an empty file in the `/boot` directory called `ssh`
-```
-sudo touch /boot/ssh
-```
-
-3. Tell the RPi to load the dwc2 module at start.
-```
-sudo nano /boot/firmware/cmdline.txt
-```
-
-and add `modules-load=dwc2,g_ether` just right after `rootwait`, with a space. For example, I had:
-```
-console=tty1 root=PARTUUID=a5f01904-02 rootfstype=ext4 fsck.repair=yes rootwait cfg80211.ieee80211_regdom=DE
-```
-
-and I left it as:
-```
-console=tty1 root=PARTUUID=a5f01904-02 rootfstype=ext4 fsck.repair=yes rootwait modules-load=dwc2,g_ether cfg80211.ieee80211_regdom=DE
-```
-
-4. Reboot
-
-⚠️ Didn't work. Abandoning the approach to set up Wifi connections from HotSpots.
-
-## Make the GPS to use the real UART instead of the mini-UART
-from https://gist.github.com/EEParker/d91fab4227c5ce4d88ce8a0e4c2df75e
-
-> By default, the Raspberry Pi 3 Model B (and Zero 2 W) assigns ttyS0 to GPIO14:15 while ttyAMA0 serves the Bluetooth module. As the mini UART is not a full featured UART, you may want to use ttyAMA0 on GPIO14:15 instead as it is a full featured UART. Fortunately, there are a couple of device tree overlays that will accomplish this.
->
->pi3-miniuart-bt: This overlay flip flops the UARTs by assigning ttyAMA0 to GPIO14:15 while assigning ttyS0 to the Bluetooth module.
->pi3-disable-bt: This overlay assigns ttyAMA0 to GPIO14:15 while disabling Bluetooth altogether.
->In general, the Mini-UART has one big pitfall. It doesn't have its own clock source, so the UART bitrate depends on the CPU clock. Which means you have to set a fixed CPU clock for reliable communication.
-
-1. Added the `pi3-disable-bt` into `/boot/firmware/config.txt
-2. Reboot
-
-Worked out of the box, don't know if it really did anything. I don't see an extra port in `/dev/tty*`
+Just ensure that you defined the right display pixel size and the right rotation that fits your device and setup, by editing the `config/displays.yml`
 
 ## Python
 

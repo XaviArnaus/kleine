@@ -88,9 +88,9 @@ class Lcd(PyXavi):
         return Point(self.driver.width, self.driver.height)
 
     def flush_to_device(self, image: Image.Image):
-        if self._xconfig.get("lcd.rotate", False):
-                # In the test example it is rotated 180 degrees before ShowImage
-                image = image.rotate(180)
+        if self._xconfig.key_exists("lcd.rotate"):
+            # In the test example it is rotated 180 degrees before ShowImage
+            image = image.rotate(self._xconfig.get("lcd.rotate", 0))
         self.driver.ShowImage(image)
     
     def clear(self):
