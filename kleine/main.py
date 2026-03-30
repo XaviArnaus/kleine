@@ -130,6 +130,16 @@ class Main(PyXavi):
         ModuleDefinitions.POWER: True,
     }
 
+    # Enabled features. Check the related config.
+    enabled_features = {
+        "temperature": True,
+        "humidity": True,
+        "air_pressure": True,
+        "accelerometer": True,
+        "gps": True,
+        "ups": True,
+    }
+
     def __init__(self, config: Config = None, params: Dictionary = None):
         super(Main, self).init_pyxavi(config=config, params=params)
 
@@ -155,38 +165,6 @@ class Main(PyXavi):
             # "color_mode" and "font_file" could be added here if needed
         }))
 
-        # Initialise the Display module
-        self._xlog.info("Initialising Display modules")
-        self.display = Display(config=self._xconfig, params=Dictionary({
-            "canvas": self.canvas,
-            "device": self.lcd,
-            "app_version": self._xparams.get("app_version")
-        }))
-        self.display_power = DisplayPower(config=self._xconfig, params=Dictionary({
-            "canvas": self.canvas,
-            "device": self.lcd
-        }))
-        self.display_temperature = DisplayTemperature(config=self._xconfig, params=Dictionary({
-            "canvas": self.canvas,
-            "device": self.lcd
-        }))
-        self.display_info = DisplayInfo(config=self._xconfig, params=Dictionary({
-            "canvas": self.canvas,
-            "device": self.lcd
-        }))
-        self.display_accelerometer = DisplayAccelerometer(config=self._xconfig, params=Dictionary({
-            "canvas": self.canvas,
-            "device": self.lcd
-        }))
-        self.display_gps = DisplayGPS(config=self._xconfig, params=Dictionary({
-            "canvas": self.canvas,
-            "device": self.lcd
-        }))
-        self.display_cockpit = DisplayCockpit(config=self._xconfig, params=Dictionary({
-            "canvas": self.canvas,
-            "device": self.lcd
-        }))
-
         # Get the module enabling flags from the config
         self.enabled_modules[ModuleDefinitions.COCKPIT] = self._xconfig.get("gps.enable", False)
         self.enabled_modules[ModuleDefinitions.TEMPERATURE] = self._xconfig.get("temperature.enable", False)
@@ -194,6 +172,62 @@ class Main(PyXavi):
         self.enabled_modules[ModuleDefinitions.GPS] = self._xconfig.get("gps.enable", False)
         self.enabled_modules[ModuleDefinitions.INFO] = True # Info module is always enabled, as it shows system info
         self.enabled_modules[ModuleDefinitions.POWER] = True # Power module is always enabled, as it shows battery info and allows power actions
+
+        # Get the feature enabling flags from the config
+        self.enabled_features["temperature"] = self._xconfig.get("temperature.enable", False)
+        self.enabled_features["humidity"] = self._xconfig.get("humidity.enable", False)
+        self.enabled_features["air_pressure"] = self._xconfig.get("air_pressure.enable", False)
+        self.enabled_features["accelerometer"] = self._xconfig.get("accelerometer.enable", False)
+        self.enabled_features["gps"] = self._xconfig.get("gps.enable", False)
+        self.enabled_features["ups"] = self._xconfig.get("ups.enable", False)
+
+        # Update the status bar flags based on the enabled modules and features
+        self.STATUSBAR_SHOW_TEMPERATURE = self.enabled_features["temperature"]
+        self.STATUSBAR_SHOW_BATTERY = self.enabled_features["ups"]
+        self.STATUSBAR_SHOW_GPS_SIGNAL_QUALITY = self.enabled_features["gps"]
+        self.STATUSBAR_SHOW_WIFI_SIGNAL_STRENGTH = True
+
+        # Put the features enabling flags in the params so the modules can check them if needed
+        self._xparams.set("enabled_features", self.enabled_features)
+
+        # Initialise the Display module
+        self._xlog.info("Initialising Display modules")
+        self.display = Display(config=self._xconfig, params=Dictionary({
+            "canvas": self.canvas,
+            "device": self.lcd,
+            "app_version": self._xparams.get("app_version"),
+            "enabled_modules": self.enabled_modules,
+        }))
+        self.display_power = DisplayPower(config=self._xconfig, params=Dictionary({
+            "canvas": self.canvas,
+            "device": self.lcd,
+            "enabled_modules": self.enabled_modules,
+        }))
+        self.display_temperature = DisplayTemperature(config=self._xconfig, params=Dictionary({
+            "canvas": self.canvas,
+            "device": self.lcd,
+            "enabled_modules": self.enabled_modules,
+        }))
+        self.display_info = DisplayInfo(config=self._xconfig, params=Dictionary({
+            "canvas": self.canvas,
+            "device": self.lcd,
+            "enabled_modules": self.enabled_modules,
+        }))
+        self.display_accelerometer = DisplayAccelerometer(config=self._xconfig, params=Dictionary({
+            "canvas": self.canvas,
+            "device": self.lcd,
+            "enabled_modules": self.enabled_modules,
+        }))
+        self.display_gps = DisplayGPS(config=self._xconfig, params=Dictionary({
+            "canvas": self.canvas,
+            "device": self.lcd,
+            "enabled_modules": self.enabled_modules,
+        }))
+        self.display_cockpit = DisplayCockpit(config=self._xconfig, params=Dictionary({
+            "canvas": self.canvas,
+            "device": self.lcd,
+            "enabled_modules": self.enabled_modules,
+        }))
 
         # Initialise the GPIO
         self._xlog.info("Initialising GPIO")
@@ -273,11 +307,13 @@ class Main(PyXavi):
                 # Handle module selection by pressing the Yellow button or at startup
                 if self.gpio.is_button_pressed("yellow") or selected_module == -1:
                     selected_module += 1
+                    if selected_module >= len(self.application_modules):
+                        selected_module = 0
                     if self.application_modules[selected_module] not in self.enabled_modules or not self.enabled_modules[self.application_modules[selected_module]]:
                         self._xlog.info("Module " + self.application_modules[selected_module] + " is disabled, skipping it.")
                         selected_module += 1
-                    if selected_module >= len(self.application_modules):
-                        selected_module = 0
+                        if selected_module >= len(self.application_modules):
+                            selected_module = 0
                     
                     self._xlog.info("Yellow button pressed - moving to next module: " + 
                                     self.application_modules[selected_module])
