@@ -813,7 +813,7 @@ class Main(PyXavi):
 
             elif option_key == PowerActions.POWER_SHUTDOWN:
                 allowed = False
-                if self._xconfig.get("ups.enabled", False):
+                if self._xconfig.get("ups.enable", False):
                     if self._xconfig.get("ups.unmanaged", False):
                         self._xlog.warning("UPS is unmanaged, we can power off the system but we can't know the battery state. Proceeding with shutdown.")
                         allowed = True
@@ -827,7 +827,7 @@ class Main(PyXavi):
 
             elif option_key == PowerActions.POWER_REBOOT:
                 allowed = False
-                if self._xconfig.get("ups.enabled", False):
+                if self._xconfig.get("ups.enable", False):
                     if self._xconfig.get("ups.unmanaged", False):
                         self._xlog.warning("UPS is unmanaged, we can power off the system but we can't know the battery state. Proceeding with reboot.")
                         allowed = True
